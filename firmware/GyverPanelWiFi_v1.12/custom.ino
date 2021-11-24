@@ -715,14 +715,13 @@ void setTimersForMode(uint8_t aMode) {
       
       else
       if (aMode == MC_FLAPPY) {
-        effectTimer.setInterval(250);
+        effectTimer.setInterval(efSpeed);
         gameTimer.setInterval(efSpeed);  
       }
-
       else
       if (aMode == MC_RUNNER) {
-        effectTimer.setInterval(250);
-        gameTimer.setInterval(efSpeed);  
+        effectTimer.setInterval(efSpeed);
+        gameTimer.setInterval(efSpeed);    
       }
       else {
         effectTimer.setInterval(10);
@@ -804,7 +803,7 @@ void checkIdleState() {
       bool ok = true;
       if (
          (thisMode == MC_TEXT     && !fullTextFlag) ||   // Эффект "Бегущая строка" (показать IP адрес) не сменится на другой, пока вся строка не будет показана полностью
-      // (showTextNow && !fullTextFlag)             ||   // Если нужно чтобы эффект не менялся, пока не пробежит вся строка оверлеем - раскомментарить эту строку
+         (showTextNow && !fullTextFlag)             ||   // Если нужно чтобы эффект не менялся, пока не пробежит вся строка оверлеем - раскомментарить эту строку
          (thisMode == MC_MAZE     && !gameOverFlag) ||   // Лабиринт не меняем на другой эффект, пока игра не закончится (не выйдем из лабиринта)
       // (thisMode == MC_SNAKE    && !gameOverFlag) ||   // Змейка долгая игра - не нужно дожидаться окончания, можно прервать
          (thisMode == MC_TETRIS   && !gameOverFlag) ||   // Тетрис не меняем на другой эффект, пока игра не закончится (стакан не переполнится)

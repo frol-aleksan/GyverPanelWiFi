@@ -1795,6 +1795,7 @@ void parsing() {
         if (intData[2] == 0) {
           if (intData[1] == 255) intData[1] = 254;
           set_EffectSpeed(thisMode,255 - intData[1]); 
+          
           if (thisMode == MC_FILL_COLOR) { 
             set_globalColor(getColorInt(CHSV(effectSpeed[MC_FILL_COLOR], effectScaleParam[MC_FILL_COLOR], 255)));
           }
@@ -4044,6 +4045,7 @@ String getParamForMode(uint8_t mode) {
    case MC_PACIFICA:
    case MC_SHADOWS:
    case MC_MAZE:
+   case MC_SNAKE:
    case MC_TETRIS:
    case MC_ARKANOID:
    case MC_FLAPPY:

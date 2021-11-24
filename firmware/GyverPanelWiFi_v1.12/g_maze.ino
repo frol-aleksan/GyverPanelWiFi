@@ -153,9 +153,20 @@ void movePlayer(int8_t nowX, int8_t nowY, int8_t prevX, int8_t prevY) {
     FastLEDshow();
     delay(250);
     FastLED.clear();
-    //if (!gameDemo) {
-      displayScore((millis() - labTimer) / 1000);
+    for (uint8_t bright = 0; bright < 15; bright++) {
+    FastLED.setBrightness(bright);
+    for (uint16_t i = 0; i < NUM_LEDS; i++) {
+        leds[i] = CRGB::Red;
+      }
       FastLEDshow();
+      delay(10);
+    }
+    delay(100);
+    FastLED.clear();
+    FastLED.setBrightness(globalBrightness);
+    //if (!gameDemo) {
+    displayScore((millis() - labTimer) / 1000);
+    FastLEDshow();
     //}
     delay(1500);
     return;

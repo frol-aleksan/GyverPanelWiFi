@@ -66,6 +66,17 @@ void runnerRoutine() {
       velRun = 0;
     }
     if (getPixColorXY(1, posRun / 10) == GLOBAL_COLOR_1) {
+    for (uint8_t bright = 0; bright < 15; bright++) {
+        FastLED.setBrightness(bright);
+        for (uint16_t i = 0; i < NUM_LEDS; i++) {
+          leds[i] = CRGB::Red;
+        }
+        FastLEDshow();
+        delay(10);
+      }
+      delay(100);
+      FastLED.clear();
+      FastLED.setBrightness(globalBrightness);
       displayScore(runnerScore);
       FastLEDshow();
       delay(1500);

@@ -387,6 +387,8 @@ void saveDefaults() {
   putEffectTextOverlayUsage(MC_SNAKE, false);
   putEffectTextOverlayUsage(MC_TETRIS, false);
   putEffectTextOverlayUsage(MC_ARKANOID, false);
+  putEffectTextOverlayUsage(MC_FLAPPY, false);
+  putEffectTextOverlayUsage(MC_RUNNER, false);
   putEffectTextOverlayUsage(MC_WEATHER, false);
   putEffectTextOverlayUsage(MC_LIFE, false);
   putEffectClockOverlayUsage(MC_CLOCK, false);
@@ -394,6 +396,8 @@ void saveDefaults() {
   putEffectClockOverlayUsage(MC_SNAKE, false);
   putEffectClockOverlayUsage(MC_TETRIS, false);
   putEffectClockOverlayUsage(MC_ARKANOID, false);
+  putEffectClockOverlayUsage(MC_FLAPPY, false);
+  putEffectClockOverlayUsage(MC_RUNNER, false);
   putEffectClockOverlayUsage(MC_WEATHER, false);
   putEffectClockOverlayUsage(MC_LIFE, false);
 

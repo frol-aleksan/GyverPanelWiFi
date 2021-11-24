@@ -31,7 +31,6 @@ void flappyRoutine() {
       if (getPixColorXY(i, posFlap) == GLOBAL_COLOR_1) buttons = 0;   // автопрыжок
     if (getPixColorXY(1, posFlap - 1) == GLOBAL_COLOR_1) buttons = 0; // автопрыжок
   }
-
   if (checkButtons()) {
     if (buttons == 0) {   // кнопка нажата
       velFlap = POP_SPEED_F;
@@ -39,7 +38,6 @@ void flappyRoutine() {
       buttons = 4;
     }
   }
-
   if (flappyTimer.isReady()) {
     if (obstfTimer.isReady()) {
       for (byte i = 0; i < WIDTH - 1; i++) {
@@ -47,7 +45,6 @@ void flappyRoutine() {
           leds[getPixelNumber(i, j)] = getPixColorXY(i + 1, j);
         }
       }
-
       obstCounterFlap++;
       if (obstCounterFlap >= MIN_GAP_F) {
         obstCounterFlap = 0;
@@ -67,7 +64,6 @@ void flappyRoutine() {
           drawPixelXY(WIDTH - 1, i, 0);
       }
     }
-
     velFlap -= (float)GRAVITY_F * DT_F / 1000;
     posFlap += (float)velFlap * DT_F / 1000;
     if (posFlap < 0) {
@@ -79,10 +75,21 @@ void flappyRoutine() {
     }
     if (getPixColorXY(0, posFlap / 10) == GLOBAL_COLOR_1 ||
         getPixColorXY(1, posFlap / 10) == GLOBAL_COLOR_1) {
+
+       for (uint8_t bright = 0; bright < 15; bright++) {
+         FastLED.setBrightness(bright);
+         for (uint16_t i = 0; i < NUM_LEDS; i++) {
+             leds[i] = CRGB::Red;
+         }
+         FastLEDshow();
+         delay(10);
+      }
+      delay(100);
+      FastLED.clear();
+      FastLED.setBrightness(globalBrightness);
       displayScore(flappyScore);
       FastLEDshow();
       delay(1500);
-      
       flappyScore = 0;
       loadingFlag = true;
       return;

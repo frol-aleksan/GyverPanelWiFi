@@ -199,6 +199,17 @@ void generateBlocks() {
 }
 
 void gameOverArkan() {
+  for (uint8_t bright = 0; bright < 15; bright++) {
+    FastLED.setBrightness(bright);
+    for (uint16_t i = 0; i < NUM_LEDS; i++) {
+      leds[i] = CRGB::Red;
+    }
+    FastLEDshow();
+    delay(10);
+  }
+  delay(100);
+  FastLED.clear();
+  FastLED.setBrightness(globalBrightness);
   displayScore(arkScore);
   FastLEDshow();
   delay(1500);

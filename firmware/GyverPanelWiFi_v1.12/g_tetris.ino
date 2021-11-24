@@ -256,21 +256,28 @@ void fixFigure() {
 
 // проигрыш
 void gameOverTetris() {
-  FastLED.clear();
-
+  for (uint8_t bright = 0; bright < 15; bright++) {
+        FastLED.setBrightness(bright);
+        for (uint16_t i = 0; i < NUM_LEDS; i++) {
+          leds[i] = CRGB::Red;
+        }
+        FastLEDshow();
+        delay(10);
+      }
+      delay(100);
+      FastLED.clear();
+      FastLED.setBrightness(globalBrightness);
   // тут можно вывести счёт lineCleanCounter
-  if (!gameDemo) {
+  //  if (!gameDemo)
+  {    
     displayScore(lineCleanCounter);
     FastLEDshow();
   }
   delay(1500);
-
   lineCleanCounter = 0;   // сброс счёта
   FastLED.clear();
-
   gameOverFlag = true;
   gamePaused = !gameDemo;
-
   delay(20);
 }
 
