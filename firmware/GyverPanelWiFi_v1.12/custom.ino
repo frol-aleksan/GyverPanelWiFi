@@ -423,6 +423,8 @@ void processEffect(uint8_t aMode) {
     case MC_SNAKE:               snakeRoutine(); break;
     case MC_TETRIS:              tetrisRoutine(); break;
     case MC_ARKANOID:            arkanoidRoutine(); break;
+    case MC_FLAPPY:              flappyRoutine(); break;
+    case MC_RUNNER:              runnerRoutine(); break;
     case MC_PALETTE:             paletteRoutine(); break;
     case MC_MUNCH:               munchRoutine(); break;
     case MC_ANALYZER:            analyzerRoutine(); break;
@@ -508,6 +510,8 @@ void releaseEffectResources(uint8_t aMode) {
     case MC_SNAKE:               break;
     case MC_TETRIS:              break;
     case MC_ARKANOID:            break;
+    case MC_FLAPPY:              break;
+    case MC_RUNNER:              break;
     case MC_PALETTE:             paletteRoutineRelease(); break;
     case MC_MUNCH:               break;
     case MC_ANALYZER:            analyzerRoutineRelease(); break;
@@ -694,8 +698,8 @@ void setTimersForMode(uint8_t aMode) {
     if (efSpeed == 0) efSpeed = 1;
     // Эти режимы смотрятся (работают) только на максимальной скорости;
     if (aMode == MC_PAINTBALL || aMode == MC_SWIRL || aMode == MC_FLICKER || aMode == MC_PACIFICA || 
-        aMode == MC_SHADOWS || aMode == MC_PRIZMATA || aMode == MC_FIRE2 || 
-        aMode == MC_WEATHER || aMode == MC_LIFE || aMode == MC_ARKANOID || aMode == MC_TETRIS
+        aMode == MC_SHADOWS || aMode == MC_PRIZMATA || aMode == MC_FIRE2 ||  aMode == MC_WEATHER ||
+        aMode == MC_LIFE || aMode == MC_ARKANOID || aMode == MC_TETRIS || aMode == MC_FLAPPY || aMode == MC_RUNNER
         #ifdef MC_IMAGE
          || aMode == MC_IMAGE
         #endif  
@@ -707,7 +711,20 @@ void setTimersForMode(uint8_t aMode) {
       if (aMode == MC_ARKANOID) {
         effectTimer.setInterval(50);
         gameTimer.setInterval(efSpeed);  
-      } else {
+      }
+      
+      else
+      if (aMode == MC_FLAPPY) {
+        effectTimer.setInterval(250);
+        gameTimer.setInterval(efSpeed);  
+      }
+
+      else
+      if (aMode == MC_RUNNER) {
+        effectTimer.setInterval(250);
+        gameTimer.setInterval(efSpeed);  
+      }
+      else {
         effectTimer.setInterval(10);
       }
     } else if (aMode == MC_MAZE) {

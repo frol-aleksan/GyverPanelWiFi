@@ -24,7 +24,7 @@ void process() {
   parsing();
 
   #if (USE_E131 == 1)
-    bool streaming = e131 != NULL && (workMode == MASTER || workMode == SLAVE && (e131_wait_command || ((!e131->isEmpty() || (millis() - e131_last_packet <= E131_TIMEOUT))))); 
+    bool streaming = e131 != NULL && (workMode == MASTER || (workMode == SLAVE && (e131_wait_command || ((!e131->isEmpty() || (millis() - e131_last_packet <= E131_TIMEOUT))))));  
     if (!e131_streaming && streaming) {
       flag_1 = false;
       flag_2 = false;
@@ -870,6 +870,22 @@ void parsing() {
           gamePaused = true;
           sendPageParams(12, cmdSource);
         } else
+        if (intData[1] == 5) {
+          // Игра "Flappy"
+          setManualModeTo(true);
+          setEffect(MC_FLAPPY);
+          gameDemo = false;
+          gamePaused = true;
+          sendPageParams(12, cmdSource);
+        } else
+        if (intData[1] == 6) {
+          // Игра "RUNNER"
+          setManualModeTo(true);
+          setEffect(MC_RUNNER);
+          gameDemo = false;
+          gamePaused = true;
+          sendPageParams(12, cmdSource);
+        } else
         if (intData[1] == 10) {
           // кнопка вверх
           buttons = 0;
@@ -1455,6 +1471,7 @@ void parsing() {
             if (tmp_eff == MC_FILL_COLOR) {  
               set_globalColor(getColorInt(CHSV(effectSpeed[MC_FILL_COLOR], effectScaleParam[MC_FILL_COLOR], 255)));
             } else 
+           
             if (thisMode == tmp_eff && tmp_eff == MC_BALLS) {
               // При получении параметра эффекта "Шарики" (кол-во шариков) - надо переинициализировать эффект
               loadingFlag = true;
@@ -1483,7 +1500,7 @@ void parsing() {
           if (thisMode == tmp_eff && tmp_eff == MC_PAINTBALL) {
             // При получении параметра 2 эффекта "Пэйнтбол" (сегменты) - надо переинициализировать эффект
             loadingFlag = true;
-          } else
+          } else        
           if (thisMode == tmp_eff && tmp_eff == MC_SWIRL) {
             // При получении параметра 2 эффекта "Водоворот" (сегменты) - надо переинициализировать эффект
             loadingFlag = true;
@@ -2992,14 +3009,14 @@ String getStateValue(String &key, int8_t effect, JsonVariant* value = nullptr) {
   // Оверлей бегущей строки
   if (key == "UT") {
     if (value) {
-      if (effect == MC_MAZE || effect == MC_SNAKE || effect == MC_TETRIS || effect == MC_ARKANOID || effect == MC_CLOCK) {
+      if (effect == MC_MAZE || effect == MC_SNAKE || effect == MC_TETRIS || effect == MC_ARKANOID || effect == MC_FLAPPY || effect == MC_RUNNER || effect == MC_CLOCK) {
         value->set("X");
         return "X";
       }
       value->set(getEffectTextOverlayUsage(effect));
       return String(getEffectTextOverlayUsage(effect));
     }
-    return str + "UT:" +  (effect == MC_MAZE || effect == MC_SNAKE || effect == MC_TETRIS || effect == MC_ARKANOID || effect == MC_CLOCK
+    return str + "UT:" +  (effect == MC_MAZE || effect == MC_SNAKE || effect == MC_TETRIS || effect == MC_ARKANOID || effect == MC_FLAPPY || effect == MC_RUNNER || effect == MC_CLOCK
          ? "X":
          String(getEffectTextOverlayUsage(effect)));
   }
@@ -3007,14 +3024,14 @@ String getStateValue(String &key, int8_t effect, JsonVariant* value = nullptr) {
   // Оверлей часов   
   if (key == "UC") {
     if (value) {
-       if (effect == MC_MAZE || effect == MC_SNAKE || effect == MC_TETRIS || effect == MC_ARKANOID || effect == MC_CLOCK) {
+       if (effect == MC_MAZE || effect == MC_SNAKE || effect == MC_TETRIS || effect == MC_ARKANOID || effect == MC_FLAPPY || effect == MC_RUNNER || effect == MC_CLOCK) {
          value->set("X");
          return "X"; 
        }
        value->set(getEffectClockOverlayUsage(effect));
        return String(getEffectClockOverlayUsage(effect));
     }
-    return str + "UC:" +  (effect == MC_MAZE || effect == MC_SNAKE || effect == MC_TETRIS || effect == MC_ARKANOID || effect == MC_CLOCK
+    return str + "UC:" +  (effect == MC_MAZE || effect == MC_SNAKE || effect == MC_TETRIS || effect == MC_ARKANOID || effect == MC_FLAPPY || effect == MC_RUNNER || effect == MC_CLOCK
          ? "X" 
          : (String(getEffectClockOverlayUsage(effect))));
   }
@@ -3044,14 +3061,14 @@ String getStateValue(String &key, int8_t effect, JsonVariant* value = nullptr) {
   // Контраст
   if (key == "BE") {
     if (value) {
-      if (effect == MC_PACIFICA || effect == MC_DAWN_ALARM || effect == MC_MAZE || effect == MC_SNAKE || effect == MC_TETRIS || effect == MC_ARKANOID || effect == MC_CLOCK || effect == MC_SDCARD) {
+      if (effect == MC_PACIFICA || effect == MC_DAWN_ALARM || effect == MC_MAZE || effect == MC_SNAKE || effect == MC_TETRIS || effect == MC_ARKANOID || effect == MC_FLAPPY || effect == MC_RUNNER || effect == MC_CLOCK || effect == MC_SDCARD) {
         value->set("X");
         return "X";
       }  
       value->set(getEffectContrast(effect));
       return String(getEffectContrast(effect));
     }
-    return str + "BE:" +  (effect == MC_PACIFICA || effect == MC_DAWN_ALARM || effect == MC_MAZE || effect == MC_SNAKE || effect == MC_TETRIS || effect == MC_ARKANOID || effect == MC_CLOCK || effect == MC_SDCARD
+    return str + "BE:" +  (effect == MC_PACIFICA || effect == MC_DAWN_ALARM || effect == MC_MAZE || effect == MC_SNAKE || effect == MC_TETRIS || effect == MC_ARKANOID || effect == MC_FLAPPY || effect == MC_RUNNER || effect == MC_CLOCK || effect == MC_SDCARD
          ? "X" 
          : String(getEffectContrast(effect)));
   }
@@ -4027,9 +4044,10 @@ String getParamForMode(uint8_t mode) {
    case MC_PACIFICA:
    case MC_SHADOWS:
    case MC_MAZE:
-   case MC_SNAKE:
    case MC_TETRIS:
    case MC_ARKANOID:
+   case MC_FLAPPY:
+   case MC_RUNNER:
    case MC_PALETTE:
    case MC_ANALYZER:
    case MC_PRIZMATA:
