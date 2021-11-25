@@ -2425,3 +2425,56 @@ void arrowSetup_mode4() {
     stop_x [3] = 0;              // неприменимо 
   }
 }
+
+ // ******************************** СИНУСОИДЫ *******************************
+  #define WAVES_AMOUNT_MAX 4  //максимальное количество синусоид
+  #define DEG_TO_RAD 0.017453
+  int8_t  WAVES_AMOUNT;
+  int t;
+  byte w[WAVES_AMOUNT_MAX];
+  byte phi[WAVES_AMOUNT_MAX];
+  byte A[WAVES_AMOUNT_MAX];
+  CRGB waveColors[WAVES_AMOUNT_MAX];
+  void wavesRoutine() {
+  if (loadingFlag) {
+    loadingFlag = false;
+    WAVES_AMOUNT = map8(getEffectScaleParamValue(MC_WAVES),1,4); 
+    for (byte j = 0; j < WAVES_AMOUNT; j++) {
+      // забиваем случайными данными
+      w[j] = random(17, 25);
+      phi[j] = random(0, 360);
+      A[j] = HEIGHT / 2 * random(4, 11) / 10;
+      waveColors[j] = CHSV(random(0, 9) * 28, 255, 255);
+    }
+  }
+  //if (effectTimer.isReady())
+  /*  Со "штатным" effectTimer эффект люто лагает,
+      поэтому используем отдельный таймер на millis.
+      С ним работает быстро, даже слишком  */
+  uint8_t timerperiod = 10000;
+  uint8_t wavetimer;
+  wavetimer = millis();
+  if (millis() - wavetimer >= timerperiod) {
+    wavetimer = millis();  
+
+    // сдвигаем все пиксели вправо
+    for (int i = WIDTH - 1; i > 0; i--)
+      for (int j = 0; j < HEIGHT; j++)
+        drawPixelXY(i, j, getPixColorXY(i - 1, j));
+
+    // увеличиваем "угол"
+    t++;
+    if (t > 360) t = 0;
+
+    // заливаем чёрным левую линию
+    for (byte i = 0; i < HEIGHT; i++) {
+      drawPixelXY(0, i, 0x000000);
+    }
+
+    // генерируем позицию точки через синус
+    for (byte j = 0; j < WAVES_AMOUNT; j++) {
+      float value = HEIGHT / 2 + (float)A[j] * sin((float)w[j] * t * DEG_TO_RAD + (float)phi[j] * DEG_TO_RAD);
+      leds[getPixelNumber(0, (byte)value)] = waveColors[j];
+    }
+  }
+}

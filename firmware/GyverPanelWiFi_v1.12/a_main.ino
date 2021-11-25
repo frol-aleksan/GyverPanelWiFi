@@ -1475,6 +1475,10 @@ void parsing() {
             if (thisMode == tmp_eff && tmp_eff == MC_BALLS) {
               // При получении параметра эффекта "Шарики" (кол-во шариков) - надо переинициализировать эффект
               loadingFlag = true;
+            } else 
+            if (thisMode == tmp_eff && tmp_eff == MC_WAVES) {
+              // При получении параметра эффекта "Синусоиды" (кол-во синусоид) - надо переинициализировать эффект
+              loadingFlag = true;
             }
           }
         } else 

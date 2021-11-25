@@ -438,6 +438,7 @@ void processEffect(uint8_t aMode) {
     case MC_CLOCK:               clockRoutine(); break;
     case MC_DAWN_ALARM:          dawnProcedure(); break;
     case MC_PATTERNS:            patternRoutine(); break;
+    case MC_WAVES:               wavesRoutine(); break;
 
     #ifdef MC_IMAGE
     case MC_IMAGE:               animationRoutine(); break;
@@ -525,6 +526,7 @@ void releaseEffectResources(uint8_t aMode) {
     case MC_CLOCK:               break;
     case MC_DAWN_ALARM:          break;
     case MC_PATTERNS:            break;
+    case MC_WAVES:               break;
 
     #ifdef MC_IMAGE
     case MC_IMAGE:               break;
@@ -711,19 +713,19 @@ void setTimersForMode(uint8_t aMode) {
       if (aMode == MC_ARKANOID) {
         effectTimer.setInterval(50);
         gameTimer.setInterval(efSpeed);  
-      }
-      
-      else
+      } else
       if (aMode == MC_FLAPPY) {
         effectTimer.setInterval(efSpeed);
         gameTimer.setInterval(efSpeed);  
-      }
-      else
+      } else
       if (aMode == MC_RUNNER) {
         effectTimer.setInterval(efSpeed);
         gameTimer.setInterval(efSpeed);    
-      }
-      else {
+      } else
+      if (aMode == MC_WAVES) {
+        effectTimer.setInterval(efSpeed);
+      } else
+      {
         effectTimer.setInterval(10);
       }
     } else if (aMode == MC_MAZE) {
