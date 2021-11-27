@@ -414,9 +414,11 @@ void saveDefaults() {
   putScaleForEffect2(MC_SWIRL, 1);          // Использовать сегменты для эффекта Водоворот на широких матрицах
   putScaleForEffect2(MC_RAINBOW, 0);        // Использовать рандомный выбор эффекта радуга 0 - random; 1 - диагональная; 2 - горизонтальная; 3 - вертикальная; 4 - вращающаяся  
 
-  uint8_t ball_size = minDim / 4;
-  if (ball_size > 5) ball_size = 5;
+  uint8_t ball_size = 2;
   putScaleForEffect(MC_BALL, ball_size);    // Размер кубика по умолчанию
+
+  uint8_t waves_count = 2;
+  putScaleForEffect(MC_WAVES, waves_count);    // Количество синусоид по умолчанию. 2 в самый раз
   
   putGlobalColor(globalColor);              // Цвет панели в режиме "Лампа"
   putGlobalClockColor(globalClockColor);    // Цвет часов в режиме "Монохром" 

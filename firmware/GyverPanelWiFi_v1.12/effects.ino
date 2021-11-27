@@ -313,8 +313,7 @@ void ballRoutine() {
     loadingFlag = false;
   }
 
-  ballSize = map8(getEffectScaleParamValue(MC_BALL),2, max(minDim / 3, 2));
-
+  ballSize = map8(getEffectScaleParamValue(MC_BALL),2, 5);
   for (uint8_t i = 0; i < 2; i++) {
     coordB[i] += vectorB[i];
     if (coordB[i] < 0) {
@@ -2434,8 +2433,9 @@ void arrowSetup_mode4() {
   byte w[WAVES_AMOUNT_MAX];
   byte phi[WAVES_AMOUNT_MAX];
   byte A[WAVES_AMOUNT_MAX];
-  CRGB waveColors[WAVES_AMOUNT_MAX];
+  uint8_t waveColors[WAVES_AMOUNT_MAX];
   void wavesRoutine() {
+  uint8_t effectBrightness = getBrightnessCalculated(globalBrightness, getEffectContrastValue(thisMode));
   if (loadingFlag) {
     loadingFlag = false;
     WAVES_AMOUNT = map8(getEffectScaleParamValue(MC_WAVES),1,4); 
@@ -2444,13 +2444,9 @@ void arrowSetup_mode4() {
       w[j] = random(17, 25);
       phi[j] = random(0, 360);
       A[j] = HEIGHT / 2 * random(4, 11) / 10;
-      waveColors[j] = CHSV(random(0, 9) * 28, 255, 255);
+      waveColors[j] = random(0, 9) * 28;
     }
   }
-  //if (effectTimer.isReady())
-  /*  Со "штатным" effectTimer эффект люто лагает,
-      поэтому используем отдельный таймер на millis.
-      С ним работает быстро, даже слишком  */
   uint8_t timerperiod = 10000;
   uint8_t wavetimer;
   wavetimer = millis();
@@ -2474,7 +2470,7 @@ void arrowSetup_mode4() {
     // генерируем позицию точки через синус
     for (byte j = 0; j < WAVES_AMOUNT; j++) {
       float value = HEIGHT / 2 + (float)A[j] * sin((float)w[j] * t * DEG_TO_RAD + (float)phi[j] * DEG_TO_RAD);
-      leds[getPixelNumber(0, (byte)value)] = waveColors[j];
+      leds[getPixelNumber(0, (byte)value)] = CHSV(waveColors[j], 255, effectBrightness); 
     }
   }
 }
