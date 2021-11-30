@@ -1445,12 +1445,19 @@ void parsing() {
             } else {
               setSpecialMode(10);    // Дневные часы. Для ночных - 8
             }
-          } else {
+          } else 
+          if (tmp_eff == MC_MAZE || tmp_eff  == MC_SNAKE || tmp_eff  == MC_TETRIS || tmp_eff  == MC_ARKANOID || tmp_eff  == MC_FLAPPY || tmp_eff  == MC_RUNNER) {
+            // При вызове игр принудительно включаем деморежим и переинициализируем эффект
+            loadingFlag = true;
+            gameDemo = true;
+            setEffect(tmp_eff);
+          } else   
+          {
             loadingFlag = true;
             setEffect(tmp_eff);
             if (tmp_eff == MC_FILL_COLOR && globalColor == 0x000000) set_globalColor(0xffffff);
           }
-          setManualModeTo(true);
+      //    setManualModeTo(true); //задолбало каждый раз ставить галку автопереключения режимов после выбора режима вручную
         } else 
         
         if (intData[1] == 1) {          
