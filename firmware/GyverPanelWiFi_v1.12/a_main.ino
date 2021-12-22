@@ -1,4 +1,5 @@
 
+
 // ----------------------------------------------------
 
 // Контроль времени цикла
@@ -1445,12 +1446,19 @@ void parsing() {
             } else {
               setSpecialMode(10);    // Дневные часы. Для ночных - 8
             }
-          } else {
+          } else 
+          if (tmp_eff == MC_MAZE || tmp_eff  == MC_SNAKE || tmp_eff  == MC_TETRIS || tmp_eff  == MC_ARKANOID || tmp_eff  == MC_FLAPPY || tmp_eff  == MC_RUNNER) {
+            // При вызове игр принудительно включаем деморежим и переинициализируем эффект
+            loadingFlag = true;
+            gameDemo = true;
+            setEffect(tmp_eff);
+          } else   
+          {
             loadingFlag = true;
             setEffect(tmp_eff);
             if (tmp_eff == MC_FILL_COLOR && globalColor == 0x000000) set_globalColor(0xffffff);
           }
-          setManualModeTo(true);
+      //    setManualModeTo(true); //задолбало каждый раз ставить галку автопереключения режимов после выбора режима вручную
         } else 
         
         if (intData[1] == 1) {          
@@ -4106,6 +4114,7 @@ String getParam2ForMode(uint8_t mode) {
      //           Маркер типа - список выбора         0,1,2,3,4               0               1      2    3    4      5    7      8       9      10     11    12    13       14       15       16         17     18    19    20     21     22     23     24     25     26     27     28     29      30      31      32      33
      str = String(F("L>")) + String(effectScaleParam2[thisMode]) + String(F(">Случайный выбор,Зигзаг,Ноты,Ромб,Сердце,Елка,Клетка,Смайлик,Зигзаг,Полосы,Волны,Чешуя,Портьера,Плетенка,Снежинка,Квадратики,Греция,Круги,Рулет,Узор 1,Узор 2,Узор 3,Узор 4,Узор 5,Узор 6,Узор 7,Узор 8,Узор 9,Узор 10,Узор 11,Узор 12,Узор 13,Узор 14"));
      break;
+   
    #if (USE_SD == 1)     
    case MC_SDCARD:
      // Эффект "SD-card" имеет несколько вариантов - список выбора файла эффекта

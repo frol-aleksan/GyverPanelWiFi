@@ -626,7 +626,10 @@ void nextModeHandler() {
       break;
     }
   }
-
+  if (newMode == MC_MAZE || newMode == MC_SNAKE || newMode == MC_TETRIS || newMode == MC_ARKANOID || newMode == MC_FLAPPY || newMode == MC_RUNNER) {
+    // При вызове игр принудительно включаем деморежим
+    gameDemo = true;
+  }
   set_thisMode(newMode);  
   
   loadingFlag = true;
@@ -683,7 +686,10 @@ void prevModeHandler() {
       break;
     }
   }
-  
+  if (newMode == MC_MAZE || newMode == MC_SNAKE || newMode == MC_TETRIS || newMode == MC_ARKANOID || newMode == MC_FLAPPY || newMode == MC_RUNNER) {
+    // При вызове игр принудительно включаем деморежим
+    gameDemo = true;
+  }
   set_thisMode(newMode);  
 
   loadingFlag = true;

@@ -915,5 +915,3 @@ uint8_t    saveMode;
 uint8_t    tmpSaveMode = 0;
 uint8_t    resourcesMode = 0;
 bool       mandatoryStopText = false;
-
-// ---------------------------------------------------------------

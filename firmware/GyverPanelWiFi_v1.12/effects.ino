@@ -1,4 +1,3 @@
-
 // Эта функция в FastLED объявлена как forward;
 // линкуется с библиотекой FastLed, которая использует её для определения индекса светодиода в массиве leds[]
 // ври вызове функций типа blur2d() и т.п.
@@ -1238,8 +1237,8 @@ uint32_t xf,yf,v_time,hue_time,hxy;
 // have!  More octaves will make things slower.
 
 // how many octaves to use for the brightness and hue functions
-uint8_t  octaves=1;
-uint8_t  hue_octaves=3;
+uint8_t octaves=1;
+uint8_t hue_octaves=3;
 
 // the 'distance' between points on the x and y axis
 int32_t  xscale=57771;
@@ -2086,6 +2085,7 @@ void arrowsRoutine() {
     arrow_mode_orig = (specialTextEffectParam >= 0) ? specialTextEffectParam : getEffectScaleParamValue2(MC_ARROWS);
     
     arrow_mode = (arrow_mode_orig == 0 || arrow_mode_orig > 5) ? random8(1,5) : arrow_mode_orig;
+    Serial.print(arrow_mode);
     arrow_play_mode_count_orig[0] = 0;
     arrow_play_mode_count_orig[1] = 4;  // 4 фазы - все стрелки показаны по кругу один раз - переходить к следующему ->
     arrow_play_mode_count_orig[2] = 4;  // 2 фазы - гориз к центру (1), затем верт к центру (2) - обе фазы повторить по 2 раза -> 4
