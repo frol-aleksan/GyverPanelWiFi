@@ -3775,17 +3775,12 @@ void Sinusoid3Routine()
         for (uint8_t x = 0; x < WIDTH; x++) {
           float cx = x + center1x;
           float cy = y + center1y;
-          //int8_t v = 127 * (0.001 * time_shift * speedfactor + float(sin16(_scale * SQRT_VARIANT(cx * cx + cy * cy))) / 32767.0);
           uint8_t v = 127 * (1 + float(sin16(_scale * SQRT_VARIANT(cx * cx + cy * cy))) / 0x7FFF);
-          color.r = v;
-          
+          color.r = v;  
           cx = x + center2x;
           cy = y + center2y;
-          //v = 127 * (float(0.001 * time_shift * speedfactor) + float(sin16(_scale * SQRT_VARIANT(cx * cx + cy * cy))) / 32767.0);
           v = 127 * (1 + float(sin16(_scale * SQRT_VARIANT(cx * cx + cy * cy))) / 0x7FFF);
-          //color.g = (uint8_t)v >> 1;
           color.g = (v - (min(v, color.r) >> 1)) >> 1;
-          //color.b = (uint8_t)v >> 2;
           color.b = color.g >> 2;
           color.r = max(v, color.r);
           drawPixelXY(x, y, color);
@@ -3799,12 +3794,10 @@ void Sinusoid3Routine()
           float cy = y + center1y;
           int8_t v = 127 * (1 + float(sin16(_scale * SQRT_VARIANT(cx * cx + cy * cy))) / 0x7FFF);
           color.r = v;
-
           cx = x + center2x;
           cy = y + center2y;
           v = 127 * (1 + float(sin16(_scale * SQRT_VARIANT(cx * cx + cy * cy))) / 0x7FFF);
           color.b = v;
-
           cx = x + center3x;
           cy = y + center3y;
           v = 127 * (1 + float(sin16(_scale * SQRT_VARIANT(cx * cx + cy * cy))) / 0x7FFF);
@@ -3820,12 +3813,10 @@ void Sinusoid3Routine()
           float cy = y + center1y;
           int8_t v = 127 * (1 + float(sin16(_scale * SQRT_VARIANT(cx * cx + cy * cy) + time_shift * speedfactor * 100)) / 0x7FFF);
           color.r = ~v;
-
           cx = x + center2x;
           cy = y + center2y;
           v = 127 * (1 + float(sin16(_scale * SQRT_VARIANT(cx * cx + cy * cy) + time_shift * speedfactor * 100)) / 0x7FFF);
           color.g = ~v;
-
           cx = x + center3x;
           cy = y + center3y;
           v = 127 * (1 + float(sin16(_scale * SQRT_VARIANT(cx * cx + cy * cy) + time_shift * speedfactor * 100)) / 0x7FFF);
@@ -3833,9 +3824,7 @@ void Sinusoid3Routine()
           drawPixelXY(x, y, color);
         }
       }
-
       break;
-
     case 5: //changed by stepko //colored sinusoid
       for (uint8_t y = 0; y < HEIGHT; y++) {
         for (uint8_t x = 0; x < WIDTH; x++) {
@@ -3843,14 +3832,8 @@ void Sinusoid3Routine()
           float cy = y + center1y;
           int8_t v = 127 * (1 + float(sin16(_scale * (beatsin16(2,1000,1750)/2550.) * SQRT_VARIANT(cx * cx + cy * cy))) / 0x7FFF);// + time_shift * speedfactor * 5 // mass colors plus by SottNick
           color.r = v;
-
-          //v = 127 * (1 + float(sin16(_scale * SQRT_VARIANT(cx * cx + cy * cy) + time_shift * speedfactor * 7)) / 0x7FFF);
-          //v = 127 * (1 + sinf (_scale2 * SQRT_VARIANT(((cx * cx) + (cy * cy)))  + 0.001 * time_shift * speedfactor));
           v = 127 * (1 + float(sin16(_scale * (beatsin16(1,570,1050)/2250.) * SQRT_VARIANT(((cx * cx) + (cy * cy)))  + 13 * time_shift * speedfactor)) / 0x7FFF); // вместо beatsin сперва ставил просто * 0.41
           color.b = v;
-
-          //v = 127 * (1 + float(sin16(_scale * SQRT_VARIANT(cx * cx + cy * cy) + time_shift * speedfactor * 19)) / 0x7FFF);
-          //v = 127 * (1 + sinf (_scale2 * SQRT_VARIANT(((cx * cx) + (cy * cy)))  + 0.0025 * time_shift * speedfactor));
           v = 127 * (1 + float(cos16(_scale * (beatsin16(3,1900,2550)/2550.) * SQRT_VARIANT(((cx * cx) + (cy * cy)))  + 41 * time_shift * speedfactor)) / 0x7FFF); // вместо beatsin сперва ставил просто * 0.53
           color.g = v;
           drawPixelXY(x, y, color);
@@ -3864,13 +3847,8 @@ void Sinusoid3Routine()
           float cy = y + center1y;
           int8_t v = 127 * (1 + float(sin16(_scale * SQRT_VARIANT(cx * cx + cy * cy) + time_shift * speedfactor * 5)) / 0x7FFF);
           color.g = ~v;
-
-          //v = 127 * (1 + float(sin16(_scale * x) + 0.01 * time_shift * speedfactor) / 0x7FFF);
-          v = 127 * (1 + float(sin16(_scale * (x + 0.005 * time_shift * speedfactor))) / 0x7FFF); // proper by SottNick
-          
+          v = 127 * (1 + float(sin16(_scale * (x + 0.005 * time_shift * speedfactor))) / 0x7FFF); // proper by SottNick   
           color.b = ~v;
-
-          //v = 127 * (1 + float(sin16(_scale * y * 127 + float(0.011 * time_shift * speedfactor))) / 0x7FFF);
           v = 127 * (1 + float(sin16(_scale * (y + 0.0055 * time_shift * speedfactor))) / 0x7FFF); // proper by SottNick
           color.r = ~v;
           drawPixelXY(x, y, color);
@@ -3882,9 +3860,7 @@ void Sinusoid3Routine()
         for (uint8_t x = 0; x < WIDTH; x++) {
           float cx = x + center1x;
           float cy = y + center1y;
-          //uint8_t v = 127 * (1 + float(sin16(_scale * (2 * atan2(cy, cx) + hypot(cy, cx)) + time_shift * speedfactor * 5)) / 0x7FFF);
           uint8_t v = 127 * (1 + sinf (3* atan2(cy, cx)  + _scale2 *  hypot(cy, cx))); // proper by SottNick
-          //uint8_t v = 127 * (1 + float(sin16(atan2(cy, cx) * 31255  + _scale3 *  hypot(cy, cx))) / 0x7FFF); // proper by SottNick
           //вырезаем центр спирали - proper by SottNick
           float d = SQRT_VARIANT(cx * cx + cy * cy) / 10.; // 10 - это радиус вырезаемого центра в каких-то условных величинах. 10 = 1 пиксель, 20 = 2 пикселя. как-то так
           if (d < 0.06) d = 0.06;
@@ -3892,12 +3868,9 @@ void Sinusoid3Routine()
             v = constrain(v - int16_t(1/d/d), 0, 255);
           //вырезали
           color.r = v;
-
           cx = x + center2x;
           cy = y + center2y;
-          //v = 127 * (1 + float(sin16(_scale * (2 * atan2(cy, cx) + hypot(cy, cx)) + time_shift * speedfactor * 5)) / 0x7FFF);
           v = 127 * (1 + sinf (3* atan2(cy, cx)  + _scale2 *  hypot(cy, cx))); // proper by SottNick
-          //v = 127 * (1 + float(sin16(atan2(cy, cx) * 31255  + _scale3 *  hypot(cy, cx))) / 0x7FFF); // proper by SottNick
           //вырезаем центр спирали
           d = SQRT_VARIANT(cx * cx + cy * cy) / 10.; // 10 - это радиус вырезаемого центра в каких-то условных величинах. 10 = 1 пиксель, 20 = 2 пикселя. как-то так
           if (d < 0.06) d = 0.06;
@@ -3905,7 +3878,6 @@ void Sinusoid3Routine()
             v = constrain(v - int16_t(1/d/d), 0, 255);
           //вырезали
           color.b = v;
-
           cx = x + center3x;
           cy = y + center3y;
           //v = 127 * (1 + float(sin16(_scale * (2 * atan2(cy, cx) + hypot(cy, cx)) + time_shift * speedfactor * 5)) / 0x7FFF);
@@ -3925,15 +3897,12 @@ void Sinusoid3Routine()
 
     //этих двух вариантов списке эффекта нет, т. к. они хз почему мерцают.
     //Но если их убрать совсем, то начинает мерцать первый эффект. 
-    //Поэтому пусть будут. С ними зотя бы не мерцают первые семь вариантов. Короче, мистика.
+    //Поэтому пусть будут. С ними хотя бы не мерцают первые семь вариантов. Короче, мистика.
     case 8: //variant by SottNick
       for (uint8_t y = 0; y < HEIGHT; y++) {
         for (uint8_t x = 0; x < WIDTH; x++) {
           float cx = x + center1x;
           float cy = y + center1y;
-          //uint8_t v = 127 * (1 + float(sin16(_scale * (2 * atan2(cy, cx) + hypot(cy, cx)) + time_shift * speedfactor * 5)) / 0x7FFF);
-          //uint8_t v = 127 * (1 + float(sin16(3* atan2(cy, cx) + _scale *  hypot(cy, cx) + time_shift * speedfactor * 5)) / 0x7FFF);
-          //uint8_t v = 127 * (1 + sinf (3* atan2(cy, cx)  + _scale2 *  hypot(cy, cx))); // proper by SottNick
           uint8_t v = 127 * (1 + float(sin16(atan2(cy, cx) * 31255  + _scale3 *  hypot(cy, cx))) / 0x7FFF); // proper by SottNick
           //вырезаем центр спирали
           float d = SQRT_VARIANT(cx * cx + cy * cy) / 10.; // 10 - это радиус вырезаемого центра в каких-то условных величинах. 10 = 1 пиксель, 20 = 2 пикселя. как-то так
@@ -3942,10 +3911,8 @@ void Sinusoid3Routine()
             v = constrain(v - int16_t(1/d/d), 0, 255);
           //вырезали
           color.g = v;
-
           cx = x + center3x;
           cy = y + center3y;
-          //v = 127 * (1 + sinf (3* atan2(cy, cx)  + _scale2 *  hypot(cy, cx))); // proper by SottNick
           v = 127 * (1 + float(sin16(atan2(cy, cx) * 31255  + _scale3 *  hypot(cy, cx))) / 0x7FFF); // proper by SottNick
           //вырезаем центр спирали
           d = SQRT_VARIANT(cx * cx + cy * cy) / 10.; // 10 - это радиус вырезаемого центра в каких-то условных величинах. 10 = 1 пиксель, 20 = 2 пикселя. как-то так
@@ -3954,13 +3921,10 @@ void Sinusoid3Routine()
             v = constrain(v - int16_t(1/d/d), 0, 255);
           //вырезали
           color.r = v;
-
           drawPixelXY(x, y, color);
-          //nblend(leds[XY(x, y)], color, 150);
         }
       }
       break;
-   
       case 9://Sinusoid I
       for (uint8_t y = 0; y < HEIGHT; y++) {
         for (uint8_t x = 0; x < WIDTH; x++) {
@@ -3986,13 +3950,7 @@ void Sinusoid3Routine()
 void ringsRoutine(){
     uint8_t h, x, y;
     if (loadingFlag)
-    {
-  /*    #if defined(USE_RANDOM_SETS_IN_APP) || defined(RANDOM_SETTINGS_IN_CYCLE_MODE)
-        if (selectedSettings){
-          setModeSettings(90U+random8(6U), 175U+random8(61U));
-        }
-      #endif //#if defined(USE_RANDOM_SETS_IN_APP) || defined(RANDOM_SETTINGS_IN_CYCLE_MODE)*/
-      
+    {   
       loadingFlag = false;
       setCurrentPalette();
       deltaHue2 = (modes[currentMode].Scale - 1U) % 11U + 1U; // толщина кольца от 1 до 11 для каждой из палитр
@@ -4049,8 +4007,6 @@ void ringsRoutine(){
         for (uint8_t j = 0U; j < ((i == 0U) ? hue : ((i == deltaHue - 1U) ? hue2 : deltaHue2)); j++) // от 0 до (толщина кольца - 1)
         {
           y = i * deltaHue2 + j - ((i == 0U) ? 0U : deltaHue2 - hue);
-          // mod для чётных скоростей by @kostyamat - получается какая-то другая фигня. не стоит того
-          //for (uint8_t k = 0; k < WIDTH / ((modes[currentMode].Speed & 0x01) ? 2U : 4U); k++) // полукольцо для нечётных скоростей и четверть кольца для чётных
           for (uint8_t k = 0; k < WIDTH / 2U; k++) // полукольцо
             {
               x = (shiftValue[i] + k) % WIDTH; // первая половина кольца
@@ -4086,23 +4042,13 @@ void cube2dRoutine(){
     
     if (loadingFlag)
     {
-  /*    #if defined(USE_RANDOM_SETS_IN_APP) || defined(RANDOM_SETTINGS_IN_CYCLE_MODE)
-        if (selectedSettings){
-          uint8_t tmp = random8(9U)*11U+random8(8U); // масштаб 1-7, палитры все 9 
-          if (tmp == 45U) tmp = 100U; //+ белый цвет
-          setModeSettings(tmp, 175U+random8(66U));
-        }
-      #endif //#if defined(USE_RANDOM_SETS_IN_APP) || defined(RANDOM_SETTINGS_IN_CYCLE_MODE)*/
-
       loadingFlag = false;
       setCurrentPalette();
       FastLED.clear();
-
       razmerX = (modes[currentMode].Scale - 1U) % 11U + 1U; // размер ячейки от 1 до 11 пикселей для каждой из 9 палитр
       razmerY = razmerX;
       if (modes[currentMode].Speed & 0x01) // по идее, ячейки не обязательно должны быть квадратными, поэтому можно тут поизвращаться
         razmerY = (razmerY << 1U) + 1U;
-
       shtukY = HEIGHT / (razmerY + 1U);
       if (shtukY < 2U)
         shtukY = 2U;
@@ -4122,7 +4068,6 @@ void cube2dRoutine(){
       deltaHue2 = 0U;
       globalShiftX = 0;
       globalShiftY = 0;
-
       for (uint8_t j = 0U; j < shtukY; j++)
       {
         y = j * (razmerY + 1U); // + deltaHue2 т.к. оно =0U
@@ -4199,7 +4144,6 @@ void cube2dRoutine(){
         {
           noise_3d[0][0][j]--;
           shift = noise_3d[0][1][j] - 1; // в первой ячейке храним направление прокрутки
-      
           if (seamlessX)
             anim0 = 0U;
           else if (globalShiftX == 0)
@@ -4208,7 +4152,6 @@ void cube2dRoutine(){
             anim0 = deltaHue;
           else
             anim0 = deltaHue - 1U;
-          
           if (shift < 0) // если крутим строку влево
           {
             color = leds[XY(anim0, y)];                            // берём цвет от левой колонки (левого пикселя)
@@ -4247,10 +4190,8 @@ void cube2dRoutine(){
       //если часть ячеек двигалась на 1 пиксель, пододвигаем глобальные координаты начала
       deltaHue2 = deltaHue2 + globalShiftY; //+= globalShiftY;
       globalShiftY = 0;
-      //deltaHue += globalShiftX; для бесшовной не годится
       deltaHue = (WIDTH + deltaHue + globalShiftX) % WIDTH;
       globalShiftX = 0;
-
       //пришла пора выбрать следующие параметры вращения
       kudaVse = 0;
       krutimVertikalno = random8(2U);
@@ -4291,8 +4232,7 @@ void cube2dRoutine(){
                 noise_3d[0][i][0] = deltaValue * (x + 1U); // в нулевой ячейке храним количество ходов сдвига
               }  
           deltaValue = deltaValue * (x + 1U);
-        }      
-              
+        }             
       }
       else // идём по вертикали, крутим по горизонтали (строки двигаются)
       {
@@ -4345,14 +4285,6 @@ void cube2dRoutine(){
 void attractRoutine() {
   if (loadingFlag)
   {
- /*   #if defined(USE_RANDOM_SETS_IN_APP) || defined(RANDOM_SETTINGS_IN_CYCLE_MODE)
-      if (selectedSettings){
-        uint8_t tmp = random8(8U);
-        if (tmp > 3U) tmp++;
-        setModeSettings(tmp*11U+3U+random8(9U), 180U+random8(56U));
-      }
-    #endif //#if defined(USE_RANDOM_SETS_IN_APP) || defined(RANDOM_SETTINGS_IN_CYCLE_MODE)*/
-
     loadingFlag = false;
     setCurrentPalette();
     enlargedObjectNUM = (modes[currentMode].Scale - 1U) % 11U + 1U;//(modes[currentMode].Scale - 1U) / 99.0 * (AVAILABLE_BOID_COUNT - 1U) + 1U;
@@ -4370,7 +4302,6 @@ void attractRoutine() {
   for (uint8_t i = 0; i < enlargedObjectNUM; i++) 
   {
     Boid boid = boids[i];
-    //Boid * boid = &boids[i];
     PVector force = attractLocation - boid.location;   // Calculate direction of force // и вкорячиваем сюда регулировку скорости
     float d = force.mag();                              // Distance between objects
     d = constrain(d, 5.0f, HEIGHT*2.);                        // Limiting the distance to eliminate "extreme" results for very close or very far objects
@@ -4398,14 +4329,10 @@ void fairyEmit(uint8_t i) //particlesEmit(Particle_Abstract *particle, ParticleS
         hue2++;//counter++;
     trackingObjectPosX[i] = boids[0].location.x;
     trackingObjectPosY[i] = boids[0].location.y;
-
     //хотите навставлять speedfactor? - тут не забудьте
-    //trackingObjectSpeedX[i] = ((float)random8()-127.)/512./0.25*speedfactor; // random(_hVar)-_constVel; // particle->vx
     trackingObjectSpeedX[i] = ((float)random8()-127.)/512.; // random(_hVar)-_constVel; // particle->vx
-    //trackingObjectSpeedY[i] = SQRT_VARIANT((speedfactor*speedfactor+0.0001)-trackingObjectSpeedX[i]*trackingObjectSpeedX[i]); // SQRT_VARIANT(pow(_constVel,2)-pow(trackingObjectSpeedX[i],2)); // particle->vy зависит от particle->vx - не ошибка
     trackingObjectSpeedY[i] = SQRT_VARIANT(0.0626-trackingObjectSpeedX[i]*trackingObjectSpeedX[i]); // SQRT_VARIANT(pow(_constVel,2)-pow(trackingObjectSpeedX[i],2)); // particle->vy зависит от particle->vx - не ошибка
     if(random8(2U)) { trackingObjectSpeedY[i]=-trackingObjectSpeedY[i]; }
-
     trackingObjectState[i] = random8(20, 80); // random8(minLife, maxLife);// particle->ttl
     trackingObjectHue[i] = hue2;// (counter/2)%255; // particle->hue
     trackingObjectIsShift[i] = true; // particle->isAlive
@@ -4414,25 +4341,14 @@ void fairyEmit(uint8_t i) //particlesEmit(Particle_Abstract *particle, ParticleS
 void fairyRoutine(){
   if (loadingFlag)
   {
-  /*  #if defined(USE_RANDOM_SETS_IN_APP) || defined(RANDOM_SETTINGS_IN_CYCLE_MODE)
-      if (selectedSettings){
-        setModeSettings(14U+random8(87U), 190U + random8(40U));
-      }
-    #endif //#if defined(USE_RANDOM_SETS_IN_APP) || defined(RANDOM_SETTINGS_IN_CYCLE_MODE)*/
-
     loadingFlag = false;
-    //speedfactor = (float)modes[currentMode].Speed / 510.0f + 0.001f;    
-
     deltaValue = 10; // количество зарождающихся частиц за 1 цикл //perCycle = 1;
     enlargedObjectNUM = (modes[currentMode].Scale - 1U) / 99.0 * (trackingOBJECT_MAX_COUNT - 1U) + 1U;
     if (enlargedObjectNUM > trackingOBJECT_MAX_COUNT) enlargedObjectNUM = trackingOBJECT_MAX_COUNT;
     for(int i = 0; i<enlargedObjectNUM; i++)
       trackingObjectIsShift[i] = false; // particle->isAlive
-
       // лень было придумывать алгоритм для траектории феи, поэтому это будет нулевой "бойд" из эффекта Притяжение
       boids[0] = Boid(random8(WIDTH), random8(HEIGHT));//WIDTH - 1, HEIGHT - 1);
-      //boids[0].location.x = random8(WIDTH);
-      //boids[0].location.y = random8(HEIGHT);
       boids[0].mass = 0.5;//((float)random8(33U, 134U)) / 100.; // random(0.1, 2); // сюда можно поставить регулятор разлёта. чем меньше число, тем дальше от центра будет вылет
       boids[0].velocity.x = ((float) random8(46U, 100U)) / 500.0;
       if (random8(2U)) boids[0].velocity.x = -boids[0].velocity.x;
@@ -4443,11 +4359,9 @@ void fairyRoutine(){
       #endif;
   }
   step = deltaValue; //счётчик количества частиц в очереди на зарождение в этом цикле
-  
 #ifdef FAIRY_BEHAVIOR
   if (!deltaHue && deltaHue2 && fabs(boids[0].velocity.x) + fabs(boids[0].velocity.y) < 0.15){ 
     deltaHue2 = 0U;
-    
     boids[1].velocity.x = ((float)random8()+255.) / 4080.;
     boids[1].velocity.y = ((float)random8()+255.) / 2040.;
     if (boids[0].location.x > WIDTH * 0.5) boids[1].velocity.x = -boids[1].velocity.x;
@@ -4455,7 +4369,6 @@ void fairyRoutine(){
   }
   if (!deltaHue2){
     step = 1U;
-    
     boids[0].location.x += boids[1].velocity.x;
     boids[0].location.y += boids[1].velocity.y;
     deltaHue2 = (boids[0].location.x <= 0 || boids[0].location.x >= WIDTH-1 || boids[0].location.y <= 0 || boids[0].location.y >= HEIGHT-1);
@@ -4464,19 +4377,13 @@ void fairyRoutine(){
 #endif // FAIRY_BEHAVIOR
   {  
     PVector attractLocation = PVector(WIDTH * 0.5, HEIGHT * 0.5);
-    //float attractMass = 10;
-    //float attractG = .5;
     // перемножаем и получаем 5.
     Boid boid = boids[0];
     PVector force = attractLocation - boid.location;      // Calculate direction of force
     float d = force.mag();                                // Distance between objects
     d = constrain(d, 5.0f, HEIGHT);//видео снято на 5.0f  // Limiting the distance to eliminate "extreme" results for very close or very far objects
-//d = constrain(d, modes[currentMode].Scale / 10.0, HEIGHT);
-
     force.normalize();                                    // Normalize vector (distance doesn't matter here, we just want this vector for direction)
     float strength = (5. * boid.mass) / (d * d);          // Calculate gravitional force magnitude 5.=attractG*attractMass
-//float attractMass = (modes[currentMode].Scale) / 10.0 * .5;
-//strength = (attractMass * boid.mass) / (d * d);
     force *= strength;                                    // Get force vector --> magnitude * direction
     boid.applyForce(force);
     boid.update();
@@ -4487,7 +4394,6 @@ void fairyRoutine(){
     else if (boid.location.y >= HEIGHT) boid.location.y = -boid.location.y+HEIGHT+HEIGHT;
     boids[0] = boid;
 
-    //EVERY_N_SECONDS(20)
     if (!deltaHue){
       if (random8(3U)){
         d = ((random8(2U)) ? boids[0].velocity.x : boids[0].velocity.y) * ((random8(2U)) ? .2 : -.2);
@@ -4506,26 +4412,20 @@ void fairyRoutine(){
 
   //renderer.fade(leds); = fadeToBlackBy(128); = dimAll(255-128)
   //dimAll(255-128/.25*speedfactor); очередной эффект, к которому нужно будет "подобрать коэффициенты"
-  //if (modes[currentMode].Speed & 0x01)
-    dimAll(127);
-  //else FastLED.clear();    
+
+    dimAll(127);   
 
   //go over particles and update matrix cells on the way
   for(int i = 0; i<enlargedObjectNUM; i++) {
     if (!trackingObjectIsShift[i] && step) {
-      //emitter->emit(&particles[i], this->g);
       fairyEmit(i);
       step--;
     }
     if (trackingObjectIsShift[i]){ // particle->isAlive
-      //particles[i].update(this->g);
       if (modes[currentMode].Scale & 0x01 && trackingObjectSpeedY[i] > -1) trackingObjectSpeedY[i] -= 0.05; //apply acceleration
       particlesUpdate2(i);
-
       //generate RGB values for particle
       CRGB baseRGB = CHSV(trackingObjectHue[i], 255,255); // particles[i].hue
-
-      //baseRGB.fadeToBlackBy(255-trackingObjectState[i]);
       baseRGB.nscale8(trackingObjectState[i]);//эквивалент
       drawPixelXYF(trackingObjectPosX[i], trackingObjectPosY[i], baseRGB);
     }
@@ -4538,21 +4438,11 @@ void fairyRoutine(){
 void newMatrixRoutine()
 {
   if (loadingFlag)
-  {
-  /*  #if defined(USE_RANDOM_SETS_IN_APP) || defined(RANDOM_SETTINGS_IN_CYCLE_MODE)
-      if (selectedSettings){
-        setModeSettings(random8(30U) ? (random8(40U) ? 2U+random8(99U) : 1U) : 100U, 12U+random8(68U));
-      }
-    #endif //#if defined(USE_RANDOM_SETS_IN_APP) || defined(RANDOM_SETTINGS_IN_CYCLE_MODE)*/
-   
+  { 
     loadingFlag = false;
     setCurrentPalette();
-
-    //enlargedObjectNUM = (modes[currentMode].Scale - 1U) % 11U + 1U;//(modes[currentMode].Scale - 1U) / 99.0 * (AVAILABLE_BOID_COUNT - 1U) + 1U;
     enlargedObjectNUM = map(modes[currentMode].Speed, 1, 255, 1, trackingOBJECT_MAX_COUNT);
-    //speedfactor = modes[currentMode].Speed / 1048.0f + 0.05f;
     speedfactor = 0.136f; // фиксируем хорошую скорость
-
     for (uint8_t i = 0U; i < enlargedObjectNUM; i++)
     {
       trackingObjectPosX[i] = random8(WIDTH);
@@ -4563,15 +4453,11 @@ void newMatrixRoutine()
     }
    hue = modes[currentMode].Scale * 2.55;
   } 
-  //dimAll(map(modes[currentMode].Speed, 1, 255, 250, 240));
   dimAll(246); // для фиксированной скорости
-  
   CHSV color;
-
   for (uint8_t i = 0U; i < enlargedObjectNUM; i++)
   {
     trackingObjectPosY[i] -= trackingObjectSpeedY[i]*speedfactor;
-
     if (modes[currentMode].Scale == 100U) {
       color = rgb2hsv_approximate(CRGB::Gray);
       color.val = trackingObjectState[i];
@@ -4583,11 +4469,9 @@ void newMatrixRoutine()
     drawPixelXYF(trackingObjectPosX[i], trackingObjectPosY[i], color);
     #define GLUK 20 // вероятность горизонтального сдвига капли
     if (random8() < GLUK) {
-      //trackingObjectPosX[i] = trackingObjectPosX[i] + random(-1, 2);
       trackingObjectPosX[i] = (uint8_t)(trackingObjectPosX[i] + WIDTH - 1U + random8(3U)) % WIDTH ;
       trackingObjectState[i] = random8(196,255);
     }
-
     if(trackingObjectPosY[i] < -1) {
       trackingObjectPosX[i] = random8(WIDTH);
       trackingObjectPosY[i] = random8(HEIGHT - HEIGHT /2, HEIGHT);
@@ -4620,19 +4504,6 @@ void drawPixelXYFseamless(float x, float y, CRGB color)
     drawPixelXY(xn, yn, clr);
   }
 }
-/*
-class oscillatingCell {
-public:
-  byte red; // значения 0 или 1
-  byte blue; // значения 0 или 1
-  byte green; // значения 0 или 1
-  byte color; // значения от 0 до 2
-};
-oscillatingCell oscillatingWorld[WIDTH][HEIGHT];
-
-будем использовать вместо них всех имеющийся в прошивке массив
-uint8_t noise_3d[2][WIDTH][HEIGHT]; 
-*/
 
 uint8_t calcNeighbours(uint8_t x, uint8_t y, uint8_t n) {
   return (noise_3d[0][(x + 1) % WIDTH][y] == n) +
@@ -4647,31 +4518,11 @@ uint8_t calcNeighbours(uint8_t x, uint8_t y, uint8_t n) {
 
 void oscillatingRoutine() {
   if (loadingFlag) {
-  /*  #if defined(USE_RANDOM_SETS_IN_APP) || defined(RANDOM_SETTINGS_IN_CYCLE_MODE)
-      if (selectedSettings){
-        uint8_t tmp = random8(6U); // 4 палитры по 6? (0, 1, 6, 7) + цвет + смена цвета
-        if (tmp < 4U){
-          if (tmp > 1U) tmp += 4U;
-          tmp = tmp * 6U + 1U;
-        }
-        else if (tmp == 4U)
-          tmp = 51U + random8(49U);
-        else
-          tmp = 100U;
-        setModeSettings(tmp, 185U+random8(40U));
-      }
-    #endif //#if defined(USE_RANDOM_SETS_IN_APP) || defined(RANDOM_SETTINGS_IN_CYCLE_MODE)*/
-
     loadingFlag = false;
     step = 0U;
-    //setCurrentPalette();
     if (modes[currentMode].Scale > 100U) modes[currentMode].Scale = 100U; // чтобы не было проблем при прошивке без очистки памяти
     if (modes[currentMode].Scale <= 50U) 
       curPalette = palette_arr[(uint8_t)(modes[currentMode].Scale/50.0F * ((sizeof(palette_arr)/sizeof(TProgmemRGBPalette16 *))-0.01F))];
-    //else
-      //curPalette = firePalettes[(uint8_t)((modes[currentMode].Scale - 50)/50.0F * ((sizeof(firePalettes)/sizeof(TProgmemRGBPalette16 *))-0.01F))];
-    
-    
     //случайное заполнение
     for (uint8_t i = 0; i < WIDTH; i++) {
       for (uint8_t j = 0; j < HEIGHT; j++) {
@@ -4680,7 +4531,6 @@ void oscillatingRoutine() {
       }
     }
   }
-
   hue++;
   CRGB currColors[3];
   if (modes[currentMode].Scale == 100U){
@@ -4689,7 +4539,6 @@ void oscillatingRoutine() {
     currColors[2U] = CHSV(hue, 255U, 128U);
   }
   else if (modes[currentMode].Scale > 50U){
-    //uint8_t temp = (modes[currentMode].Scale - 50U) * 1.275;
     currColors[0U] = CHSV((modes[currentMode].Scale - 50U) * 5.1, 255U, 255U);
     currColors[1U] = CHSV((modes[currentMode].Scale - 50U) * 5.1, 128U, 255U);
     currColors[2U] = CHSV((modes[currentMode].Scale - 50U) * 5.1, 255U, 128U);
@@ -4698,7 +4547,7 @@ void oscillatingRoutine() {
     for (uint8_t c = 0; c < 3; c++)
       currColors[c] = ColorFromPalette(*curPalette, c * 85U + hue);
   FastLED.clear();
-  
+ 
   // расчёт химической реакции и отрисовка мира
   uint16_t colorCount[3] = {0U, 0U, 0U};  
   for (uint8_t x = 0; x < WIDTH; x++) {
@@ -4790,32 +4639,16 @@ void oscillatingRoutine() {
 
 void LLandRoutine(){
   if (loadingFlag) {
-   /* #if defined(USE_RANDOM_SETS_IN_APP) || defined(RANDOM_SETTINGS_IN_CYCLE_MODE)
-      if (selectedSettings){
-        uint8_t tmp = random8(6U);
-        if (tmp > 1U) tmp += 3U;
-        tmp = tmp*11U+4U+random8(8U);
-        if (tmp > 97U) tmp = 94U;
-        setModeSettings(tmp, 200U+random8(46U));// масштаб 4-11, палитры 0, 1, 5, 6, 7, 8 (кроме 2, 3, 4)
-      }
-    #endif //#if defined(USE_RANDOM_SETS_IN_APP) || defined(RANDOM_SETTINGS_IN_CYCLE_MODE)*/
-
     loadingFlag = false;
     setCurrentPalette();
-    //speedfactor = fmap(modes[currentMode].Speed, 1., 255., 20., 1.) / 16.;
     deltaValue = 10U * ((modes[currentMode].Scale - 1U) % 11U + 1U);// значения от 1 до 11 
-    // значения от 0 до 10 = ((modes[currentMode].Scale - 1U) % 11U)
-
   }
   hue2 += 32U;
   if (hue2 < 32U)
     hue++;
-  //float t = (float)millis() / speedfactor;
   ff_y += 16U;
-  
   for (uint8_t y = 0; y < HEIGHT; y++)
     for (uint16_t x = 0; x < WIDTH; x++)
-      //drawPixelXY(x, y, ColorFromPalette (*curPalette, map(inoise8(x * 50, y * 50 - t, 0) - y * 255 / (HEIGHT - 1), 0, 255, 205, 255) + hue, 255));
       drawPixelXY(x, y, ColorFromPalette (*curPalette, map(inoise8(x * deltaValue, y * deltaValue - ff_y, ff_z) - y * 255 / (HEIGHT - 1), 0, 255, 205, 255) + hue, 255));
   ff_z++;      
 }
@@ -4824,38 +4657,25 @@ void LLandRoutine(){
 // (c) SottNick
 //по мотивам визуала эффекта by Yaroslaw Turbin 14.12.2020
 //https://vk.com/ldirko программный код которого он запретил брать
-
 void sandRoutine(){
   if (loadingFlag) {
-/*    #if defined(USE_RANDOM_SETS_IN_APP) || defined(RANDOM_SETTINGS_IN_CYCLE_MODE)
-      if (selectedSettings){
-        setModeSettings(1U+random8(100U) , 140U+random8(100U));
-      }
-    #endif //#if defined(USE_RANDOM_SETS_IN_APP) || defined(RANDOM_SETTINGS_IN_CYCLE_MODE)*/
-
     loadingFlag = false;
-    //setCurrentPalette();
     pcnt = 0U;// = HEIGHT;
   }
-  
   // если насыпалось уже достаточно, бахаем рандомные песчинки
   uint8_t temp = map8(random8(), modes[currentMode].Scale * 2.55, 255U);
   if (pcnt >= map8(temp, 2U, HEIGHT - 3U)){
-    //temp = 255U - temp + 2;
-    //if (temp < 2) temp = 255;
     temp = HEIGHT + 1U - pcnt;
     if (!random8(4U)) // иногда песка осыпается до половины разом
       if (random8(2U))
         temp = 2U;
       else
         temp = 3U;
-    //for (uint16_t i = 0U; i < NUM_LEDS; i++)
     for (uint8_t y = 0; y < pcnt; y++)
       for (uint8_t x = 0; x < WIDTH; x++)
         if (!random8(temp))
           leds[XY(x,y)] = 0;
   }
-
   pcnt = 0U;
   // осыпаем всё, что есть на экране
   for (uint8_t y = 1; y < HEIGHT; y++)
@@ -4885,7 +4705,6 @@ void sandRoutine(){
         }
         else                                                                       // если под нами плато
           pcnt = y;
-      
   // эмиттер новых песчинок
   if (!leds[XY(CENTER_X_MINOR,HEIGHT-2)] && !leds[XY(CENTER_X_MAJOR,HEIGHT-2)] && !random8(3)){
     temp = random8(2) ? CENTER_X_MINOR : CENTER_X_MAJOR;
@@ -4896,15 +4715,11 @@ void sandRoutine(){
 // ============= ЭФФЕКТ ВОЛНЫ ===============
 // https://github.com/pixelmatix/aurora/blob/master/PatternWave.h
 // Адаптация от (c) SottNick
-
     byte waveThetaUpdate = 0;
     byte waveThetaUpdateFrequency = 0;
     byte waveTheta = 0;
-
     byte hueUpdate = 0;
     byte hueUpdateFrequency = 0;
-//    byte hue = 0; будем использовать сдвиг от эффектов Радуга
-
     byte waveRotation = 0;
     uint8_t waveScale = 256 / WIDTH;
     uint8_t waveCount = 1;
