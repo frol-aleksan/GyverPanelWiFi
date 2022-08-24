@@ -1484,9 +1484,13 @@ void parsing() {
               // При получении параметра эффекта "Шарики" (кол-во шариков) - надо переинициализировать эффект
               loadingFlag = true;
             } else 
+            if (thisMode == tmp_eff && tmp_eff == MC_NEXUS) {
+              // При получении параметра эффекта "NEXUS" (кол-во червячков) - надо переинициализировать эффект
+              loadingFlag = true;
+            } else 
             if (thisMode == tmp_eff && tmp_eff == MC_SINWAVES) {
               // При получении параметра эффекта "Синусоиды" (кол-во синусоид) - надо переинициализировать эффект
-              loadingFlag = true;
+              loadingFlag = true;              
             }
           }
         } else 
@@ -4118,6 +4122,32 @@ String getParamForMode(uint8_t mode) {
    case MC_WEATHER:
    case MC_LIFE:
    case MC_FIRE2:
+   case MC_POPCORN:
+   case MC_DNA:
+   case MC_BALLS_BOUNCE:
+   case MC_SPIRO:
+   case MC_SMOKEBALLS:
+   case MC_SINUSOID3:
+   case MC_RINGS:
+   case MC_CUBE2D:
+   case MC_ATTRACT:
+   case MC_FAIRY:
+   case MC_DROPS:
+   case MC_OSCILLATING:
+   case MC_LLAND:
+   case MC_SAND:
+   case MC_WAVES:
+   case MC_METABALLS:
+   case MC_PICASSO:
+   case MC_LUMENJER:
+   case MC_SPHERES:
+   case MC_POOL:
+   case MC_SMOKE:
+   case MC_PULSE:
+   case MC_WATERFALL:
+   case MC_WHIRL:
+   case MC_COMET:
+   case MC_RAINBOWSNAKE:
    case MC_SDCARD:
    #ifdef MC_IMAGE     
    case MC_IMAGE:
