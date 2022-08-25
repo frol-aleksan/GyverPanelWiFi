@@ -4,7 +4,7 @@
 // При этом если флаг EEPROM_OK в строке 8 этого файла был изменен и не совпадает со считанными яз ячейки #0 значением -
 // выполняется инициализация параметров значениями по умолчанию (функция loadSettings() в eeprom.ino, ветвь if (isInitialized) -> false )
 
-#define EEPROM_OK     0x4D       // Флаг, показывающий, что EEPROM инициализирована корректными данными 
+#define EEPROM_OK     0x3D       // Флаг, показывающий, что EEPROM инициализирована корректными данными 
 
 // ******************* ОПРЕДЕЛЕНИЯ ПАРАМЕТРОВ подключения к сети *********************
 
@@ -76,29 +76,43 @@
 #ifdef NO_ANIMATION
 
 #if (USE_SD == 1)                      
-#define EFFECT_LIST F("Часы,Лампа,Снегопад,Кубик,Радуга,Пейнтбол,Огонь,The Matrix,Шарики,Звездопад,Конфетти," \
-                      "Цветной шум,Облака,Лава,Плазма,Радужные переливы,Павлин,Зебра,Шумящий лес,Морской прибой,Смена цвета," \
-                      "Светлячки,Водоворот,Циклон,Мерцание,Северное сияние,Тени,Лабиринт,Змейка,Тетрис,Арканоид,Flappy,Runner," \
-                      "Палитра,Спектрум,Синусы,Вышиванка,Дождь,Камин,Стрелки,Погода,Жизнь,Узоры,Синусоиды,Рассвет,SD-Карта")
+#define EFFECT_LIST F("Часы,Свет,Снег,Кубик,Радуга,Пейнтбол,Огонь,Matrix,Шарики,Звездопад,Конфетти,Цветной шум," \
+                      "Облака,Лава,Плазма,Переливы,Павлин,Зебра,Лес,Прибой,Цвета,Светлячки,Водоворот,Циклон,Мерцание," \
+                      "Сияние,Тени,Лабиринт,Змейка,Тетрис,Арканоид,Flappy,Runner,Палитра,Спектр,Синусы,Вышиванка," \
+                      "Дождь,Камин,Стрелки,Погода,Жизнь,Узоры,Sinus,Попкорн,ДНК,Прыжки,Спирали,Ветер,Nexus,Синусоид,"\
+                      "Замок,Кубик Рубика,Притяжение,Фeя,Kaпли,Ocциллятop,Kипeниe,Дpaжe,Boлны,Круг,Пикacco,Люмeньep,Шapы,"\
+                      "Бacceйн,Дым,Пульс,Водопад,Вихри,Кометы,Змей,Плазмолампа,"\
+                      "Рассвет,SD-Карта")
 #else
-#define EFFECT_LIST F("Часы,Лампа,Снегопад,Кубик,Радуга,Пейнтбол,Огонь,The Matrix,Шарики,Звездопад,Конфетти," \
-                      "Цветной шум,Облака,Лава,Плазма,Радужные переливы,Павлин,Зебра,Шумящий лес,Морской прибой,Смена цвета," \
-                      "Светлячки,Водоворот,Циклон,Мерцание,Северное сияние,Тени,Лабиринт,Змейка,Тетрис,Арканоид,Flappy,Runner," \
-                      "Палитра,Спектрум,Синусы,Вышиванка,Дождь,Камин,Стрелки,Погода,Жизнь,Узоры,Синусоиды,Рассвет")
+#define EFFECT_LIST F("Часы,Свет,Снег,Кубик,Радуга,Пейнтбол,Огонь,Matrix,Шарики,Звездопад,Конфетти,Цветной шум," \
+                      "Облака,Лава,Плазма,Переливы,Павлин,Зебра,Лес,Прибой,Цвета,Светлячки,Водоворот,Циклон,Мерцание," \
+                      "Сияние,Тени,Лабиринт,Змейка,Тетрис,Арканоид,Flappy,Runner,Палитра,Спектр,Синусы,Вышиванка," \
+                      "Дождь,Камин,Стрелки,Погода,Жизнь,Узоры,Sinus,Попкорн,ДНК,Прыжки,Спирали,Ветер,Nexus,Синусоид,"\
+                      "Замок,Кубик Рубика,Притяжение,Фeя,Kaпли,Ocциллятop,Kипeниe,Дpaжe,Boлны,Круг,Пикacco,Люмeньep,Шapы,"\
+                      "Бacceйн,Дым,Пульс,Водопад,Вихри,Кометы,Змей,Плазмолампа")
 #endif
 
 #else
 
 #if (USE_SD == 1)                      
-#define EFFECT_LIST F("Часы,Лампа,Снегопад,Кубик,Радуга,Пейнтбол,Огонь,The Matrix,Шарики,Звездопад,Конфетти," \
-                      "Цветной шум,Облака,Лава,Плазма,Радужные переливы,Павлин,Зебра,Шумящий лес,Морской прибой,Смена цвета," \
-                      "Светлячки,Водоворот,Циклон,Мерцание,Северное сияние,Тени,Лабиринт,Змейка,Тетрис,Арканоид,Flappy,Runner," \
-                      "Палитра,Спектрум,Синусы,Вышиванка,Дождь,Камин,Стрелки,Анимация,Погода,Жизнь,Узоры,Синусоиды,Рассвет,SD-Карта")
+#define EFFECT_LIST F("Часы,Свет,Снег,Кубик,Радуга,Пейнтбол,Огонь,Matrix,Шарики,Звездопад,Конфетти,Цветной шум," \
+                      "Облака,Лава,Плазма,Переливы,Павлин,Зебра,Лес,Прибой,Цвета,Светлячки,Водоворот,Циклон,Мерцание," \
+                      "Сияние,Тени,Лабиринт,Змейка,Тетрис,Арканоид,Flappy,Runner,Палитра,Спектр,Синусы,Вышиванка," \
+                      "Дождь,Камин,Стрелки,Погода,Жизнь,Узоры,Sinus,Попкорн,ДНК,Прыжки,Спирали,Ветер,Nexus,Синусоид,"\
+                      "Замок,Кубик Рубика,Притяжение,Фeя,Kaпли,Ocциллятop,Kипeниe,Дpaжe,Boлны,Круг,Пикacco,Люмeньep,Шapы,"\
+                      "Бacceйн,Дым,Пульс,Водопад,Вихри,Кометы,Змей,Плазмолампа,"\
+                      "Анимация,Рассвет,SD-Карта")
 #else
-#define EFFECT_LIST F("Часы,Лампа,Снегопад,Кубик,Радуга,Пейнтбол,Огонь,The Matrix,Шарики,Звездопад,Конфетти," \
-                      "Цветной шум,Облака,Лава,Плазма,Радужные переливы,Павлин,Зебра,Шумящий лес,Морской прибой,Смена цвета," \
-                      "Светлячки,Водоворот,Циклон,Мерцание,Северное сияние,Тени,Лабиринт,Змейка,Тетрис,Арканоид,Flappy,Runner," \
-                      "Палитра,Спектрум,Синусы,Вышиванка,Дождь,Камин,Стрелки,Анимация,Погода,Жизнь,Узоры,Синусоиды,Рассвет")
+#define EFFECT_LIST F("Часы,Свет,Снег,Кубик,Радуга,Пейнтбол,Огонь,Matrix,Шарики,Звездопад,Конфетти,Цветной шум," \
+                      "Облака,Лава,Плазма,Переливы,Павлин,Зебра,Лес,Прибой,Цвета,Светлячки,Водоворот,Циклон,Мерцание," \
+                      "Сияние,Тени,Лабиринт,Змейка,Тетрис,Арканоид,Flappy,Runner,Палитра,Спектр,Синусы,Вышиванка," \
+                      "Дождь,Камин,Стрелки,Погода,Жизнь,Узоры,Sinus,Попкорн,ДНК,Прыжки,Спирали,Ветер,Nexus,Синусоид,"\
+                      "Замок,Кубик Рубика,Притяжение,Фeя,Kaпли,Ocциллятop,Kипeниe,Дpaжe,Boлны,Круг,Пикacco,Люмeньep,Шapы,"\
+                      "Бacceйн,Дым,Пульс,Водопад,Вихри,Кометы,Змей,Плазмолампа,"\
+                      "Анимация,Рассвет")
+
+
+                      
 #endif
 
 #endif
@@ -112,80 +126,102 @@
 // чтобы ненужные эффекты имели номера бОльшие MAX_EFFECT.
 // Так как перебор эффектов идет от 0 до MAX_EFFECT-1, эффекты с номерами за этим диапазоном не будут отображаться.
 // Также требуется исправить список эффектов EFFECT_LIST (см.выше) так, чтобы названия и порядок эффектов
-// соответствовал списку, определенному ниже. Отключенные эффекты не должны писутствовать в EFFECT_LIST
+// соответствовал списку, определенному ниже. Отключенные эффекты не должны присутствовать в EFFECT_LIST
 
 // ID эффектов
 #define MC_CLOCK                 0         // Режим отображения часов (когда "Ночные часы" или просто "Часы" на черном фоне, а не как оверлей поверх других эффектов
-#define MC_FILL_COLOR            1
-#define MC_SNOW                  2
-#define MC_BALL                  3
-#define MC_RAINBOW               4
-#define MC_PAINTBALL             5
-#define MC_FIRE                  6
-#define MC_MATRIX                7
-#define MC_BALLS                 8
-#define MC_STARFALL              9
-#define MC_SPARKLES             10
-#define MC_NOISE_MADNESS        11
-#define MC_NOISE_CLOUD          12
-#define MC_NOISE_LAVA           13
-#define MC_NOISE_PLASMA         14
-#define MC_NOISE_RAINBOW        15
-#define MC_NOISE_RAINBOW_STRIP  16
-#define MC_NOISE_ZEBRA          17
-#define MC_NOISE_FOREST         18
-#define MC_NOISE_OCEAN          19
-#define MC_COLORS               20
-#define MC_LIGHTERS             21
-#define MC_SWIRL                22
-#define MC_CYCLON               23
-#define MC_FLICKER              24
-#define MC_PACIFICA             25
-#define MC_SHADOWS              26
-#define MC_MAZE                 27
-#define MC_SNAKE                28
-#define MC_TETRIS               29
-#define MC_ARKANOID             30
-#define MC_FLAPPY               31
-#define MC_RUNNER               32
-#define MC_PALETTE              33
-#define MC_ANALYZER             34
-#define MC_PRIZMATA             35
-#define MC_MUNCH                36
-#define MC_RAIN                 37
-#define MC_FIRE2                38
-#define MC_ARROWS               39
+#define MC_FILL_COLOR            1         // Свет
+#define MC_SNOW                  2         // Снегопад
+#define MC_BALL                  3         // Кубик
+#define MC_RAINBOW               4         // Радуга
+#define MC_PAINTBALL             5         // Пейнтбол
+#define MC_FIRE                  6         // Огонь
+#define MC_MATRIX                7         // Matrix
+#define MC_BALLS                 8         // Шарики
+#define MC_STARFALL              9         // Звездопад
+#define MC_SPARKLES             10         // Конфетти
+#define MC_NOISE_MADNESS        11         // Цветной шум
+#define MC_NOISE_CLOUD          12         // Облака
+#define MC_NOISE_LAVA           13         // Лава
+#define MC_NOISE_PLASMA         14         // Плазма
+#define MC_NOISE_RAINBOW        15         // Переливы
+#define MC_NOISE_RAINBOW_STRIP  16         // Павлин
+#define MC_NOISE_ZEBRA          17         // Зебра
+#define MC_NOISE_FOREST         18         // Лес
+#define MC_NOISE_OCEAN          19         // Прибой
+#define MC_COLORS               20         // Цвета
+#define MC_LIGHTERS             21         // Светлячки
+#define MC_SWIRL                22         // Водоворот
+#define MC_CYCLON               23         // Циклон
+#define MC_FLICKER              24         // Мерцание
+#define MC_PACIFICA             25         // Сияние
+#define MC_SHADOWS              26         // Тени
+#define MC_MAZE                 27         // Лабиринт
+#define MC_SNAKE                28         // Змейка
+#define MC_TETRIS               29         // Тетрис
+#define MC_ARKANOID             30         // Арканоид
+#define MC_FLAPPY               31         // Flappy
+#define MC_RUNNER               32         // Runner
+#define MC_PALETTE              33         // Палитра
+#define MC_ANALYZER             34         // Спектрум
+#define MC_PRIZMATA             35         // Синусы
+#define MC_MUNCH                36         // Вышиванка
+#define MC_RAIN                 37         // Дождь
+#define MC_FIRE2                38         // Камин
+#define MC_ARROWS               39         // Стрелки
+#define MC_WEATHER              40         // Погода
+#define MC_LIFE                 41         // Жизнь
+#define MC_PATTERNS             42         // Узоры
+#define MC_SINWAVES             43         // Синусоиды
+#define MC_POPCORN              44         // Попкорн
+#define MC_DNA                  45         // ДНК
+#define MC_BALLS_BOUNCE         46         // Прыжки
+#define MC_SPIRO                47         // Cпиpaли
+#define MC_SMOKEBALLS           48         // Ветер
+#define MC_NEXUS                49         // Nexus
+#define MC_SINUSOID3            50         // Cинycoид
+#define MC_RINGS                51         // Koдoвый зaмoк
+#define MC_CUBE2D               52         // Kyбик Pyбикa
+#define MC_ATTRACT              53         // Пpитяжeниe
+#define MC_FAIRY                54         // Фeя
+#define MC_DROPS                55         // Kaпли
+#define MC_OSCILLATING          56         // Ocциллятop
+#define MC_LLAND                57         // Kипeниe
+#define MC_SAND                 58         // Дpaжe
+#define MC_WAVES                59         // Boлны
+#define MC_METABALLS            60         // Круг
+#define MC_PICASSO              61         // Пикacco
+#define MC_LUMENJER             62         // Люмeньep
+#define MC_SPHERES              63         // Шapы
+#define MC_POOL                 64         // Бacceйн
+#define MC_SMOKE                65         // Дым
+#define MC_PULSE                66         // Пyльc
+#define MC_WATERFALL            67         // Boдoпaд
+#define MC_WHIRL                68         // Bиxpи
+#define MC_COMET                69         // Koмeтa
+#define MC_RAINBOWSNAKE         70         // Paдyжный змeй
+#define MC_PLASMALAMP           71         // Плазмолампа
 
 // Часы в фоторамке - размер 17x11 - для них нет картинки анимации - эффект анимация удален из прошивки
 #ifdef NO_ANIMATION
-
-#define MC_WEATHER              40
-#define MC_LIFE                 41
-#define MC_PATTERNS             42
-#define MC_WAVES                43
-#define MC_DAWN_ALARM           44
-#define MC_SDCARD               45
+#define MC_DAWN_ALARM           72         // Рассвет         
+#define MC_SDCARD               73         // SD-карта
 
 #if (USE_SD == 1)
-#define MAX_EFFECT              46         // количество эффектов, определенных в прошивке
+#define MAX_EFFECT              74         // количество эффектов, определенных в прошивке
 #else
-#define MAX_EFFECT              45         // количество эффектов, определенных в прошивке
+#define MAX_EFFECT              73         // количество эффектов, определенных в прошивке
 #endif
 
 #else
-
-#define MC_IMAGE                40
-#define MC_WEATHER              41
-#define MC_LIFE                 42
-#define MC_PATTERNS             43
-#define MC_WAVES                44
-#define MC_DAWN_ALARM           45
-#define MC_SDCARD               46
+#define MC_IMAGE                72         // Анимция
+#define MC_DAWN_ALARM           73         // Рассвет
+#define MC_SDCARD               74         // SD-карта
 
 #if (USE_SD == 1)
-#define MAX_EFFECT              47         // количество эффектов, определенных в прошивке
+#define MAX_EFFECT              75         // количество эффектов, определенных в прошивке
 #else
-#define MAX_EFFECT              46         // количество эффектов, определенных в прошивке
+#define MAX_EFFECT              74         // количество эффектов, определенных в прошивке
 #endif
 
 #endif
@@ -887,6 +923,7 @@ bool   allowVertical, allowHorizontal;
 
 CRGB       *leds;                                   // обращение к светодиодам матрицы через этот массив
 CRGB       *overlayLEDs;                            // буфер оверлея; по максимуму - для бегущей строки во всю ширину матрицы или отображение календаря / вертикальных часов - 11 высота
+CRGB       *ledsbuff;
 
 #define    POWER_ON              HIGH               // Для включения питания матрицы (через MOSFET) подавать на пин POWER_PIN высокий уровень
 #define    POWER_OFF             LOW                // Для вЫключения питания матрицы (через MOSFET) подавать на пин POWER_PIN низкий уровень

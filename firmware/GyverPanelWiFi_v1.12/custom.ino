@@ -438,9 +438,36 @@ void processEffect(uint8_t aMode) {
     case MC_CLOCK:               clockRoutine(); break;
     case MC_DAWN_ALARM:          dawnProcedure(); break;
     case MC_PATTERNS:            patternRoutine(); break;
-    case MC_WAVES:               wavesRoutine(); break;
-
-    #ifdef MC_IMAGE
+    case MC_SINWAVES:            sinwavesRoutine(); break;
+    case MC_POPCORN:             popcornRoutine(); break;
+    case MC_DNA:                 DNARoutine(); break;
+    case MC_BALLS_BOUNCE:        bounceRoutine(); break;
+    case MC_SPIRO:               spiroRoutine(); break;
+    case MC_SMOKEBALLS:          smokeballsRoutine(); break;
+    case MC_NEXUS:               nexusRoutine(); break;
+    case MC_SINUSOID3:           Sinusoid3Routine(); break;
+    case MC_RINGS:               ringsRoutine(); break;
+    case MC_CUBE2D:              cube2dRoutine(); break;
+    case MC_ATTRACT:             attractRoutine(); break;
+    case MC_FAIRY:               fairyRoutine(); break;
+    case MC_DROPS:               newMatrixRoutine(); break;
+    case MC_OSCILLATING:         oscillatingRoutine(); break;
+    case MC_LLAND:               LLandRoutine(); break;
+    case MC_SAND:                sandRoutine(); break;
+    case MC_WAVES:               WaveRoutine(); break;
+    case MC_METABALLS:           MetaBallsRoutine(); break;
+    case MC_PICASSO:             picassoSelector(); break;
+    case MC_LUMENJER:            lumenjerRoutine(); break;
+    case MC_SPHERES:             spheresRoutine(); break;
+    case MC_POOL:                poolRoutine(); break;  
+    case MC_SMOKE:               smokeRoutine(); break;   
+    case MC_PULSE:               pulseRoutine(); break;   
+    case MC_WATERFALL:           waterfallRoutine(); break; 
+    case MC_WHIRL:               whirl(); break; 
+    case MC_COMET:               comet(); break; 
+    case MC_RAINBOWSNAKE:        MultipleStream8(); break; 
+    case MC_PLASMALAMP:          spiderRoutine(); break; 
+    #ifdef MC_IMAGE 
     case MC_IMAGE:               animationRoutine(); break;
     #endif  
 
@@ -526,8 +553,35 @@ void releaseEffectResources(uint8_t aMode) {
     case MC_CLOCK:               break;
     case MC_DAWN_ALARM:          break;
     case MC_PATTERNS:            break;
+    case MC_SINWAVES:            break;
+    case MC_POPCORN:             break;
+    case MC_DNA:                 break;
+    case MC_BALLS_BOUNCE:        break;
+    case MC_SPIRO:               break;
+    case MC_SMOKEBALLS:          break;
+    case MC_NEXUS:               break;
+    case MC_SINUSOID3:           break;
+    case MC_RINGS:               break;
+    case MC_CUBE2D:              break;
+    case MC_ATTRACT:             break;
+    case MC_FAIRY:               break;
+    case MC_DROPS:               break;
+    case MC_OSCILLATING:         break;
+    case MC_LLAND:               break;
+    case MC_SAND:                break;
     case MC_WAVES:               break;
-
+    case MC_METABALLS:           break;
+    case MC_PICASSO:             break;
+    case MC_LUMENJER:            break;
+    case MC_SPHERES:             break;
+    case MC_POOL:                break;  
+    case MC_SMOKE:               break; 
+    case MC_PULSE:               break; 
+    case MC_WATERFALL:           break; 
+    case MC_WHIRL:               break; 
+    case MC_COMET:               break; 
+    case MC_RAINBOWSNAKE:        break; 
+    case MC_PLASMALAMP:          break; 
     #ifdef MC_IMAGE
     case MC_IMAGE:               break;
     #endif  
@@ -734,9 +788,93 @@ void setTimersForMode(uint8_t aMode) {
         effectTimer.setInterval(efSpeed);
         gameTimer.setInterval(efSpeed);    
       } else
+      if (aMode == MC_SINWAVES) {
+        effectTimer.setInterval(efSpeed);
+      } else
+      if (aMode == MC_POPCORN) {
+        effectTimer.setInterval(efSpeed);
+      } else
+      if (aMode == MC_DNA) {
+        effectTimer.setInterval(efSpeed);
+      } else
+      if (aMode == MC_BALLS_BOUNCE) {
+        effectTimer.setInterval(efSpeed);
+      } else
+      if (aMode == MC_SPIRO) {
+        effectTimer.setInterval(efSpeed);
+      } else
+      if (aMode == MC_SMOKEBALLS) {
+        effectTimer.setInterval(efSpeed);
+      } else
+      if (aMode == MC_NEXUS) {
+        effectTimer.setInterval(efSpeed);
+      } else
+      if (aMode == MC_SINUSOID3) {
+        effectTimer.setInterval(efSpeed);
+      } else
+      if (aMode == MC_RINGS) {
+        effectTimer.setInterval(efSpeed);
+      } else
+      if (aMode == MC_CUBE2D) {
+        effectTimer.setInterval(efSpeed);
+      } else
+      if (aMode == MC_ATTRACT) {
+        effectTimer.setInterval(efSpeed);
+      } else
+      if (aMode == MC_FAIRY) {
+        effectTimer.setInterval(efSpeed);
+      } else
+      if (aMode == MC_DROPS) {
+        effectTimer.setInterval(efSpeed);
+      } else
+      if (aMode == MC_OSCILLATING) {
+        effectTimer.setInterval(efSpeed);
+      } else
+      if (aMode == MC_LLAND) {
+        effectTimer.setInterval(efSpeed);
+      } else
+      if (aMode == MC_SAND) {
+        effectTimer.setInterval(efSpeed);
+      } else
       if (aMode == MC_WAVES) {
         effectTimer.setInterval(efSpeed);
       } else
+      if (aMode == MC_METABALLS) {
+        effectTimer.setInterval(efSpeed);
+      } else
+      if (aMode == MC_PICASSO) {
+        effectTimer.setInterval(efSpeed);
+      } else
+      if (aMode == MC_LUMENJER) {
+        effectTimer.setInterval(efSpeed);
+      } else
+      if (aMode == MC_SPHERES) {
+        effectTimer.setInterval(efSpeed);
+      } else
+      if (aMode == MC_POOL) {
+        effectTimer.setInterval(efSpeed);
+      } else
+      if (aMode == MC_SMOKE) {
+        effectTimer.setInterval(efSpeed);
+      } else  
+      if (aMode == MC_PULSE) {
+        effectTimer.setInterval(efSpeed);
+      } else  
+      if (aMode == MC_WATERFALL) {
+        effectTimer.setInterval(efSpeed);
+      } else    
+      if (aMode == MC_WHIRL) {
+        effectTimer.setInterval(efSpeed);
+      } else 
+      if (aMode == MC_COMET) {
+        effectTimer.setInterval(efSpeed);
+      } else  
+      if (aMode == MC_RAINBOWSNAKE) {
+        effectTimer.setInterval(efSpeed);
+      } else  
+      if (aMode == MC_PLASMALAMP) {
+        effectTimer.setInterval(efSpeed);
+      } else  
       {
         effectTimer.setInterval(10);
       }
