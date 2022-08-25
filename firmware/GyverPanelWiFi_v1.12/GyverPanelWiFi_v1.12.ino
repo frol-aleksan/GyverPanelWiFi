@@ -159,16 +159,13 @@ void setup() {
   DEBUGLN();
   DEBUGLN(FIRMWARE_VER);
   DEBUGLN();
-
   DEBUGLN(F("\nИнициализация файловой системы... "));
-  
   spiffs_ok = LittleFS.begin();
   if (!spiffs_ok) {
     DEBUGLN(F("\nВыполняется разметка файловой системы... "));
     LittleFS.format();
     spiffs_ok = LittleFS.begin();    
   }
-
   if (spiffs_ok) {
     DEBUG(F("FS: "));
     #if defined(ESP32)
@@ -188,9 +185,7 @@ void setup() {
   } else {
     DEBUGLN(F("Файловая система недоступна."));
   }
-
   loadSettings();
-
   DEBUGLN();
   DEBUGLN("Host: '" + host_name + "'" + String(F(" >> ")) + String(pWIDTH) + "x" + String(pHEIGHT));
   DEBUGLN();
@@ -198,14 +193,11 @@ void setup() {
   // -----------------------------------------
   // В этом блоке можно принудительно устанавливать параметры, которые должны быть установлены при старте микроконтроллера
   // -----------------------------------------
-
-  // -----------------------------------------  
-    
+   
   // Настройки ленты
   leds =  new CRGB[NUM_LEDS];       
   ledsbuff =  new CRGB[NUM_LEDS];    
   overlayLEDs = new CRGB[OVERLAY_SIZE];
-
   FastLED.addLeds<WS2812, LED_PIN, COLOR_ORDER>(leds, NUM_LEDS).setCorrection( TypicalLEDStrip );
   FastLED.setBrightness(globalBrightness);
   if (CURRENT_LIMIT > 0) {
@@ -218,7 +210,7 @@ void setup() {
   #if (USE_SD == 1)
     InitializeSD1();
   #endif
-
+  
   // Проверить наличие резервной копии настроек EEPROM в файловой системе MK и/или на SD-карте
   eeprom_backup = checkEepromBackup();
   if ((eeprom_backup & 0x01) > 0) {
