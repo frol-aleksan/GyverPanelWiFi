@@ -466,6 +466,7 @@ void processEffect(uint8_t aMode) {
     case MC_WHIRL:               whirl(); break; 
     case MC_COMET:               comet(); break; 
     case MC_RAINBOWSNAKE:        MultipleStream8(); break; 
+    case MC_PLASMALAMP:          spiderRoutine(); break; 
     #ifdef MC_IMAGE 
     case MC_IMAGE:               animationRoutine(); break;
     #endif  
@@ -580,6 +581,7 @@ void releaseEffectResources(uint8_t aMode) {
     case MC_WHIRL:               break; 
     case MC_COMET:               break; 
     case MC_RAINBOWSNAKE:        break; 
+    case MC_PLASMALAMP:          break; 
     #ifdef MC_IMAGE
     case MC_IMAGE:               break;
     #endif  
@@ -868,6 +870,9 @@ void setTimersForMode(uint8_t aMode) {
         effectTimer.setInterval(efSpeed);
       } else  
       if (aMode == MC_RAINBOWSNAKE) {
+        effectTimer.setInterval(efSpeed);
+      } else  
+      if (aMode == MC_PLASMALAMP) {
         effectTimer.setInterval(efSpeed);
       } else  
       {

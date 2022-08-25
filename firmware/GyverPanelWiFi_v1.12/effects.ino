@@ -6818,3 +6818,22 @@ void MultipleStream8() { // Windows ))
   MoveFractionalNoiseX(3);
   MoveFractionalNoiseY(3);
 }
+
+// ============= Эффект Плазменная лампа ===============
+// эффект Паук (c) stepko
+// плюс выбор палитры и багфикс (c) SottNick
+
+void spiderRoutine() {
+   setCurrentPalette();
+   pcnt = (modes[currentMode].Scale - 1U) % 11U + 1U; // количество линий от 1 до 11 для каждой из 9 палитр
+   speedfactor = fmap(modes[currentMode].Speed, 1, 255, 20., 2.); 
+ if (hue2++ & 0x01 && deltaHue++ & 0x01 && deltaHue2++ & 0x01) hue++; // хз. как с 60ю кадрами в секунду скорость замедлять...
+ dimAll(205);
+ float time_shift = millis() & 0x7FFFFF; // overflow protection proper by SottNick
+ time_shift /= speedfactor;
+ for (uint8_t c = 0; c < pcnt; c++) {
+   float xx = 2. + sin8(time_shift + 6000 * c) / 12.;
+   float yy = 2. + cos8(time_shift + 9000 * c) / 12.;
+   DrawLineF(xx, yy, (float)WIDTH - xx - 1, (float)HEIGHT - yy - 1, ColorFromPalette(*curPalette, hue + c * (255 / pcnt)));
+ }
+}
