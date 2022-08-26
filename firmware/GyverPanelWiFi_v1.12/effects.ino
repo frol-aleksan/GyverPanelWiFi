@@ -4250,8 +4250,7 @@ void WaveRoutine() {
         else {
             hueUpdate++;
         }
-        blurScreen(20); // @Palpalych советует делать размытие. вот в этом эффекте его явно не хватает...*/
-        
+        blurScreen(20); // @Palpalych советует делать размытие. вот в этом эффекте его явно не хватает...*/     
 }
 
 // --------------------------- эффект МетаБолз ----------------------
@@ -5757,7 +5756,6 @@ void whirlRoutine(bool oneColor) {
       drawPixelXYF(boid->location.x, boid->location.y, CHSV(modes[currentMode].Scale * 2.55, (modes[currentMode].Scale == 100) ? 0U : 255U, 255U)); // цвет белый для .Scale=100
     else
       drawPixelXYF(boid->location.x, boid->location.y, ColorFromPalette(*curPalette, angle + hue)); // + hue постепенно сдвигает палитру по кругу
-
     if (boid->location.x < 0 || boid->location.x >= WIDTH || boid->location.y < 0 || boid->location.y >= HEIGHT) {
       boid->location.x = random(WIDTH);
       boid->location.y = 0;
@@ -5805,7 +5803,6 @@ void RainbowCometRoutine() {
   MoveFractionalNoiseX(WIDTH / 2U - 1U);
   MoveFractionalNoiseY(HEIGHT / 2U - 1U);
 }
-
 // Кометы белые и одноцветные
 void ColorCometRoutine() {      // <- ******* для оригинальной прошивки Gunner47 ******* (раскомментить/закоментить)  
   dimAll(254U); // < -- затухание эффекта для последующего кадра
