@@ -41,7 +41,8 @@ void InitializeE131() {
     // Одна вседенная содержит данные 170 RGB светодиодов - используется 170*3 = 510 каналов из доступных по спецификации E1.31 DMX 512 каналов на вселенную.
     UNIVERSE_COUNT = NUM_LEDS / 170;  
     if ((NUM_LEDS % 170) > 0) UNIVERSE_COUNT++;
-    if (UNIVERSE_COUNT > 7) UNIVERSE_COUNT = 7;    
+    if (UNIVERSE_COUNT > 7) UNIVERSE_COUNT = 7;   
+    END_UNIVERSE = START_UNIVERSE + UNIVERSE_COUNT - 1; 
 
     last_fps_time = millis();
     
@@ -111,6 +112,7 @@ void printE131packet(e131_packet_t *packet) {
 // ---------------------------------------------------
 // Отображение информации из полученного пакета E1.31 на матрицу
 // ---------------------------------------------------
+int cnt = 0; 
 bool drawE131frame(e131_packet_t *packet, eSyncModes syncMode) {
   uint16_t CURRENT_UNIVERSE = htons(packet->universe);      
   uint16_t offset = (CURRENT_UNIVERSE - START_UNIVERSE) * 170; // if more than 170 LEDs (510 channels), client will send in next higher universe    

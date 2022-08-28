@@ -295,10 +295,14 @@ void doEffectWithOverlay(uint8_t aMode) {
 
     // Время отрисовки календаря или температуры
     bool cal_or_temp_processed = false;
+    // В больших часах календарь и температура показываются в той же позиции, что и часы и совпадают по формату - ЧЧ:MM и ДД.MM - одинаковый размер
+    // В малых вертикальных часах - нет.
+    int8_t XC = CLOCK_ORIENT == 1 && c_size == 1 ? CALENDAR_XC : CLOCK_XC;
     if (showDateState && (showDateInClock || (!allow_two_row && (init_weather && showWeatherInClock && showWeatherState)))) {
       if (showDateInClock && showDateState && !showWeatherState) {
         // Календарь
-        drawCalendar(aday, amnth, ayear, dotFlag, CALENDAR_XC, CALENDAR_Y);
+   //     drawCalendar(aday, amnth, ayear, dotFlag, CALENDAR_XC, CALENDAR_Y);
+        drawCalendar(aday, amnth, ayear, dotFlag, XC, CALENDAR_Y);
         cal_or_temp_processed = true;
       } else {
         // Температура, когда чередуется с часами - только при горизонтальной ориентации часов и если она по высоте не входит в отображение ВМЕСТЕ с часами
@@ -310,7 +314,8 @@ void doEffectWithOverlay(uint8_t aMode) {
           } else {   
             // Если показ календаря в часах включен - показать кадлендарь, иначе - вместо календаря снова показать температуру, если она включена         
             if (showDateInClock || !init_weather) {
-              drawCalendar(aday, amnth, ayear, dotFlag, CLOCK_XC, CALENDAR_Y);  // В больших часах календарь и температура показываются в той же позиции, что и часы и совпадают по формату - ЧЧ:MM и ДД.MM - одинаковый размер
+        //      drawCalendar(aday, amnth, ayear, dotFlag, CLOCK_XC, CALENDAR_Y);  // В больших часах календарь и температура показываются в той же позиции, что и часы и совпадают по формату - ЧЧ:MM и ДД.MM - одинаковый размер
+              drawCalendar(aday, amnth, ayear, dotFlag, XC, CALENDAR_Y);  
               cal_or_temp_processed = true;
             } else if (showWeatherInClock && !allow_two_row) {
               CLOCK_WY = CLOCK_Y;
@@ -319,7 +324,8 @@ void doEffectWithOverlay(uint8_t aMode) {
             }
           }
         #else
-           drawCalendar(aday, amnth, ayear, dotFlag, CLOCK_XC, CALENDAR_Y);  // В больших часах календарь и температура показываются в той же позиции, что и часы
+     //      drawCalendar(aday, amnth, ayear, dotFlag, CLOCK_XC, CALENDAR_Y);  // В больших часах календарь и температура показываются в той же позиции, что и часы
+           drawCalendar(aday, amnth, ayear, dotFlag, XC, CALENDAR_Y);
            cal_or_temp_processed = true;
         #endif
       }
@@ -637,7 +643,7 @@ static void prevMode() {
 void nextModeHandler() {
 
   if (useRandomSequence) {
-    setRandomMode2();
+    setRandomMode();
     return;
   }
 
@@ -649,10 +655,11 @@ void nextModeHandler() {
     // Если режим - SD-карта и установлено последовательное воспроизведение файлов - брать следующий файл с SD-карты
     #if (USE_SD == 1)
       if (newMode == MC_SDCARD && getEffectScaleParamValue2(MC_SDCARD) == 1) {
-        if (sf_file_idx == -2 || sf_file_idx == (MAX_FILES + 1)) sf_file_idx = 0;
+  //      if (sf_file_idx == -2 || sf_file_idx == (MAX_FILES + 1)) sf_file_idx = 0;
+        if (sf_file_idx == -2 || sf_file_idx >= countFiles) sf_file_idx = 0;
         else sf_file_idx++;
         if (sf_file_idx >= countFiles) {
-          sf_file_idx = MAX_FILES + 1;
+       //   sf_file_idx = MAX_FILES + 1;
           aCnt++;
           newMode++;
         }
@@ -661,7 +668,8 @@ void nextModeHandler() {
         newMode++;
         if (newMode >= MAX_EFFECT) newMode = 0;  
         if (newMode == MC_SDCARD && getEffectUsage(newMode) && getEffectScaleParamValue2(MC_SDCARD) == 1) {
-          if (sf_file_idx == -2 || sf_file_idx == (MAX_FILES + 1)) sf_file_idx = 0;
+      //    if (sf_file_idx == -2 || sf_file_idx == (MAX_FILES + 1)) sf_file_idx = 0;
+          if (sf_file_idx == -2 || sf_file_idx >= countFiles) sf_file_idx = 0;
           else sf_file_idx++;
           if (sf_file_idx >= countFiles) sf_file_idx = 0;
         }        
@@ -697,7 +705,7 @@ void nextModeHandler() {
 void prevModeHandler() {
 
   if (useRandomSequence) {
-    setRandomMode2();
+    setRandomMode();
     return;
   }
 
@@ -709,7 +717,8 @@ void prevModeHandler() {
     // Если режим - SD-карта и установлено последовательное воспроизведение файлов - брать предыдущий файл с SD-карты
     #if (USE_SD == 1)
       if (newMode == MC_SDCARD && getEffectScaleParamValue2(MC_SDCARD) == 1) {
-        if (sf_file_idx == -2 || sf_file_idx == (MAX_FILES + 1)) sf_file_idx = countFiles - 1;
+ //       if (sf_file_idx == -2 || sf_file_idx == (MAX_FILES + 1)) sf_file_idx = countFiles - 1;
+        if (sf_file_idx == -2 || sf_file_idx >= countFiles) sf_file_idx = countFiles - 1;
         else sf_file_idx--;
         if (sf_file_idx < 0) {
           sf_file_idx = -2;
@@ -721,7 +730,8 @@ void prevModeHandler() {
         newMode--;
         if (newMode < 0) newMode = MAX_EFFECT - 1;
         if (newMode == MC_SDCARD && getEffectUsage(newMode) && getEffectScaleParamValue2(MC_SDCARD) == 1) {
-          if (sf_file_idx == -2 || sf_file_idx == (MAX_FILES + 1)) sf_file_idx = countFiles - 1;
+    //      if (sf_file_idx == -2 || sf_file_idx == (MAX_FILES + 1)) sf_file_idx = countFiles - 1;
+          if (sf_file_idx == -2 || sf_file_idx >= countFiles) sf_file_idx = countFiles - 1;
           else sf_file_idx--;
           if (sf_file_idx < 0) sf_file_idx = countFiles - 1;
         }        
@@ -951,7 +961,16 @@ void checkIdleState() {
   
   if (idleState) {
     uint32_t ms = millis();
-    if ((ms - autoplayTimer > autoplayTime) && !(manualMode || e131_wait_command)) {    // таймер смены режима
+//    if ((ms - autoplayTimer > autoplayTime) && !(manualMode || e131_wait_command)) {    // таймер смены режима
+        if (((ms - autoplayTimer > autoplayTime) // таймер смены режима
+           // при окончании игры не начинать ее снова
+           || gameOverFlag && !repeat_play 
+           #if (USE_SD == 1)
+           // если файл с SD-карты проигрался до конца - сменить эффект
+           || (thisMode == MC_SDCARD && play_file_finished)
+           #endif
+        ) && !(manualMode || e131_wait_command)
+      ) {    
       bool ok = true;
       if (
          (thisMode == MC_TEXT     && !fullTextFlag) ||   // Эффект "Бегущая строка" (показать IP адрес) не сменится на другой, пока вся строка не будет показана полностью
@@ -963,7 +982,7 @@ void checkIdleState() {
          (showTextNow && (specialTextEffect >= 0))       // Воспроизводится бегущая строка на фоне указанного эффекта
          #if (USE_SD == 1)
          // Для файла с SD-карты - если указан режим ожидания проигрывания файла до конца, а файл еще не проигрался - не менять эффект
-         || (thisMode == MC_SDCARD && wait_play_finished && !play_file_finished)
+         || (thisMode == MC_SDCARD && (wait_play_finished && !play_file_finished || loadingFlag))
          #endif
       )
       {        

@@ -88,6 +88,8 @@ void loadDirectory() {
       // Если полученное имя файла содержит имя папки (на ESP32 это так, на ESP8266 - только имя файла) - оставить только имя файла
       int16_t p = file_name.lastIndexOf("/");
       if (p>=0) file_name = file_name.substring(p + 1);
+      p = file_name.lastIndexOf(".");
+      if (p>=0) file_name = file_name.substring(0, p);
             
       DEBUG("  ");
       DEBUG(file_name);
@@ -127,16 +129,16 @@ void sdcardRoutine() {
    // effectScaleParam2[MC_SDCARD]: 0 - случайный файл; 1 - последовательный перебор; 2 и далее - привести к индексы в массиве nameFiles
    
    if (loadingFlag) {
-
+     loadingFlag = false;
      int8_t currentFile = -1;
      // Указан специальный эффект для бегущей строки? - брать его 
      if (specialTextEffectParam >= 0)
        currentFile = specialTextEffectParam - 1;
      // Указано случайное воспроизведение файлов с карты?
      else if (getEffectScaleParamValue2(MC_SDCARD) == 0)
-       currentFile = -2;                               // Случайный порядок
+       currentFile = -2;                                       // Случайный порядок
      else if (getEffectScaleParamValue2(MC_SDCARD) == 1)
-       currentFile = -1;                               // Последоватедбное воспроизведение
+       currentFile = -1;                                       // Последоватедбное воспроизведение
      else
        currentFile = getEffectScaleParamValue2(MC_SDCARD) - 2; // Указанный выбранный файл эффектов
 
@@ -153,6 +155,7 @@ void sdcardRoutine() {
         } else {
           // Случайный с SD-карты
           file_idx = random16(0,countFiles);
+          if (file_idx >= countFiles) file_idx = countFiles - 1;
         }
       } else {
         file_idx = currentFile;
@@ -193,7 +196,7 @@ void sdcardRoutine() {
     #endif
 
     FastLED.clear();
-    loadingFlag = false;
+//    loadingFlag = false;
   }  
 
   // Карта присутствует и файл открылся правильно?

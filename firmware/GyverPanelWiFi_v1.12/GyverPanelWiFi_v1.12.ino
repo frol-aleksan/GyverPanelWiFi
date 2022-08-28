@@ -67,7 +67,7 @@
 
 // ************************ WIFI ПАНЕЛЬ *************************
 
-#define FIRMWARE_VER F("WiFiPanel v.1.12.2021.1127")
+#define FIRMWARE_VER F("WiFiPanel v.1.12.2022.0521")
 
 // --------------------------------------------------------
 
@@ -83,7 +83,7 @@ void callback(char* topic, uint8_t* payload, uint32_t length) {
   // проверяем из нужного ли нам топика пришли данные
   DEBUG("MQTT << topic='" + String(topic) + "'");
   if (strcmp(topic, mqtt_topic(TOPIC_CMD).c_str()) == 0) {
-    memset(incomeMqttBuffer, 0, BUF_MAX_SIZE);
+    memset(incomeMqttBuffer, 0, BUF_MQTT_SIZE);
     memcpy(incomeMqttBuffer, payload, length);
     
     DEBUG(F("; cmd='"));
@@ -198,7 +198,9 @@ void setup() {
   leds =  new CRGB[NUM_LEDS];       
   ledsbuff =  new CRGB[NUM_LEDS];    
   overlayLEDs = new CRGB[OVERLAY_SIZE];
-  FastLED.addLeds<WS2812, LED_PIN, COLOR_ORDER>(leds, NUM_LEDS).setCorrection( TypicalLEDStrip );
+//  FastLED.addLeds<WS2812, LED_PIN, COLOR_ORDER>(leds, NUM_LEDS).setCorrection( TypicalLEDStrip );
+
+  FastLED.addLeds<WS2813, LED_PIN, COLOR_ORDER>(leds, NUM_LEDS).setCorrection( TypicalLEDStrip ); 
   FastLED.setBrightness(globalBrightness);
   if (CURRENT_LIMIT > 0) {
     FastLED.setMaxPowerInVoltsAndMilliamps(5, CURRENT_LIMIT);
@@ -245,9 +247,13 @@ void setup() {
   // Второй этап инициализации плеера - проверка наличия файлов звуков на SD карте
   #if (USE_MP3 == 1)
     InitializeDfPlayer2();
-    if (!isDfPlayerOk) {
-      DEBUGLN(F("MP3 плеер недоступен."));
-    }
+    if (isDfPlayerOk) {
+      InitializeDfPlayer2();
+      if (!isDfPlayerOk) {
+        DEBUGLN(F("MP3 плеер недоступен."));
+      }
+    } else
+        DEBUGLN(F("MP3 плеер недоступен."));
   #endif
 
   // Подключение к сети
@@ -361,7 +367,7 @@ void setup() {
   } else {
     set_thisMode(getCurrentManualMode());
     if (thisMode < 0 || thisMode == MC_TEXT || thisMode >= SPECIAL_EFFECTS_START) {
-      setRandomMode2();
+      setRandomMode();
     } else {
       setEffect(thisMode);        
     }
