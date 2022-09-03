@@ -4,7 +4,6 @@
 
 // Контроль времени цикла
 uint32_t last_ms = millis();  
-int32_t ccnt;
 
 // Отладка приема пакетов E1.31
 #if (USE_E131 == 1)
@@ -97,7 +96,7 @@ void process() {
   // Если включен эффект с кодом большим кол-ва эффектов (но меньшим кода специальных эффектов) - 
   // выбрать случайный эффект, иначе будет отображаться черный экран или застывший предыдущий эффект
   if (thisMode >= MAX_EFFECT && thisMode < SPECIAL_EFFECTS_START) {
-    setRandomMode(); 
+    setRandomMode2(); 
   }
 
   // Эффект сменился?  tmpSaveMode - эффект, который был на предыдущем шаге цикла, thisMode - текущий эффект
@@ -105,7 +104,7 @@ void process() {
     if (effect_name.length() == 0) {
       // Если режим отсутствует в списке эффектов - имя пустое - включить случайный, 
       // на следующем цикле tmpSaveMode != thisMode - имя будет определено снова
-      setRandomMode(); 
+      setRandomMode2(); 
     } else {
       #if (USE_E131 == 1)
       if (!(e131_streaming && workMode == SLAVE)) {
@@ -283,10 +282,7 @@ void process() {
         // Если режим стрима - PHYSIC или LOGIC - вывести принятые данные на матрицу
         if (syncMode == PHYSIC || syncMode == LOGIC) {
           if (drawE131frame(&e131_packet, syncMode)) {
-   //       FastLED.show();
-            if (CURRENT_UNIVERSE == END_UNIVERSE) {
-               FastLED.show();
-            }
+            FastLED.show();
           }
         }
       }
@@ -415,10 +411,8 @@ void process() {
         bool tmpSaveSpecial = specialMode;
         resetModes();  
         setManualModeTo(true);
-        if (tmpSaveSpecial) 
-          setRandomMode();        
-        else 
-          nextMode();
+        if (tmpSaveSpecial) setRandomMode();
+        else                nextMode();
       }
 
       // Тройное нажатие - включить случайный режим с автосменой
@@ -941,8 +935,7 @@ void parsing() {
           // Для прочих режимов - общую яркость системы
           if (isNightClock) {
             set_nightClockBrightness(intData[2]); // setter            
-    //        set_specialBrightness(nightClockBrightness < MIN_BRIGHT_FOR_NIGHT ? MIN_BRIGHT_FOR_NIGHT : nightClockBrightness);
-            set_specialBrightness(nightClockBrightness);
+            set_specialBrightness(nightClockBrightness < MIN_BRIGHT_FOR_NIGHT ? MIN_BRIGHT_FOR_NIGHT : nightClockBrightness);
             FastLED.setBrightness(specialBrightness);
           } else {
             set_globalBrightness(intData[2]);
@@ -1441,7 +1434,7 @@ void parsing() {
           // Если в приложении выбраны часы, но они недоступны из-за размеров матрицы - брать другой случайный эффект
           if (tmp_eff == MC_CLOCK){
              if (!(allowHorizontal || allowVertical)) {
-               setRandomMode();
+               setRandomMode2();
              }
           } 
           */         
@@ -1449,7 +1442,7 @@ void parsing() {
           // Если в приложении выбраны часы, но они недоступны из-за размеров матрицы - брать другой случайный эффект
           if (tmp_eff == MC_CLOCK){
             if (!(allowHorizontal || allowVertical)) {
-              setRandomMode();
+              setRandomMode2();
             } else {
               setSpecialMode(10);    // Дневные часы. Для ночных - 8
             }
@@ -1475,8 +1468,7 @@ void parsing() {
              if (isNightClock) {
                // Для ночных часов - полученное значение -> в map 0..6 - код цвета ночных часов
                set_nightClockColor(map(intData[3], 0,255, 0,6));
-         //      set_specialBrightness(nightClockBrightness < MIN_BRIGHT_FOR_NIGHT ? MIN_BRIGHT_FOR_NIGHT : nightClockBrightness);
-               set_specialBrightness(nightClockBrightness);
+               set_specialBrightness(nightClockBrightness < MIN_BRIGHT_FOR_NIGHT ? MIN_BRIGHT_FOR_NIGHT : nightClockBrightness);
                FastLED.setBrightness(specialBrightness);
              } else {
                // Для дневных часов - меняется цвет часов (параметр HUE цвета, hue < 2 - белый)
@@ -1761,7 +1753,7 @@ void parsing() {
              b_tmp = intData[2] > 0 || (intData[2] == 0 && textLines[0].charAt(0) != '#');
              if (b_tmp) {              
                if (thisMode == MC_TEXT){
-                  setRandomMode();
+                  setRandomMode2();
                } 
                nextTextLineIdx = intData[2];  // nextTextLineIdx - индекс следующей принудительно отображаемой строки
                ignoreTextOverlaySettingforEffect = true;
@@ -1905,7 +1897,7 @@ void parsing() {
           idleTimer.reset();
           if (thisMode == MC_FILL_COLOR && globalColor == 0x000000) {
             // Было выключено, режим "Лампа" с черным цветом - включить случайный режим
-            setRandomMode();
+            setRandomMode2();
           }
         }
         
@@ -1941,7 +1933,6 @@ void parsing() {
 
       // ----------------------------------------------------
       // 18 - Запрос текущих параметров программой: $18 page;
-      //    page 0:   // ping - проверка связи
       //    page 1:   // Настройки
       //    page 2:   // Эффекты
       //    page 3:   // Настройки бегущей строки
@@ -2056,16 +2047,14 @@ void parsing() {
            case 10:               // $19 10 X; - Цвет ночных часов:  0 - R; 1 - G; 2 - B; 3 - C; 3 - M; 5 - Y; 6 - W;
              set_nightClockColor(intData[2]);
              if (isNightClock) {
-        //        set_specialBrightness(nightClockBrightness < MIN_BRIGHT_FOR_NIGHT ? MIN_BRIGHT_FOR_NIGHT : nightClockBrightness);
-                set_specialBrightness(nightClockBrightness);
+                set_specialBrightness(nightClockBrightness < MIN_BRIGHT_FOR_NIGHT ? MIN_BRIGHT_FOR_NIGHT : nightClockBrightness);
                 FastLED.setBrightness(specialBrightness);
              }             
              break;
            case 11:               // $19 11 X; - Яркость ночных часов:  1..255;
              set_nightClockBrightness(intData[2]); // setter             
              if (isNightClock) {
-        //        set_specialBrightness(nightClockBrightness < MIN_BRIGHT_FOR_NIGHT ? MIN_BRIGHT_FOR_NIGHT : nightClockBrightness);
-                set_specialBrightness(nightClockBrightness);
+                set_specialBrightness(nightClockBrightness < MIN_BRIGHT_FOR_NIGHT ? MIN_BRIGHT_FOR_NIGHT : nightClockBrightness);
                 FastLED.setBrightness(specialBrightness);
              }             
              break;
@@ -2508,7 +2497,7 @@ void parsing() {
       }
       DEBUGLN();
 
-      DEBUG(F("Получен UDP пакeт размером "));
+      DEBUG(F("UDP пакeт размером "));
       DEBUGLN(packetSize);
     }
 
@@ -2612,31 +2601,31 @@ void sendPageParams(uint8_t page, eSources src) {
   
   switch (page) { 
     case 1:  // Настройки
-      str = getStateString("UP|FM|AL|W|H|DM|PS|PD|IT|RM|PW|BR|WU|WT|WR|WS|WC|WN|WZ|SD|FS|EE");
+      str = getStateString("UP|FM|W|H|DM|PS|PD|IT|AL|RM|PW|BR|WU|WT|WR|WS|WC|WN|WZ|SD|FS|EE");
       break;
     case 2:  // Эффекты
-      str = getStateString("UP|FM|AL|EF|EN|UE|UT|UC|SE|SS|BE|SQ");
+      str = getStateString("UP|FM|EF|EN|UE|UT|UC|SE|SS|BE|SQ");
       break;
     case 3:  // Настройки бегущей строки
-      str = getStateString("UP|FM|AL|TE|TI|CT|ST|C2|OM|TS");
+      str = getStateString("UP|FM|TE|TI|CT|ST|C2|OM|TS");
       break;
     case 4:  // Настройки часов
-      str = getStateString("UP|FM|AL|CE|CC|CO|CK|NC|SC|C1|DC|DD|DI|NP|NT|NZ|NS|DW|OF|TM");
+      str = getStateString("UP|FM|CE|CC|CO|CK|NC|SC|C1|DC|DD|DI|NP|NT|NZ|NS|DW|OF|TM");
       break;
     case 5:  // Настройки будильника
       str = getStateString("UP|FM|AL|AW|AT|AD|AE|MX|MU|MD|MV|MA|MB|MP");
       break;
     case 6:  // Настройки подключения
-      str = getStateString("UP|FM|AL|AU|AN|AA|NW|NA|IP|QZ|QA|QP|QS|QU|QW|QD|QR|QK");
+      str = getStateString("UP|FM|AU|AN|AA|NW|NA|IP|QZ|QA|QP|QS|QU|QW|QD|QR|QK");
       break;
     case 7:  // Настройки режимов автовключения по времени
-      str = getStateString("UP|FM|AL|WZ|WU|AM1T|AM1A|AM2T|AM2A|AM3T|AM3A|AM4T|AM4A|AM5A|AM6A|T1|T2");
+      str = getStateString("UP|FM|WZ|WU|AM1T|AM1A|AM2T|AM2A|AM3T|AM3A|AM4T|AM4A|AM5A|AM6A|T1|T2");
       break;
-    case 8:  // Настройки параметров матрицы (размеры, подключение)
-      str = getStateString("UP|FM|AL|M0|M1|M2|M3|M4|M5|M6|M7|M8|M9");
+    case 8:  // Настройки параметтров матрицы (размеры, подключение)
+      str = getStateString("UP|FM|M0|M1|M2|M3|M4|M5|M6|M7|M8|M9");
       break;
-    case 9:  // Настройки параметров синхронизации
-      str = getStateString("UP|FM|AL|E0|E1|E2|E3");
+    case 9:  // Настройки параметтров синхронизации
+      str = getStateString("UP|FM|E0|E1|E2|E3");
       break;
     case 10:  // Загрузка картинок
       str = getStateString("UP|FM|W|H|BR|CL|SD");
@@ -3280,8 +3269,7 @@ String getStateValue(String &key, int8_t effect, JsonVariant* value = nullptr) {
   // Цвет рисования
   if (key == "CL") {
     if (value) {
-  //    c = CRGB(globalTextColor);
-      c = CRGB(drawColor);
+      c = CRGB(globalTextColor);
    // value->set(drawColor);
    // return String(drawColor); 
       str = String(c.r) + "," + String(c.g) + "," + String(c.b);
@@ -4161,6 +4149,7 @@ String getParamForMode(uint8_t mode) {
    case MC_COMET:
    case MC_RAINBOWSNAKE:
    case MC_PLASMALAMP:
+   case MC_FOUNTAIN:
    case MC_SDCARD:
    #ifdef MC_IMAGE     
    case MC_IMAGE:
@@ -4187,9 +4176,10 @@ String getParam2ForMode(uint8_t mode) {
    case MC_RAINBOW:
      // Эффект "Радуга" имеет несколько вариантов - список выбора варианта отображения
      // Дополнительный параметр представлен в приложении списком выбора
-     //           Маркер типа - список выбора         0-4                     0               1                   2                     3                   4
+     //           Маркер типа - список выбора         0,1,2,3,4               0               1                   2                     3                   4
      str = String(F("L>")) + String(effectScaleParam2[thisMode]) + String(F(">Случайный выбор,Вертикальная радуга,Горизонтальная радуга,Диагональная радуга,Вращающаяся радуга"));
      break;
+
    case MC_BALLS_BOUNCE:
      // Эффект "Прыжки" имеет несколько вариантов - список выбора варианта отображения
      // Дополнительный параметр представлен в приложении списком выбора
@@ -4241,19 +4231,20 @@ String getParam2ForMode(uint8_t mode) {
    case MC_COMET:
      // Эффект "Кометы" имеет несколько вариантов - список выбора варианта отображения
      // Дополнительный параметр представлен в приложении списком выбора
-     //           Маркер типа - список выбора         0-4                     0               1       2                 3          4     
-     str = String(F("L>")) + String(effectScaleParam2[thisMode]) + String(F(">Случайный выбор,Комета,Одноцветная комета,Две кометы,Три кометы"));
-     break;    
+     //           Маркер типа - список выбора         0-5                     0               1       2                 3          4          5
+     str = String(F("L>")) + String(effectScaleParam2[thisMode]) + String(F(">Случайный выбор,Комета,Одноцветная комета,Две кометы,Три кометы,Разноцветные кометы"));
+     break;  
+     
    case MC_ARROWS:
      // Эффект "Стрелки" имеет несколько вариантов - список выбора варианта отображения
      // Дополнительный параметр представлен в приложении списком выбора
-     //           Маркер типа - список выбора         0-4                     0               1       2       3       4          5
+     //           Маркер типа - список выбора         0,1,2,3,4               0               1       2       3       4          5
      str = String(F("L>")) + String(effectScaleParam2[thisMode]) + String(F(">Случайный выбор,1-центр,2-центр,4-центр,2-смещение,4-смещение"));
      break;
    case MC_PATTERNS:
      // Эффект "Узоры" имеет несколько вариантов - список выбора варианта отображения
      // Дополнительный параметр представлен в приложении списком выбора
-     //           Маркер типа - список выбора         0-32                    0               1      2    3    4      5    6      7       8      9      10    11    12       13       14       15         16     17    18    19     20     21     22     23     24     25     26     27     28      29      30      31      32
+     //           Маркер типа - список выбора         0,1,2,3,4               0               1      2    3    4      5    7      8       9      10     11    12    13       14       15       16         17     18    19    20     21     22     23     24     25     26     27     28     29      30      31      32      33
      str = String(F("L>")) + String(effectScaleParam2[thisMode]) + String(F(">Случайный выбор,Зигзаг,Ноты,Ромб,Сердце,Елка,Клетка,Смайлик,Зигзаг,Полосы,Волны,Чешуя,Портьера,Плетенка,Снежинка,Квадратики,Греция,Круги,Рулет,Узор 1,Узор 2,Узор 3,Узор 4,Узор 5,Узор 6,Узор 7,Узор 8,Узор 9,Узор 10,Узор 11,Узор 12,Узор 13,Узор 14"));
      break;
    
@@ -4296,49 +4287,20 @@ void sendAcknowledge(eSources src) {
   if (src == UDP || src == BOTH) {
     // Отправить подтверждение, чтобы клиентский сокет прервал ожидание
     String reply = "";
-    uint8_t L = 0;
-
-    if (cmd95.length() > 0) { 
-      reply = "$18 " + cmd95; cmd95 = "";
-      L = reply.length();
-      if (L > 0 && reply[L-1] != ';') {
-        reply += ";"; L++;
-      }
-      memset(replyBuffer, '\0', L+1);
-      reply.toCharArray(replyBuffer, reply.length()+1);
-      udp.beginPacket(udp.remoteIP(), udp.remotePort());
-      udp.write((const uint8_t*) replyBuffer, reply.length()+1);
-      udp.endPacket();
-      yield();
-      delay(100);
-      DEBUGLN(String(F("Ответ на ")) + udp.remoteIP().toString() + ":" + String(udp.remotePort()) + " >> " + String(replyBuffer));
-    }
-    
-    if (cmd96.length() > 0) { 
-      reply = "$18 " + cmd96; cmd96 = "";
-      L = reply.length();
-      if (L > 0 && reply[L-1] != ';') {
-        reply += ";"; L++;
-      }
-      memset(replyBuffer, '\0', L+1);
-      reply.toCharArray(replyBuffer, reply.length()+1);
-      udp.beginPacket(udp.remoteIP(), udp.remotePort());
-      udp.write((const uint8_t*) replyBuffer, reply.length()+1);
-      udp.endPacket();
-      yield();
-      delay(100);
-      DEBUGLN(String(F("Ответ на ")) + udp.remoteIP().toString() + ":" + String(udp.remotePort()) + " >> " + String(replyBuffer));
-    }
-
-    reply = "ack" + String(ackCounter++) + ";";  
-    L = reply.length();
-    memset(replyBuffer, '\0', L+1);
+    bool isCmd = false; 
+    if (cmd95.length() > 0) { reply += cmd95; cmd95 = ""; isCmd = true;}
+    if (cmd96.length() > 0) { reply += cmd96; cmd96 = ""; isCmd = true; }
+    uint8_t L = reply.length();
+    if (L > 0 && reply[L-1] != ';') reply += ";";
+    reply += "ack" + String(ackCounter++) + ";";  
     reply.toCharArray(replyBuffer, reply.length()+1);
     udp.beginPacket(udp.remoteIP(), udp.remotePort());
     udp.write((const uint8_t*) replyBuffer, reply.length()+1);
     udp.endPacket();
-    DEBUGLN(String(F("Ответ на ")) + udp.remoteIP().toString() + ":" + String(udp.remotePort()) + " >> " + String(replyBuffer));
-    
+    delay(0);
+    if (isCmd) {
+      DEBUGLN(String(F("Ответ на ")) + udp.remoteIP().toString() + ":" + String(udp.remotePort()) + " >> " + String(replyBuffer));
+    }
   }
 }
 
@@ -4394,8 +4356,7 @@ void setSpecialMode(int8_t spc_mode) {
       tmp_eff = MC_CLOCK;
       specialClock = false;
       set_isNightClock(true); // setter
- //     set_specialBrightness(nightClockBrightness < MIN_BRIGHT_FOR_NIGHT ? MIN_BRIGHT_FOR_NIGHT : nightClockBrightness);
-      set_specialBrightness(nightClockBrightness);
+      set_specialBrightness(nightClockBrightness < MIN_BRIGHT_FOR_NIGHT ? MIN_BRIGHT_FOR_NIGHT : nightClockBrightness);
       break;
     case 9:  // Палитра;
       tmp_eff = MC_PALETTE;
@@ -4439,9 +4400,6 @@ void resetModes() {
   loadingFlag = false;
   wifi_print_ip = false;
   wifi_print_ip_text = false;
-  #if (USE_SD == 1)  
-    play_file_finished = false;
-  #endif
 }
 
 void resetModesExt() {
@@ -4453,9 +4411,6 @@ void resetModesExt() {
   autoplayTimer = millis();
   set_autoplayTime(getAutoplayTime());  
   idleState = true;
-  #if (USE_SD == 1)  
-    play_file_finished = false;
-  #endif
 }
 
 void setEffect(uint8_t eff) {
@@ -4519,7 +4474,7 @@ void setRandomMode2() {
   if (getEffectUsage(MC_SDCARD) && isSdCardReady && (random16(0, 200) % 10 == 0)) {
     newMode = MC_SDCARD;
     // effectScaleParam2[MC_SDCARD]: 0 - случайный файл; 1 - последовательный перебор; 2 - привести к индексу в массиве файлов SD-карты
- /*   int8_t file_idx;
+    int8_t file_idx;
     if (effectScaleParam2[MC_SDCARD] == 0) {
       sf_file_idx = random16(0,countFiles);
     } else if (effectScaleParam2[MC_SDCARD] == 1) {
@@ -4527,8 +4482,7 @@ void setRandomMode2() {
       if (sf_file_idx >= countFiles) sf_file_idx = 0;
     } else {
       sf_file_idx = effectScaleParam2[MC_SDCARD] - 2;
-    }*/
-    updateSdCardFileIndex();
+    }
     setEffect(newMode);
     return;
   }   
@@ -4547,29 +4501,9 @@ void setRandomMode2() {
     if (cnt < 2 || newMode != thisMode) break;
   }
   delete[] arr;
-
-  #if (USE_SD == 1)  
-  if (newMode == MC_SDCARD && isSdCardReady) {
-    updateSdCardFileIndex();
-  }   
-  #endif
   
   setEffect(newMode);
 }
-
-#if (USE_SD == 1)  
-void updateSdCardFileIndex() {
-  int8_t file_idx;
-  if (effectScaleParam2[MC_SDCARD] == 0) {
-    sf_file_idx = random16(0,countFiles);
-  } else if (effectScaleParam2[MC_SDCARD] == 1) {
-    sf_file_idx++;
-    if (sf_file_idx >= countFiles) sf_file_idx = 0;
-  } else {
-    sf_file_idx = effectScaleParam2[MC_SDCARD] - 2;
-  }
-}
-#endif
 
 void setManualModeTo(bool isManual) {
   set_manualMode(isManual);

@@ -413,13 +413,12 @@ void saveDefaults() {
   putScaleForEffect2(MC_PAINTBALL, 1);      // Использовать сегменты для эффекта Пэйнтбол на широких матрицах
   putScaleForEffect2(MC_SWIRL, 1);          // Использовать сегменты для эффекта Водоворот на широких матрицах
   putScaleForEffect2(MC_RAINBOW, 0);        // Использовать рандомный выбор эффекта радуга 0 - random; 1 - диагональная; 2 - горизонтальная; 3 - вертикальная; 4 - вращающаяся  
-  putScaleForEffect2(MC_PRIZMATA, 0);       // Использовать рандомный выбор эффекта Синусы 0 - random; 1 Вариант; 2 Вариант
-  putScaleForEffect2(MC_SINUSOID3, 0);       // Использовать рандомный выбор эффекта Синусы 0 - random; 1 Вариант; 2 Вариант; 3 Вариант; 4 Вариант; 5 Вариант; 6 Вариант
+
   uint8_t ball_size = 2;
   putScaleForEffect(MC_BALL, ball_size);    // Размер кубика по умолчанию
 
   uint8_t waves_count = 2;
-  putScaleForEffect(MC_SINWAVES, waves_count);    // Количество синусоид по умолчанию. 2 в самый раз
+  putScaleForEffect(MC_WAVES, waves_count);    // Количество синусоид по умолчанию. 2 в самый раз
   
   putGlobalColor(globalColor);              // Цвет панели в режиме "Лампа"
   putGlobalClockColor(globalClockColor);    // Цвет часов в режиме "Монохром" 
@@ -1936,12 +1935,12 @@ void putSyncGroup(uint8_t value) {
 
 uint8_t getNightClockBrightness()   {
   uint8_t br = EEPROMread(240);
-  if (br < MIN_NIGHT_CLOCK_BRIGHTNESS) br = MIN_NIGHT_CLOCK_BRIGHTNESS;
+  if (br <= 1) br = 2;
   return br;
 }
 
 void putNightClockBrightness(uint8_t brightness) {
-  if (brightness < MIN_NIGHT_CLOCK_BRIGHTNESS) brightness = MIN_NIGHT_CLOCK_BRIGHTNESS;
+  if (brightness <= 1) brightness = 2;
   if (brightness != getNightClockBrightness()) {
     EEPROMwrite(240, brightness);
   }  

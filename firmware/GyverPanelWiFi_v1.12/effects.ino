@@ -5773,15 +5773,16 @@ void whirlRoutine(bool oneColor) {
 uint8_t comet_type = 0;
 void comet() {
     comet_type = (specialTextEffectParam >= 0) ? specialTextEffectParam : getEffectScaleParamValue2(MC_COMET);
-     // Если авто - генерировать один из типов - Дым, Цветной дым
-    if (comet_type == 0 || comet_type > 4) {
-      comet_type = random8(1,4);
+     // Если авто - генерировать один из типов
+    if (comet_type == 0 || comet_type > 5) {
+      comet_type = random8(1,5);
     }     
   switch (comet_type) {
     case 1:  RainbowCometRoutine(); break;
     case 2:  ColorCometRoutine(); break;
     case 3:  MultipleStream(); break;
     case 4:  MultipleStream2(); break;
+    case 5:  starwarsRoutine(); break;
     default: RainbowCometRoutine(); break;
   }
 }
@@ -5891,6 +5892,105 @@ if (xx < WIDTH && yy < HEIGHT)
   MoveFractionalNoiseY(2, 0.33);
 }
 
+// ============= ЭФФЕКТ ЗВЁЗДНЫЕ ВОЙНЫ ===============
+// (c) SottNick
+void starwarsEmit(uint8_t i) //particlesEmit(Particle_Abstract *particle, ParticleSysConfig *g)
+{
+    if (deltaHue++ & 0x01)
+      if (hue++ & 0x01)
+        hue2++;//counter++;
+    trackingObjectPosX[i] = boids[1].location.x;
+    trackingObjectPosY[i] = boids[1].location.y;
+
+    float dx = boids[0].location.x - boids[1].location.x;
+    float dy = boids[0].location.y - boids[1].location.y;
+    float dxy = dx*dx+dy*dy;
+    if (dxy != 0){
+      dxy = SQRT_VARIANT(dxy) / 0.25; // 0.25 пикселя - расстояние, пролетаемое снарядом за 1 цикл
+      trackingObjectSpeedX[i] = dx / dxy;
+      trackingObjectSpeedY[i] = dy / dxy;
+      trackingObjectState[i] = 60;//random8(20, 60); // random8(minLife, maxLife);// particle->ttl
+      trackingObjectHue[i] = hue2;// (counter/2)%255; // particle->hue
+      trackingObjectIsShift[i] = true; // particle->isAlive
+
+      if (!trackingObjectIsShift[0U] && pcnt){
+        trackingObjectPosX[0] = boids[0].location.x;
+        trackingObjectPosY[0] = boids[0].location.y;
+        trackingObjectSpeedX[0U] = (-4) * trackingObjectSpeedX[i];
+        trackingObjectSpeedY[0U] = (-4) * trackingObjectSpeedY[i];
+        trackingObjectState[0U] = 255;
+        trackingObjectHue[0U] = hue;
+        trackingObjectIsShift[0U] = true;
+        pcnt--;
+      }
+    }
+}
+
+void starwarsRoutine(){
+  if (loadingFlag)
+  {
+    loadingFlag = false;
+    //speedfactor = (float)modes[currentMode].Speed / 510.0f + 0.001f;    
+    deltaValue = 1; // количество зарождающихся частиц за 1 цикл //perCycle = 1;
+    enlargedObjectNUM = (modes[currentMode].Scale - 1U) / 99.0 * (trackingOBJECT_MAX_COUNT - 1U) + 1U;
+    if (enlargedObjectNUM > trackingOBJECT_MAX_COUNT) enlargedObjectNUM = trackingOBJECT_MAX_COUNT;
+    for(int i = 0; i<enlargedObjectNUM; i++)
+      trackingObjectIsShift[i] = false; // particle->isAlive
+
+    boids[0].colorIndex = random8();
+    boids[1].colorIndex = boids[0].colorIndex + 127U;
+
+    trackingObjectShift[4] = WIDTH / 8;
+    trackingObjectShift[5] = HEIGHT / 8;
+    trackingObjectShift[0] = 255./(WIDTH-1.-trackingObjectShift[4]-trackingObjectShift[4]);
+    trackingObjectShift[1] = 255./(HEIGHT-1.-trackingObjectShift[5]-trackingObjectShift[5]);
+    trackingObjectShift[6] = WIDTH / 4;
+    trackingObjectShift[7] = HEIGHT / 4;
+    trackingObjectShift[2] = 255./(WIDTH-1.-trackingObjectShift[6]-trackingObjectShift[6]);// ((WIDTH>10)?9.:5.));
+    trackingObjectShift[3] = 255./(HEIGHT-1.-trackingObjectShift[7]-trackingObjectShift[7]);//- ((HEIGHT>10)?9.:5.));
+    
+  }
+  
+  //boids[0].location.x = 2 + sin8( millis() / 10) / 22.;
+  //boids[0].location.y = 2 + cos8( millis() / 10) / 22.;
+  boids[0].location.x = trackingObjectShift[4] + sin8( millis() / 10) / trackingObjectShift[0];// / 22;
+  boids[0].location.y = trackingObjectShift[5] + cos8( millis() / 10) / trackingObjectShift[1];// / 22;  
+  //boids[1].location.x = 4 + sin8( millis() / 46) / 32.;
+  //boids[1].location.y = 4 + cos8( millis() / 15) / 32.;
+  boids[1].location.x = trackingObjectShift[6] + sin8( millis() / 46) / trackingObjectShift[2];// / 32;
+  boids[1].location.y = trackingObjectShift[7] + cos8( millis() / 15) / trackingObjectShift[3];// / 32;
+    
+  //step = deltaValue; //счётчик количества частиц в очереди на зарождение в этом цикле
+  step = random(2U);
+  
+  pcnt = 1U;
+if (modes[currentMode].Speed & 0x01)
+  dimAll(127);
+else FastLED.clear();    
+
+  //go over particles and update matrix cells on the way
+  for(int i = 0; i<enlargedObjectNUM; i++) {
+    if (i>0U && !trackingObjectIsShift[i] && step) {
+      //emitter->emit(&particles[i], this->g);
+      starwarsEmit(i);
+      step--;
+    }
+    if (trackingObjectIsShift[i]){ // particle->isAlive
+      //particles[i].update(this->g);
+      particlesUpdate2(i);
+
+      //generate RGB values for particle
+      CRGB baseRGB = CHSV(trackingObjectHue[i], 255,255); // particles[i].hue
+
+      //baseRGB.fadeToBlackBy(255-trackingObjectState[i]);
+      baseRGB.nscale8(trackingObjectState[i]);//эквивалент
+      drawPixelXYF(trackingObjectPosX[i], trackingObjectPosY[i], baseRGB);
+    }
+  }
+  drawPixelXYF(boids[0].location.x, boids[0].location.y, CHSV(boids[0].colorIndex, 160U, 255U));
+  drawPixelXYF(boids[1].location.x, boids[1].location.y, CHSV(boids[1].colorIndex, 160U, 255U));
+}
+
 //==================================Радужный змей================================
 void MultipleStream8() { // Windows ))
   if (loadingFlag){
@@ -5937,4 +6037,101 @@ void spiderRoutine() {
    float yy = 2. + cos8(time_shift + 9000 * c) / 12.;
    DrawLineF(xx, yy, (float)WIDTH - xx - 1, (float)HEIGHT - yy - 1, ColorFromPalette(*curPalette, hue + c * (255 / pcnt)));
  }
+}
+
+// ============= ЭФФЕКТ ИСТОЧНИКИ ===============
+// (c) SottNick
+void fountainsDrift(uint8_t j){
+  //float shift = random8()
+  boids[j].location.x += boids[j].velocity.x;
+  boids[j].location.y += boids[j].velocity.y;
+  if (boids[j].location.x + boids[j].velocity.x < 0){
+    //boids[j].location.x = WIDTH - 1 + boids[j].location.x;
+    boids[j].location.x = -boids[j].location.x;
+    boids[j].velocity.x = -boids[j].velocity.x;
+  }
+  if (boids[j].location.x > WIDTH - 1){
+    //boids[j].location.x = boids[j].location.x + 1 - WIDTH;
+    boids[j].location.x = WIDTH + WIDTH - 2 - boids[j].location.x;
+    boids[j].velocity.x = -boids[j].velocity.x;
+  }
+  if (boids[j].location.y < 0){
+    //boids[j].location.y = HEIGHT - 1 + boids[j].location.y;
+    boids[j].location.y = -boids[j].location.y;
+    boids[j].velocity.y = -boids[j].velocity.y;
+  }
+  if (boids[j].location.y > HEIGHT - 1){
+    //boids[j].location.y = boids[j].location.y + 1 - HEIGHT;
+    boids[j].location.y = HEIGHT + HEIGHT - 2 - boids[j].location.y;
+    boids[j].velocity.y = -boids[j].velocity.y;
+  }
+}
+
+void fountainsEmit(uint8_t i){
+  if (hue++ & 0x01)
+    hue2++;//counter++;
+
+  uint8_t j = random8(enlargedObjectNUM);
+  fountainsDrift(j);
+  trackingObjectPosX[i] = boids[j].location.x;
+  trackingObjectPosY[i] = boids[j].location.y;
+
+  trackingObjectSpeedX[i] = ((float)random8()-127.)/512.; // random(_hVar)-_constVel; // particle->vx
+  trackingObjectSpeedY[i] = SQRT_VARIANT(0.0626-trackingObjectSpeedX[i]*trackingObjectSpeedX[i]); // SQRT_VARIANT(pow(_constVel,2)-pow(trackingObjectSpeedX[i],2)); // particle->vy зависит от particle->vx - не ошибка
+  if(random8(2U)) { trackingObjectSpeedY[i]=-trackingObjectSpeedY[i]; }
+  trackingObjectState[i] = random8(50, 250); // random8(minLife, maxLife);// particle->ttl
+  if (modes[currentMode].Speed & 0x01)
+    trackingObjectHue[i] = hue2;// (counter/2)%255; // particle->hue
+  else
+    trackingObjectHue[i] = boids[j].colorIndex;//random8();
+  trackingObjectIsShift[i] = true; // particle->isAlive
+}
+
+void fountainsRoutine(){
+  if (loadingFlag)
+  {
+    loadingFlag = false;
+    enlargedObjectNUM = (modes[currentMode].Scale - 1U) / 99.0 * (AVAILABLE_BOID_COUNT - 1U) + 1U;
+    if (enlargedObjectNUM > AVAILABLE_BOID_COUNT) enlargedObjectNUM = AVAILABLE_BOID_COUNT;
+    
+    //deltaValue = 10; // количество зарождающихся частиц за 1 цикл
+    deltaValue = trackingOBJECT_MAX_COUNT / (SQRT_VARIANT(CENTER_X_MAJOR*CENTER_X_MAJOR + CENTER_Y_MAJOR*CENTER_Y_MAJOR) * 4U) + 1U; // 4 - это потому что за 1 цикл частица пролетает ровно четверть расстояния между 2мя соседними пикселями
+
+    for(int i = 0; i<trackingOBJECT_MAX_COUNT; i++)
+      trackingObjectIsShift[i] = false;
+    
+    for(int j = 0; j<enlargedObjectNUM; j++){
+      boids[j] = Boid(random8(WIDTH), random8(HEIGHT));
+      //boids[j].location.x = random8(WIDTH);
+      //boids[j].location.y = random8(HEIGHT);
+      boids[j].velocity.x = ((float)random8()-127.)/512.; 
+      boids[j].velocity.y = SQRT_VARIANT(0.0626-boids[j].velocity.x*boids[j].velocity.x) /  8.; // скорость источников в восемь раз ниже, чем скорость частиц
+      boids[j].velocity.x                                                        /= 8.; // скорость источников в восемь раз ниже, чем скорость частиц
+      if(random8(2U)) 
+        boids[j].velocity.y = -boids[j].velocity.y;
+      boids[j].colorIndex = random8();
+    }
+  }
+  step = deltaValue; //счётчик количества частиц в очереди на зарождение в этом цикле
+  dimAll(127);
+
+  //go over particles and update matrix cells on the way
+  for(int i = 0; i<trackingOBJECT_MAX_COUNT; i++) {
+    if (!trackingObjectIsShift[i] && step) {
+      //emitter->emit(&particles[i], this->g);
+      fountainsEmit(i);
+      step--;
+    }
+    if (trackingObjectIsShift[i]){ // particle->isAlive
+      //particles[i].update(this->g);
+      particlesUpdate2(i);
+
+      //generate RGB values for particle
+      CRGB baseRGB = CHSV(trackingObjectHue[i], 255,255); // particles[i].hue
+
+      //baseRGB.fadeToBlackBy(255-trackingObjectState[i]);
+      baseRGB.nscale8(trackingObjectState[i]);//эквивалент
+      drawPixelXYF(trackingObjectPosX[i], trackingObjectPosY[i], baseRGB);
+    }
+  }
 }

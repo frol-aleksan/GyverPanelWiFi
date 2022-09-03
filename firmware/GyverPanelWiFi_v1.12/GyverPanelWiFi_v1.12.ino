@@ -1,6 +1,7 @@
 // Страница проекта на GitHub: https://github.com/vvip-68/GyverPanelWiFi
 // Автор идеи, начальный проект - GyverMatrixBT: AlexGyver Technologies, 2019 (https://alexgyver.ru/gyvermatrixbt/)
-// Дальнейшее развитие: vvip-68, gunner47, frol-aleksan 2019-2022
+// Добавлена часть эффектов из прошивки gunner47_v2
+// Дальнейшее развитие: vvip-68, 2019-2022
 // https://AlexGyver.ru/
 //
 // Дополнительные ссылки для Менеджера плат ESP8266 и ESP32 в Файл -> Настройки
@@ -60,14 +61,15 @@
 //Сократил названия некоторых эффектов до максимально простых и коротких, поскольку беда пришла, откуда не ждали: уперлись в ограничение длины строки.
 //Поменял порядок эффектов, чтобы анимация и SD-карта шли в самом конце. Стало меньше строк в списке эффектов (их было больше из-за дублирования в блоках #ifdef) и удобнее их нумеровать.
 //Убрал ползунок варианта из добавленных эффектов, где он не нужен. Добавил ползунок варианта на изменение количества червячков в пределах 1..2*WIDTH в эффекте NEXUS.
-//Добавил эффект "Плазмолампа". Вычистил закомментированный мусор. Попытался сделать последовательное воспроизведение всех вариантов в эффекте WAVES, но что-то пошло не так.
-//Получилась хрень, но выглядит вроде ничего так, поэтому оставляем. Там же добавил забытый параметр default. Пока доработку прошивки можно считать финальной.
+//Добавил эффект "Плазмолампа". Вычистил закомментированный мусор в файле с эффектами. Попытался сделать последовательное воспроизведение всех вариантов в эффекте WAVES, но что-то пошло не так.
+//Получилась хрень, но выглядит вроде ничего так, поэтому оставляем. Там же добавил забытый параметр default. Добавил еще один эффект в общий список и один эффект к кометам.
+//Итого список вырос на 29 пунктов и всего стало 76/75 эффектов с/без SD. Пока доработку прошивки можно считать финальной.
 //
 // -------------------------------------------------------------------------------------------------------
 
 // ************************ WIFI ПАНЕЛЬ *************************
 
-#define FIRMWARE_VER F("WiFiPanel v.1.12.2022.0521")
+#define FIRMWARE_VER F("WiFiPanel v.1.12.2021.1127")
 
 // --------------------------------------------------------
 
@@ -83,7 +85,7 @@ void callback(char* topic, uint8_t* payload, uint32_t length) {
   // проверяем из нужного ли нам топика пришли данные
   DEBUG("MQTT << topic='" + String(topic) + "'");
   if (strcmp(topic, mqtt_topic(TOPIC_CMD).c_str()) == 0) {
-    memset(incomeMqttBuffer, 0, BUF_MQTT_SIZE);
+    memset(incomeMqttBuffer, 0, BUF_MAX_SIZE);
     memcpy(incomeMqttBuffer, payload, length);
     
     DEBUG(F("; cmd='"));
@@ -159,13 +161,16 @@ void setup() {
   DEBUGLN();
   DEBUGLN(FIRMWARE_VER);
   DEBUGLN();
+
   DEBUGLN(F("\nИнициализация файловой системы... "));
+  
   spiffs_ok = LittleFS.begin();
   if (!spiffs_ok) {
     DEBUGLN(F("\nВыполняется разметка файловой системы... "));
     LittleFS.format();
     spiffs_ok = LittleFS.begin();    
   }
+
   if (spiffs_ok) {
     DEBUG(F("FS: "));
     #if defined(ESP32)
@@ -185,7 +190,9 @@ void setup() {
   } else {
     DEBUGLN(F("Файловая система недоступна."));
   }
+
   loadSettings();
+
   DEBUGLN();
   DEBUGLN("Host: '" + host_name + "'" + String(F(" >> ")) + String(pWIDTH) + "x" + String(pHEIGHT));
   DEBUGLN();
@@ -193,14 +200,15 @@ void setup() {
   // -----------------------------------------
   // В этом блоке можно принудительно устанавливать параметры, которые должны быть установлены при старте микроконтроллера
   // -----------------------------------------
-   
-  // Настройки ленты
-  leds =  new CRGB[NUM_LEDS];       
-  ledsbuff =  new CRGB[NUM_LEDS];    
-  overlayLEDs = new CRGB[OVERLAY_SIZE];
-//  FastLED.addLeds<WS2812, LED_PIN, COLOR_ORDER>(leds, NUM_LEDS).setCorrection( TypicalLEDStrip );
 
-  FastLED.addLeds<WS2813, LED_PIN, COLOR_ORDER>(leds, NUM_LEDS).setCorrection( TypicalLEDStrip ); 
+  // -----------------------------------------  
+    
+  // Настройки ленты
+  leds =  new CRGB[NUM_LEDS];     
+  ledsbuff =  new CRGB[NUM_LEDS];         
+  overlayLEDs = new CRGB[OVERLAY_SIZE];
+
+  FastLED.addLeds<WS2812, LED_PIN, COLOR_ORDER>(leds, NUM_LEDS).setCorrection( TypicalLEDStrip );
   FastLED.setBrightness(globalBrightness);
   if (CURRENT_LIMIT > 0) {
     FastLED.setMaxPowerInVoltsAndMilliamps(5, CURRENT_LIMIT);
@@ -212,7 +220,7 @@ void setup() {
   #if (USE_SD == 1)
     InitializeSD1();
   #endif
-  
+
   // Проверить наличие резервной копии настроек EEPROM в файловой системе MK и/или на SD-карте
   eeprom_backup = checkEepromBackup();
   if ((eeprom_backup & 0x01) > 0) {
@@ -247,13 +255,9 @@ void setup() {
   // Второй этап инициализации плеера - проверка наличия файлов звуков на SD карте
   #if (USE_MP3 == 1)
     InitializeDfPlayer2();
-    if (isDfPlayerOk) {
-      InitializeDfPlayer2();
-      if (!isDfPlayerOk) {
-        DEBUGLN(F("MP3 плеер недоступен."));
-      }
-    } else
-        DEBUGLN(F("MP3 плеер недоступен."));
+    if (!isDfPlayerOk) {
+      DEBUGLN(F("MP3 плеер недоступен."));
+    }
   #endif
 
   // Подключение к сети
@@ -367,7 +371,7 @@ void setup() {
   } else {
     set_thisMode(getCurrentManualMode());
     if (thisMode < 0 || thisMode == MC_TEXT || thisMode >= SPECIAL_EFFECTS_START) {
-      setRandomMode();
+      setRandomMode2();
     } else {
       setEffect(thisMode);        
     }

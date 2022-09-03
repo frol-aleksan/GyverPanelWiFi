@@ -206,9 +206,9 @@ String getTextStates() {
 
 // интерпретатор кода символа в массиве fontHEX (для Arduino IDE 1.8.* и выше)
 uint16_t getFont(uint8_t font, uint8_t modif, uint8_t row) {
-  font = font - '0' + 16;   // перевод код символа из таблицы ASCII в номер согласно нумерации массива  
+  font = font - '0' + 16;   // перевод код символа из таблицы ASCII в номер согласно нумерации массива
   if (font <= 94) {
-    return read_char(&(fontHEX[font][row]));       // для английских букв и символов
+    return read_char(&(fontHEX[font][row]));   // для английских букв и символов
   } else if (modif == 209 && font == 116) {        // є
     return read_char(&(fontHEX[161][row])); 
   } else if (modif == 209 && font == 118) {        // і
@@ -231,17 +231,6 @@ uint16_t getFont(uint8_t font, uint8_t modif, uint8_t row) {
     return read_char(&(fontHEX[font + 47][row]));
   } else if (modif == 194 && font == 144) {                                          // Знак градуса '°'
     return read_char(&(fontHEX[159][row]));
-  } else if (modif == 195) {                                          // ß
-    switch (font) {
-      case 127: return read_char(&(fontHEX[163][row])); // ß - 195 127 - 163
-      case 100: return read_char(&(fontHEX[33][row]));  // Ä - 195 100 - 33
-      case 118: return read_char(&(fontHEX[47][row]));  // Ö - 195 118 - 47
-      case 124: return read_char(&(fontHEX[53][row]));  // Ü - 195 124 - 53
-      case 132: return read_char(&(fontHEX[65][row]));  // ä - 195 132 - 65
-      case 150: return read_char(&(fontHEX[79][row]));  // ö - 195 150 - 79
-      case 156: return read_char(&(fontHEX[85][row]));  // ü - 195 156 - 85    
-    }
-    
   } else if (modif == 196 || modif == 197) {                                         // Буквы литовского алфавита  Ą Č Ę Ė Į Š Ų Ū Ž ą č ę ė į š ų ū ž
     switch (font) {
       case 100: return read_char(&(fontHEX[33][row])); //Ą 196   100  -     33
@@ -269,9 +258,9 @@ uint16_t getFont(uint8_t font, uint8_t modif, uint8_t row) {
 
 uint16_t getDiasByte(uint8_t font, uint8_t modif, uint8_t row) {
   font = font - '0' + 16;   // перевод код символа из таблицы ASCII в номер согласно нумерации массива
-  if ((modif == 208 && font == 97) || (modif == 195 && (font == 100 || font == 118 || font == 124))) {         // Ё, немец. Ä,Ö,Ü
+  if ((modif == 208) && font == 97) {              // Ё
     return read_char(&(diasHEX[0][row])); 
-  } else if ((modif == 209 && font == 113) || (modif == 195 && (font == 132 || font == 150 || font == 156))) { // ё, немец. ä,ö,ü
+  } else if ((modif == 209) && font == 113) {      // ё
     return read_char(&(diasHEX[0][row])); 
   } else if ((modif == 208) && font == 103) {      // Ї
     return read_char(&(diasHEX[0][row])); 
@@ -307,9 +296,9 @@ uint16_t getDiasByte(uint8_t font, uint8_t modif, uint8_t row) {
 
 int8_t getDiasOffset(uint8_t font, uint8_t modif) {
   font = font - '0' + 16;   // перевод код символа из таблицы ASCII в номер согласно нумерации массива
-  if ((modif == 208 && font == 97) || (modif == 195 && (font == 100 || font == 118 || font == 124))) {         // Ё, немец. Ä,Ö,Ü
+  if ((modif == 208) && font == 97) {              // Ё
     return 3; 
-  } else if ((modif == 209 && font == 113) || (modif == 195 && (font == 132 || font == 150 || font == 156))) { // ё, немец. ä,ö,ü
+  } else if ((modif == 209) && font == 113) {      // ё
     #if (BIG_FONT == 0)
       return 1; 
     #else
@@ -1131,7 +1120,7 @@ String processDateMacrosInText(const String text) {
       }
       sFmtProcess = sFormat;
   
- /*     //  dddd - полное название дня недели            (допускается DDDD)
+      //  dddd - полное название дня недели            (допускается DDDD)
       str = getWeekdayString(wd);  // DDDD  
       sFmtProcess.replace("DDDD", str);
       sFmtProcess.replace("dddd", str);
@@ -1168,7 +1157,7 @@ String processDateMacrosInText(const String text) {
   
       //  M    - месяц от 1 до 12
       str = String(amnth);
-      sFmtProcess.replace("M", str);     */
+      sFmtProcess.replace("M", str);
     
       //  YYYY - год в виде четырехзначного числа
       str = String(ayear);
@@ -1237,52 +1226,6 @@ String processDateMacrosInText(const String text) {
       sFmtProcess.replace("T", str);
       str.toLowerCase();
       sFmtProcess.replace("t", str);
-
-
-      //  dddd - полное название дня недели            (допускается DDDD)
-      str = getWeekdayString(wd);  // DDDD  
-      str = substitureDateMacros(str);
-      sFmtProcess.replace("DDDD", str);
-      sFmtProcess.replace("dddd", str);
-
-      //  ddd  - сокращенное название дня недели       (допускается DDD)
-      str = getWeekdayShortString(wd);  // DDD
-      str = substitureDateMacros(str);
-      sFmtProcess.replace("DDD", str);
-      sFmtProcess.replace("ddd", str);
-
-      //  dd   - день месяца, в диапазоне от 01 до 31. (допускается DD)
-      str = String(aday);  // DD
-      if (str.length() < 2) str = "0" + str;    
-      sFmtProcess.replace("DD", str);
-      sFmtProcess.replace("dd", str);
-
-      //  d    - день месяца, в диапазоне от 1 до 31.  (допускается D)
-      str = String(aday);  // D
-      sFmtProcess.replace("D", str);
-      sFmtProcess.replace("d", str);
-
-      //  MMMМ - месяц прописью (января..декабря)
-      str = getMonthString(amnth);
-      str = substitureDateMacros(str);
-      sFmtProcess.replace("MMMM", str);
-
-      //  MMM  - месяц прописью (янв..дек)
-      str = substitureDateMacros(str);
-      str = getMonthShortString(amnth);
-      sFmtProcess.replace("MMM", str);
-
-      //  MM   - месяц от 01 до 12
-      str = String(amnth);
-      if (str.length() < 2) str = "0" + str;    
-      sFmtProcess.replace("MM", str);
-
-      //  M    - месяц от 1 до 12
-      str = String(amnth);
-      sFmtProcess.replace("M", str);
-      sFmtProcess = unsubstitureDateMacros(sFmtProcess);
-
-      
   
       // Заменяем в строке макрос с исходной форматной строкой на обработанную строку с готовой текущей датой
       textLine.replace("{D:" + sFormat + "}", sFmtProcess);
@@ -1562,33 +1505,6 @@ String processDateMacrosInText(const String text) {
   }
 
   return textLine;
-}
-
-
-String substitureDateMacros(const String txt) {  
-  String str = txt;
-  str.replace("DD", "~1~");
-  str.replace("dd", "~2~");
-  str.replace("D",  "~3~");
-  str.replace("d",  "~4~");
-  str.replace("MM", "~5~");
-  str.replace("mm", "~6~");
-  str.replace("M",  "~7~");
-  str.replace("m",  "~8~");
-  return str;
-}
-
-String unsubstitureDateMacros(const String txt) {  
-  String str = txt;
-  str.replace("~1~", "DD");
-  str.replace("~2~", "dd");
-  str.replace("~3~", "D");
-  str.replace("~4~", "d");
-  str.replace("~5~", "MM");
-  str.replace("~6~", "mm");
-  str.replace("~7~", "M");
-  str.replace("~8~", "m");
-  return str;
 }
 
 // Обработать макросы цвета в строке, в случае если строка многоцветная
@@ -2297,6 +2213,7 @@ bool isFirstLineControl() {
       textLines[0] = "##";
     }
   }
+
   if (isControlLine) {
     // Допускаются только 1..9,A-Z в верхнем регистре, остальные удалить; 
     // textLines[0][1] == '#' - допускается - значит брать случайную последовательность
@@ -2312,5 +2229,6 @@ bool isFirstLineControl() {
       textLines[0] = "##";
     }
   }
+  
   return isControlLine;  
 }
