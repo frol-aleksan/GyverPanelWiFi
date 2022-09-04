@@ -968,6 +968,7 @@ void parsing() {
       case 5:
         if (thisMode != MC_DRAW) {
           set_thisMode(MC_DRAW);
+          FastLED.clear();
           setManualModeTo(true);
         }      
         if (intData[1] == 0) {
@@ -1180,8 +1181,8 @@ void parsing() {
               
               if (thisMode != MC_LOADIMAGE) {
                 setManualModeTo(true);
-                set_thisMode(MC_LOADIMAGE);
                 FastLED.clear();
+                set_thisMode(MC_LOADIMAGE);
                 FastLEDshow();
                 delay(50);
               }
@@ -1490,6 +1491,7 @@ void parsing() {
             } else 
             if (thisMode == tmp_eff && tmp_eff == MC_SINWAVES) {
               // При получении параметра эффекта "Синусоиды" (кол-во синусоид) - надо переинициализировать эффект
+              FastLED.clear();
               loadingFlag = true;              
             }
           }
@@ -2634,7 +2636,7 @@ void sendPageParams(uint8_t page, eSources src) {
       str = getStateString("UP|FM|W|H|BR|CL|SD|FS");
       break;
     case 12:  // Игры
-      str = getStateString("UP|FM|W|H|BR|SE|SD");
+      str = getStateString("UP|FM|W|H|BR|SE");
       break;
     case 91:  // Запрос текста бегущей строки для редактирования указанной ячейки или замены строки текста в списке ячейки
       str = getStateString("TS|TY");
