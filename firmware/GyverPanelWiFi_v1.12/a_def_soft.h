@@ -895,6 +895,10 @@ uint8_t    pHEIGHT = sHEIGHT * mHEIGHT;
 uint32_t   NUM_LEDS = pWIDTH * pHEIGHT;
 uint8_t    maxDim   = max(pWIDTH, pHEIGHT);
 uint8_t    minDim   = min(pWIDTH, pHEIGHT);
+const uint8_t    numlayersmax = 2;
+
+uint8_t ***noise_3d;  //Нормально объявляется и инициализируется только отсюда. Надеюсь, работать будет правильно.
+
 
 #if (BIG_FONT == 0)
   // Шрифт размером 5x8

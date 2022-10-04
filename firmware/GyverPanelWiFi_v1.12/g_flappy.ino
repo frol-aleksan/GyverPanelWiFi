@@ -40,8 +40,8 @@ void flappyRoutine() {
   }
   if (flappyTimer.isReady()) {
     if (obstfTimer.isReady()) {
-      for (byte i = 0; i < WIDTH - 1; i++) {
-        for (byte j = 0; j < HEIGHT; j++) {
+      for (byte i = 0; i < pWIDTH - 1; i++) {
+        for (byte j = 0; j < pHEIGHT; j++) {
           leds[getPixelNumber(i, j)] = getPixColorXY(i + 1, j);
         }
       }
@@ -50,18 +50,18 @@ void flappyRoutine() {
         obstCounterFlap = 0;
         flappyScore++;
 
-        for (byte i = 0; i < HEIGHT; i++) {
-          drawPixelXY(WIDTH - 1, i, GLOBAL_COLOR_1);
-          drawPixelXY(WIDTH - 2, i, GLOBAL_COLOR_1);
+        for (byte i = 0; i < pHEIGHT; i++) {
+          drawPixelXY(pWIDTH - 1, i, GLOBAL_COLOR_1);
+          drawPixelXY(pWIDTH - 2, i, GLOBAL_COLOR_1);
         }
-        byte thisHeight = random(1, HEIGHT - OBST_HEIGHT_F);
+        byte thisHeight = random(1, pHEIGHT - OBST_HEIGHT_F);
         for (byte i = thisHeight; i < thisHeight + OBST_HEIGHT_F; i++) {
-          drawPixelXY(WIDTH - 1, i, 0);
-          drawPixelXY(WIDTH - 2, i, 0);
+          drawPixelXY(pWIDTH - 1, i, 0);
+          drawPixelXY(pWIDTH - 2, i, 0);
         }
       } else {
-        for (byte i = 0; i < HEIGHT; i++)
-          drawPixelXY(WIDTH - 1, i, 0);
+        for (byte i = 0; i < pHEIGHT; i++)
+          drawPixelXY(pWIDTH - 1, i, 0);
       }
     }
     velFlap -= (float)GRAVITY_F * DT_F / 1000;
@@ -69,8 +69,8 @@ void flappyRoutine() {
     if (posFlap < 0) {
       posFlap = 0;
       velFlap = 0;
-    } else if (posFlap > (HEIGHT - 1) * 10) {
-      posFlap = (HEIGHT - 1) * 10;
+    } else if (posFlap > (pHEIGHT - 1) * 10) {
+      posFlap = (pHEIGHT - 1) * 10;
       velFlap = 0;
     }
     if (getPixColorXY(0, posFlap / 10) == GLOBAL_COLOR_1 ||

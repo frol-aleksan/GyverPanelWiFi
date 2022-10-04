@@ -542,6 +542,9 @@ String processMacrosInText(const String text) {
                   Если указаны оба - работает модификатор показа по времени
       "{Cc}"    - отображать строку указанным цветом С; Цвет - в виде #AA77FE; Специальные значения - #000001 - радуга;  - #000002 - каждая буква свой цвет; -> {C#005500}
       "{Bc}"    - отображать строку на однотонном фоне указанного цвета С; Цвет - в виде #337700; -> {B#000000}
+      "{IP}"    - отображать IP-адрес матрицы в локальной сети 
+      "{SSID}"  - отображать имя сети Wi-Fi, к которой подключена матрица, или имя точки доступа матрицы
+      "{VER}"   - отображать версию прошивки
       "{WS}"    - отображать вместо {WS} состояние текущей погоды - "Пасмурно", "Ясно", "Дождь", "Гроза" и т.д -> {WS}
       "{WT}"    - отображать вместо {WT} текущую температуру водуха, например "+26", "-31" -> {WT}
       "{D:F}"   - где F - один из форматов даты / времени                         "С Новым {D:yyyy} годом!"
@@ -875,34 +878,61 @@ String processMacrosInText(const String text) {
     }
       
     // -------------------------------------------------------------
-    // "{BC}"- отображать строку  на однотонном фоне указанного цвета С; Цвет - в виде #007700
+    // "{IP}"- отображать IP-адрес матрицы в локальной сети
     // -------------------------------------------------------------
+    idx = textLine.indexOf("{IP}");
+    if (idx >= 0) {
+      if (wifi_connected) {
+           textLine.replace("{IP}", WiFi.localIP().toString().c_str());
+      }
+      if (ap_connected) {
+           textLine.replace("{IP}", WiFi.softAPIP().toString().c_str());
+      }
+    }
 
-    useSpecialBackColor = false;
-    idx = textLine.indexOf("{B");
-    while (idx >= 0) {
+    // -------------------------------------------------------------
+    // "{SSID}"- отображать имя сети, к которой подключена матрица, или имя точки доступа матрицы
+    // -------------------------------------------------------------
+    idx = textLine.indexOf("{SSID}");
+    if (idx >= 0) {
+      if (wifi_connected) {
+           textLine.replace("{SSID}", ssid);
+      }
+      if (ap_connected) {
+           textLine.replace("{SSID}", apName);
+      }
+    }
 
-      // Закрывающая скобка
-      // Если ее нет - ошибка, ничего со строкой не делаем, отдаем как есть
-      idx2 = textLine.indexOf("}", idx);        
-      if (idx2 < 0) break;
+    // -------------------------------------------------------------
+    // "{VER}"- отображать версию прошивки
+    // -------------------------------------------------------------
+    idx = textLine.indexOf("{VER}");
+    if (idx >= 0) {
+      textLine.replace("{VER}", FIRMWARE_VER);
+    }
+   
+    
+    // {WS} - отображать текущую погоду - "Ясно", "Облачно" и т.д
+    idx = textLine.indexOf("{WS}");
+    if (idx >= 0) {
+      textLine.replace("{WS}", weather);
+    }
 
-      // Извлечь цвет фона отображения этой бегущей строки
-      tmp = "";
-      if (idx2 - idx > 1) {
-        tmp = textLine.substring(idx+2, idx2);
+    // {WT} - отображать текущую температурв в виде "+26" или "-26"
+    // Если включено отображение температуры цветом - добавить макрос цвета перед температурой 
+    idx = textLine.indexOf("{WT}");
+    if (idx >= 0) {
+      // Подготовить строку текущего времени HH:mm и заменить все вхождения {D} на эту строку
+      String s_temperature = (temperature == 0 ? "" : (temperature > 0 ? "+" : "")) + String(temperature);
+      String s_color = "";
+
+      if (useTemperatureColor) {
+        s_color = "{C" + getTemperatureColor(temperature) + "}";
       }
       
-      // удаляем макрос
-      textLine.remove(idx, idx2 - idx + 1);
-           
-      // Преобразовать строку в число
-      useSpecialBackColor = true;
-      specialBackColor = (uint32_t)HEXtoInt(tmp);
-      
-      // Есть еще вхождения макроса?
-      idx = textLine.indexOf("{B");  
+      textLine.replace("{WT}", s_color + s_temperature);
     }
+
 
     #if (USE_WEATHER == 1)     
     
