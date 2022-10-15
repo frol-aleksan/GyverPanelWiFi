@@ -2036,6 +2036,7 @@ void analyzerRoutineRelease() {
 
 // ****************************** СИНУСЫ *****************************
 uint8_t prizmata_type = 0;
+uint8_t direct = 0;
 void prizmataRoutine() {
   if (loadingFlag) {
     loadingFlag = false;
@@ -2043,19 +2044,20 @@ void prizmataRoutine() {
      // Если авто - генерировать один из типов - 1 вариант, 2 вариант
     if (prizmata_type == 0 || prizmata_type > 2) {
       prizmata_type = random8(1,2);
-    }     
-    FastLED.clear();  // очистить
+    } 
+    direct = random8(2);
+   // FastLED.clear();  // очистить
   }
   switch (prizmata_type) {
-    case 1:  prizmata(); break;
-    case 2:  prismata(); break;
-    default: prizmata(); break;
+    case 1:  prizmata(direct); break;
+    default: prismata(); break;
   }
 }
-void prizmata() {
+void prizmata(uint8_t direct) {
   if (loadingFlag) {
     loadingFlag = false;
-    dir_mx = pWIDTH >= pHEIGHT ? 0 : 1;                                 // 0 - квадратные сегменты расположены горизонтально, 1 - вертикально
+  //  dir_mx = pWIDTH >= pHEIGHT ? 0 : 1;                                 // 0 - квадратные сегменты расположены горизонтально, 1 - вертикально
+  
   }
   // Если совсем задержки нет - матрица мерцает от постоянного обновления
   delay(5);
@@ -2066,7 +2068,7 @@ void prizmata() {
   // Отрисовка режима происходит на максимальной скорости. Знеачение effectSpeed влияет на параметр BPM функции beatsin8
   uint8_t spd = map8(255-getEffectSpeedValue(MC_PRIZMATA), 12, 64);   
   uint8_t effectBrightness = getBrightnessCalculated(globalBrightness, getEffectContrastValue(thisMode));
-  if (dir_mx == 0) {
+  if (direct == 0) {
     for (uint8_t x = 0; x < pWIDTH; x++) {
       uint8_t y = beatsin8(spd + x, 0,pHEIGHT-1);
       drawPixelXY(x, y, ColorFromPalette(RainbowColors_p, x * 7 + hue, effectBrightness));
@@ -2850,8 +2852,7 @@ void bounceRoutine() {
       bounce_type = random8(1,2);
     }     
   switch (bounce_type) {
-    case 1:  bounce_Routine(); break;
-    case 2:  Leapers_Routine(); break;
+    case 1:  Leapers_Routine(); break;
     default: bounce_Routine(); break;
   }
 }
@@ -2977,20 +2978,7 @@ void Leapers_Routine(){
  * Copyright (c) 2014 Jason Coon
  * Неполная адаптация SottNick
  */
-    byte spirotheta1 = 0;
-    byte spirotheta2 = 0;
-    const uint8_t spiroradiusx = round(pWIDTH/4);// - 1;
-    const uint8_t spiroradiusy = round(pHEIGHT/4);// - 1;
-    const uint8_t spirocenterX = round(pWIDTH/2);
-    const uint8_t spirocenterY = round(pHEIGHT/2);
-    const uint8_t spirominx = spirocenterX - spiroradiusx;
-    const uint8_t spiromaxx = spirocenterX + spiroradiusx - (pWIDTH%2 == 0 ? 1:0);//+ 1;
-    const uint8_t spirominy = spirocenterY - spiroradiusy;
-    const uint8_t spiromaxy = spirocenterY + spiroradiusy - (pHEIGHT%2 == 0 ? 1:0);//+ 1;
-    uint8_t spirocount = 1;
-    uint8_t spirooffset = 256 / spirocount;
-    boolean spiroincrement = false;
-    boolean spirohandledChange = false;
+      
 uint8_t mapsin8(uint8_t theta, uint8_t lowest = 0, uint8_t highest = 255) {
   uint8_t beatsin = sin8(theta);
   uint8_t rangewidth = highest - lowest;
@@ -3011,7 +2999,10 @@ void spiroRoutine() {
     {
       loadingFlag = false;
       setCurrentPalette();
+      
     }
+  //    Serial.print(pWIDTH);
+  //    Serial.print(pHEIGHT);
       blurScreen(20); // @Palpalych советует делать размытие
       dimAll(255U - modes[currentMode].Speed / 10);
       boolean change = false;
@@ -3181,9 +3172,9 @@ void Sinusoid3Routine()
     {
     loadingFlag = false;
     sinusoid_type = (specialTextEffectParam >= 0) ? specialTextEffectParam : getEffectScaleParamValue2(MC_SINUSOID3);
-     // Если авто - генерировать один из типов 1-7
-    if (sinusoid_type == 0 || sinusoid_type > 7) {
-      sinusoid_type = random8(1,7);
+     // Если авто - генерировать один из типов 1-8
+    if (sinusoid_type == 0 || sinusoid_type > 8) {
+      sinusoid_type = random8(1,8);
     }     
     FastLED.clear();  // очистить     
       emitterX = pWIDTH * 0.5;
@@ -3202,198 +3193,219 @@ void Sinusoid3Routine()
   float center2y = float(e_s3_size * cos16(speedfactor * 65.534  * time_shift)) / 0x7FFF - emitterY;
   float center3x = float(e_s3_size * sin16(speedfactor * 134.3447 * time_shift)) / 0x7FFF - emitterX;
   float center3y = float(e_s3_size * cos16(speedfactor * 170.3884 * time_shift)) / 0x7FFF - emitterY;
+
   switch (sinusoid_type) {
-    case 1: //variant by SottNick
-      for (uint8_t y = 0; y < pHEIGHT; y++) {
-        for (uint8_t x = 0; x < pWIDTH; x++) {
-          float cx = x + center1x;
-          float cy = y + center1y;
-          uint8_t v = 127 * (1 + float(sin16(_scale * SQRT_VARIANT(cx * cx + cy * cy))) / 0x7FFF);
-          color.g = v;
-          cx = x + center2x;
-          cy = y + center2y;
-          v = 127 * (1 + float(sin16(atan2(cy, cx) * 31255  + _scale3 *  hypot(cy, cx))) / 0x7FFF); // proper by SottNick
-          //вырезаем центр спирали
-          float d = SQRT_VARIANT(cx * cx + cy * cy) / 16.; // 16 - это радиус вырезаемого центра в каких-то условных величинах. 10 = 1 пиксель, 20 = 2 пикселя. как-то так
-          if (d < 0.06) d = 0.06;
-          if (d < 1) // просто для ускорения расчётов
-            v = constrain(v - int16_t(1/d/d), 0, 255);
-          //вырезали
-          color.g = max(v, color.g);
-          color.b = v;// >> 1;
-          drawPixelXY(x, y, color);
-        }
-      }
-      break;
-    case 2: //Sinusoid II ???
-      for (uint8_t y = 0; y < pHEIGHT; y++) {
-        for (uint8_t x = 0; x < pWIDTH; x++) {
-          float cx = x + center1x;
-          float cy = y + center1y;
-          uint8_t v = 127 * (1 + float(sin16(_scale * SQRT_VARIANT(cx * cx + cy * cy))) / 0x7FFF);
-          color.r = v;  
-          cx = x + center2x;
-          cy = y + center2y;
-          v = 127 * (1 + float(sin16(_scale * SQRT_VARIANT(cx * cx + cy * cy))) / 0x7FFF);
-          color.g = (v - (min(v, color.r) >> 1)) >> 1;
-          color.b = color.g >> 2;
-          color.r = max(v, color.r);
-          drawPixelXY(x, y, color);
-        }
-      }
-      break;
-    case 3://Sinusoid III
-      for (uint8_t y = 0; y < pHEIGHT; y++) {
-        for (uint8_t x = 0; x < pWIDTH; x++) {
-          float cx = x + center1x;
-          float cy = y + center1y;
-          int8_t v = 127 * (1 + float(sin16(_scale * SQRT_VARIANT(cx * cx + cy * cy))) / 0x7FFF);
-          color.r = v;
-          cx = x + center2x;
-          cy = y + center2y;
-          v = 127 * (1 + float(sin16(_scale * SQRT_VARIANT(cx * cx + cy * cy))) / 0x7FFF);
-          color.b = v;
-          cx = x + center3x;
-          cy = y + center3y;
-          v = 127 * (1 + float(sin16(_scale * SQRT_VARIANT(cx * cx + cy * cy))) / 0x7FFF);
-          color.g = v;
-          drawPixelXY(x, y, color);
-        }
-      }
-      break;
-    case 4: //Sinusoid IV
-      for (uint8_t y = 0; y < pHEIGHT; y++) {
-        for (uint8_t x = 0; x < pWIDTH; x++) {
-          float cx = x + center1x;
-          float cy = y + center1y;
-          int8_t v = 127 * (1 + float(sin16(_scale * SQRT_VARIANT(cx * cx + cy * cy) + time_shift * speedfactor * 100)) / 0x7FFF);
-          color.r = ~v;
-          cx = x + center2x;
-          cy = y + center2y;
-          v = 127 * (1 + float(sin16(_scale * SQRT_VARIANT(cx * cx + cy * cy) + time_shift * speedfactor * 100)) / 0x7FFF);
-          color.g = ~v;
-          cx = x + center3x;
-          cy = y + center3y;
-          v = 127 * (1 + float(sin16(_scale * SQRT_VARIANT(cx * cx + cy * cy) + time_shift * speedfactor * 100)) / 0x7FFF);
-          color.b = ~v;
-          drawPixelXY(x, y, color);
-        }
-      }
-      break;
-    case 5: //changed by stepko //colored sinusoid
-      for (uint8_t y = 0; y < pHEIGHT; y++) {
-        for (uint8_t x = 0; x < pWIDTH; x++) {
-          float cx = x + center1x;
-          float cy = y + center1y;
-          int8_t v = 127 * (1 + float(sin16(_scale * (beatsin16(2,1000,1750)/2550.) * SQRT_VARIANT(cx * cx + cy * cy))) / 0x7FFF);// + time_shift * speedfactor * 5 // mass colors plus by SottNick
-          color.r = v;
-          v = 127 * (1 + float(sin16(_scale * (beatsin16(1,570,1050)/2250.) * SQRT_VARIANT(((cx * cx) + (cy * cy)))  + 13 * time_shift * speedfactor)) / 0x7FFF); // вместо beatsin сперва ставил просто * 0.41
-          color.b = v;
-          v = 127 * (1 + float(cos16(_scale * (beatsin16(3,1900,2550)/2550.) * SQRT_VARIANT(((cx * cx) + (cy * cy)))  + 41 * time_shift * speedfactor)) / 0x7FFF); // вместо beatsin сперва ставил просто * 0.53
-          color.g = v;
-          drawPixelXY(x, y, color);
-        }
-      }
-      break;
-    case 6: //changed by stepko //sinusoid in net
-      for (uint8_t y = 0; y < pHEIGHT; y++) {
-        for (uint8_t x = 0; x < pWIDTH; x++) {
-          float cx = x + center1x;
-          float cy = y + center1y;
-          int8_t v = 127 * (1 + float(sin16(_scale * SQRT_VARIANT(cx * cx + cy * cy) + time_shift * speedfactor * 5)) / 0x7FFF);
-          color.g = ~v;
-          v = 127 * (1 + float(sin16(_scale * (x + 0.005 * time_shift * speedfactor))) / 0x7FFF); // proper by SottNick   
-          color.b = ~v;
-          v = 127 * (1 + float(sin16(_scale * (y + 0.0055 * time_shift * speedfactor))) / 0x7FFF); // proper by SottNick
-          color.r = ~v;
-          drawPixelXY(x, y, color);
-        }
-      }
-      break;
-    case 7: //changed by stepko //spiral
-      for (uint8_t y = 0; y < pHEIGHT; y++) {
-        for (uint8_t x = 0; x < pWIDTH; x++) {
-          float cx = x + center1x;
-          float cy = y + center1y;
-          uint8_t v = 127 * (1 + sinf (3* atan2(cy, cx)  + _scale2 *  hypot(cy, cx))); // proper by SottNick
-          //вырезаем центр спирали - proper by SottNick
-          float d = SQRT_VARIANT(cx * cx + cy * cy) / 10.; // 10 - это радиус вырезаемого центра в каких-то условных величинах. 10 = 1 пиксель, 20 = 2 пикселя. как-то так
-          if (d < 0.06) d = 0.06;
-          if (d < 1) // просто для ускорения расчётов
-            v = constrain(v - int16_t(1/d/d), 0, 255);
-          //вырезали
-          color.r = v;
-          cx = x + center2x;
-          cy = y + center2y;
-          v = 127 * (1 + sinf (3* atan2(cy, cx)  + _scale2 *  hypot(cy, cx))); // proper by SottNick
-          //вырезаем центр спирали
-          d = SQRT_VARIANT(cx * cx + cy * cy) / 10.; // 10 - это радиус вырезаемого центра в каких-то условных величинах. 10 = 1 пиксель, 20 = 2 пикселя. как-то так
-          if (d < 0.06) d = 0.06;
-          if (d < 1) // просто для ускорения расчётов
-            v = constrain(v - int16_t(1/d/d), 0, 255);
-          //вырезали
-          color.b = v;
-          cx = x + center3x;
-          cy = y + center3y;
-          v = 127 * (1 + float(sin16(atan2(cy, cx) * 31255  + _scale3 *  hypot(cy, cx))) / 0x7FFF); // proper by SottNick
-          //вырезаем центр спирали
-          d = SQRT_VARIANT(cx * cx + cy * cy) / 10.; // 10 - это радиус вырезаемого центра в каких-то условных величинах. 10 = 1 пиксель, 20 = 2 пикселя. как-то так
-          if (d < 0.06) d = 0.06;
-          if (d < 1) // просто для ускорения расчётов
-            v = constrain(v - int16_t(1/d/d), 0, 255);
-          //вырезали
-          color.g = v;
-          drawPixelXY(x, y, color);
-        }
-      }
-      break;
-    //Этих двух вариантов в списке параметров эффекта нет, поскольку они хз по какой причине мерцают. Дальше начинается интересное и непонятное.
-    //Если изначально "мерцающие" эффекты убрать совсем, начинает мерцать первый вариант, даже если на него назначить заведомо рабочий эффект. 
-    //Поэтому пусть будут. С ними хотя бы не мерцают первые семь вариантов. Короче, мистика.
-    case 8: //variant by SottNick
-      for (uint8_t y = 0; y < pHEIGHT; y++) {
-        for (uint8_t x = 0; x < pWIDTH; x++) {
-          float cx = x + center1x;
-          float cy = y + center1y;
-          uint8_t v = 127 * (1 + float(sin16(atan2(cy, cx) * 31255  + _scale3 *  hypot(cy, cx))) / 0x7FFF); // proper by SottNick
-          //вырезаем центр спирали
-          float d = SQRT_VARIANT(cx * cx + cy * cy) / 10.; // 10 - это радиус вырезаемого центра в каких-то условных величинах. 10 = 1 пиксель, 20 = 2 пикселя. как-то так
-          if (d < 0.06) d = 0.06;
-          if (d < 1) // просто для ускорения расчётов
-            v = constrain(v - int16_t(1/d/d), 0, 255);
-          //вырезали
-          color.g = v;
-          cx = x + center3x;
-          cy = y + center3y;
-          v = 127 * (1 + float(sin16(atan2(cy, cx) * 31255  + _scale3 *  hypot(cy, cx))) / 0x7FFF); // proper by SottNick
-          //вырезаем центр спирали
-          d = SQRT_VARIANT(cx * cx + cy * cy) / 10.; // 10 - это радиус вырезаемого центра в каких-то условных величинах. 10 = 1 пиксель, 20 = 2 пикселя. как-то так
-          if (d < 0.06) d = 0.06;
-          if (d < 1) // просто для ускорения расчётов
-            v = constrain(v - int16_t(1/d/d), 0, 255);
-          //вырезали
-          color.r = v;
-          drawPixelXY(x, y, color);
-        }
-      }
-      break;
-      case 9://Sinusoid I
-      for (uint8_t y = 0; y < pHEIGHT; y++) {
-        for (uint8_t x = 0; x < pWIDTH; x++) {
-          float cx = x + center1x;
-          float cy = y + center1y;
-          int8_t v = 127 * (1 + float(sin16(_scale * SQRT_VARIANT(cx * cx + cy * cy))) / 0x7FFF);
-          color.r = v;
-          cx = x + center3x;
-          cy = y + center3y;
-          v = 127 * (1 + float(sin16(_scale * SQRT_VARIANT(cx * cx + cy * cy))) / 0x7FFF);
-          color.b = v;
-          drawPixelXY(x, y, color);
-        }
-      }
-      break;
+     case 1:   SinusoidII(center1x, center2x, center3x, center1y, center2y, center3y, color, _scale);                  break;
+     case 2:   SinusoidIII(center1x, center2x, center3x, center1y, center2y, center3y, color, _scale, time_shift);     break;
+     case 3:   SinusoidIV(center1x, center1y, color, _scale, time_shift);                                              break;
+     case 4:   SinusoidV(center1x, center1y, color, _scale, time_shift);                                               break;
+     case 5:   SinusoidVI(center1x, center2x, center3x, center1y, center2y, center3y, color, _scale2, _scale3);        break;
+     case 6:   SinusoidVII(center1x, center2x, center3x, center1y, center2y, center3y, color, _scale3);                break;
+     case 7:   SinusoidVIII(center1x, center3x, center1y, center3y, color, _scale);                                    break;
+     default:  SinusoidI(center1x, center2x, center1y, center2y, color, _scale);                                       break;
   }
 }
+
+// распихал код эффектов по отдельным функциям
+
+  //Sinusoid I
+  void SinusoidI(float center1x, float center2x, float center1y, float center2y, CRGB color, uint16_t _scale)
+  {
+    for (uint8_t y = 0; y < pHEIGHT; y++) {
+      for (uint8_t x = 0; x < pWIDTH; x++) {
+        float cx = x + center1x;
+        float cy = y + center1y;
+        uint8_t v = 127 * (1 + float(sin16(_scale * SQRT_VARIANT(cx * cx + cy * cy))) / 0x7FFF);     
+        color.r = v;  
+        cx = x + center2x;
+        cy = y + center2y;
+        v = 127 * (1 + float(sin16(_scale * SQRT_VARIANT(cx * cx + cy * cy))) / 0x7FFF);
+        color.g = (v - (min(v, color.r) >> 1)) >> 1;
+        color.b = color.g >> 2;
+        color.r = max(v, color.r);
+        drawPixelXY(x, y, color);
+      }
+    }
+  }
+
+  //Sinusoid II
+  void SinusoidII(float center1x, float center2x, float center3x, float center1y, float center2y, float center3y, CRGB color, uint16_t _scale)
+  {
+    for (uint8_t y = 0; y < pHEIGHT; y++) {
+      for (uint8_t x = 0; x < pWIDTH; x++) {
+        float cx = x + center1x;
+        float cy = y + center1y;
+        int8_t v = 127 * (1 + float(sin16(_scale * SQRT_VARIANT(cx * cx + cy * cy))) / 0x7FFF);
+        color.r = v;
+        cx = x + center2x;
+        cy = y + center2y;
+        v = 127 * (1 + float(sin16(_scale * SQRT_VARIANT(cx * cx + cy * cy))) / 0x7FFF);
+        color.b = v;
+        cx = x + center3x;
+        cy = y + center3y;
+        v = 127 * (1 + float(sin16(_scale * SQRT_VARIANT(cx * cx + cy * cy))) / 0x7FFF);
+        color.g = v;
+        drawPixelXY(x, y, color);
+      }
+    }
+  }
+  
+  //Sinusoid III
+  void SinusoidIII(float center1x, float center2x, float center3x, float center1y, float center2y, float center3y, CRGB color, uint16_t _scale, uint32_t time_shift)
+  {
+    for (uint8_t y = 0; y < pHEIGHT; y++) {
+      for (uint8_t x = 0; x < pWIDTH; x++) {
+        float cx = x + center1x;
+        float cy = y + center1y;
+        int8_t v = 127 * (1 + float(sin16(_scale * SQRT_VARIANT(cx * cx + cy * cy) + time_shift * speedfactor * 100)) / 0x7FFF);
+        color.r = ~v;
+        cx = x + center2x;
+        cy = y + center2y;
+        v = 127 * (1 + float(sin16(_scale * SQRT_VARIANT(cx * cx + cy * cy) + time_shift * speedfactor * 100)) / 0x7FFF);
+        color.g = ~v;
+        cx = x + center3x;
+        cy = y + center3y;
+        v = 127 * (1 + float(sin16(_scale * SQRT_VARIANT(cx * cx + cy * cy) + time_shift * speedfactor * 100)) / 0x7FFF);
+        color.b = ~v;
+        drawPixelXY(x, y, color);
+      }
+    }
+  }
+  
+  //changed by stepko 
+  //colored sinusoid
+  //Sinusoid IV
+  void SinusoidIV(float center1x, float center1y, CRGB color, uint16_t _scale, uint32_t time_shift)
+  {
+    for (uint8_t y = 0; y < pHEIGHT; y++) {
+      for (uint8_t x = 0; x < pWIDTH; x++) {
+        float cx = x + center1x;
+        float cy = y + center1y;
+        int8_t v = 127 * (1 + float(sin16(_scale * (beatsin16(2,1000,1750)/2550.) * SQRT_VARIANT(cx * cx + cy * cy))) / 0x7FFF);// + time_shift * speedfactor * 5 // mass colors plus by SottNick
+        color.r = v;
+        v = 127 * (1 + float(sin16(_scale * (beatsin16(1,570,1050)/2250.) * SQRT_VARIANT(((cx * cx) + (cy * cy)))  + 13 * time_shift * speedfactor)) / 0x7FFF); // вместо beatsin сперва ставил просто * 0.41
+        color.b = v;
+        v = 127 * (1 + float(cos16(_scale * (beatsin16(3,1900,2550)/2550.) * SQRT_VARIANT(((cx * cx) + (cy * cy)))  + 41 * time_shift * speedfactor)) / 0x7FFF); // вместо beatsin сперва ставил просто * 0.53
+        color.g = v;
+        drawPixelXY(x, y, color);
+      }
+    }
+  }
+
+  //changed by stepko 
+  //sinusoid in net
+  //Sinusoid V
+  void SinusoidV(float center1x, float center1y, CRGB color, uint16_t _scale, uint32_t time_shift)
+  {
+    for (uint8_t y = 0; y < pHEIGHT; y++) {
+      for (uint8_t x = 0; x < pWIDTH; x++) {
+        float cx = x + center1x;
+        float cy = y + center1y;
+        int8_t v = 127 * (1 + float(sin16(_scale * SQRT_VARIANT(cx * cx + cy * cy) + time_shift * speedfactor * 5)) / 0x7FFF);
+        color.g = ~v;
+        v = 127 * (1 + float(sin16(_scale * (x + 0.005 * time_shift * speedfactor))) / 0x7FFF); // proper by SottNick   
+        color.b = ~v;
+        v = 127 * (1 + float(sin16(_scale * (y + 0.0055 * time_shift * speedfactor))) / 0x7FFF); // proper by SottNick
+        color.r = ~v;
+        drawPixelXY(x, y, color);
+      }
+    }
+  }
+  
+  //changed by stepko
+  //spiral
+  //Sinusoid VI
+  void SinusoidVI(float center1x, float center2x, float center3x, float center1y, float center2y, float center3y, CRGB color, uint16_t _scale2, uint16_t _scale3)
+  {
+    for (uint8_t y = 0; y < pHEIGHT; y++) {
+      for (uint8_t x = 0; x < pWIDTH; x++) {
+        float cx = x + center1x;
+        float cy = y + center1y;
+        uint8_t v = 127 * (1 + sinf (3* atan2(cy, cx)  + _scale2 *  hypot(cy, cx))); // proper by SottNick
+        //вырезаем центр спирали - proper by SottNick
+        float d = SQRT_VARIANT(cx * cx + cy * cy) / 10.; // 10 - это радиус вырезаемого центра в каких-то условных величинах. 10 = 1 пиксель, 20 = 2 пикселя. как-то так
+        if (d < 0.06) d = 0.06;
+        if (d < 1) // просто для ускорения расчётов
+          v = constrain(v - int16_t(1/d/d), 0, 255);
+        //вырезали
+        color.r = v;
+        cx = x + center2x;
+        cy = y + center2y;
+        v = 127 * (1 + sinf (3* atan2(cy, cx)  + _scale2 *  hypot(cy, cx))); // proper by SottNick
+        //вырезаем центр спирали
+        d = SQRT_VARIANT(cx * cx + cy * cy) / 10.; // 10 - это радиус вырезаемого центра в каких-то условных величинах. 10 = 1 пиксель, 20 = 2 пикселя. как-то так
+        if (d < 0.06) d = 0.06;
+        if (d < 1) // просто для ускорения расчётов
+          v = constrain(v - int16_t(1/d/d), 0, 255);
+        //вырезали
+        color.b = v;
+        cx = x + center3x;
+        cy = y + center3y;
+        v = 127 * (1 + float(sin16(atan2(cy, cx) * 31255  + _scale3 *  hypot(cy, cx))) / 0x7FFF); // proper by SottNick
+        //вырезаем центр спирали
+        d = SQRT_VARIANT(cx * cx + cy * cy) / 10.; // 10 - это радиус вырезаемого центра в каких-то условных величинах. 10 = 1 пиксель, 20 = 2 пикселя. как-то так
+        if (d < 0.06) d = 0.06;
+        if (d < 1) // просто для ускорения расчётов
+          v = constrain(v - int16_t(1/d/d), 0, 255);
+        //вырезали
+        color.g = v;
+        drawPixelXY(x, y, color);
+      }
+    }
+  }
+
+  //Этих двух вариантов в списке параметров эффекта нет, поскольку они хз по какой причине мерцают. Дальше начинается интересное и непонятное.
+  //Если изначально "мерцающие" эффекты убрать совсем, начинает мерцать первый вариант, даже если на него назначить заведомо рабочий эффект. 
+  //Поэтому пусть будут. С ними хотя бы не мерцают первые семь вариантов. Короче, мистика.
+    
+  //variant by SottNick
+  //Sinusoid VII
+  void SinusoidVII(float center1x, float center2x, float center3x, float center1y, float center2y, float center3y, CRGB color, uint16_t _scale3)
+  {
+    for (uint8_t y = 0; y < pHEIGHT; y++) {
+      for (uint8_t x = 0; x < pWIDTH; x++) {
+        float cx = x + center1x;
+        float cy = y + center1y;
+        uint8_t v = 127 * (1 + float(sin16(atan2(cy, cx) * 31255  + _scale3 *  hypot(cy, cx))) / 0x7FFF); // proper by SottNick
+        //вырезаем центр спирали
+        float d = SQRT_VARIANT(cx * cx + cy * cy) / 10.; // 10 - это радиус вырезаемого центра в каких-то условных величинах. 10 = 1 пиксель, 20 = 2 пикселя. как-то так
+        if (d < 0.06) d = 0.06;
+        if (d < 1) // просто для ускорения расчётов
+          v = constrain(v - int16_t(1/d/d), 0, 255);
+        //вырезали
+        color.g = v;
+        cx = x + center3x;
+        cy = y + center3y;
+        v = 127 * (1 + float(sin16(atan2(cy, cx) * 31255  + _scale3 *  hypot(cy, cx))) / 0x7FFF); // proper by SottNick
+        //вырезаем центр спирали
+        d = SQRT_VARIANT(cx * cx + cy * cy) / 10.; // 10 - это радиус вырезаемого центра в каких-то условных величинах. 10 = 1 пиксель, 20 = 2 пикселя. как-то так
+        if (d < 0.06) d = 0.06;
+        if (d < 1) // просто для ускорения расчётов
+          v = constrain(v - int16_t(1/d/d), 0, 255);
+        //вырезали
+        color.r = v;
+        drawPixelXY(x, y, color);
+      }
+    }
+  }
+  
+ //Sinusoid VIII
+ void SinusoidVIII(float center1x, float center3x, float center1y, float center3y, CRGB color, uint16_t _scale)
+ {
+   for (uint8_t y = 0; y < pHEIGHT; y++) {
+     for (uint8_t x = 0; x < pWIDTH; x++) {
+       float cx = x + center1x;
+       float cy = y + center1y;
+       int8_t v = 127 * (1 + float(sin16(_scale * SQRT_VARIANT(cx * cx + cy * cy))) / 0x7FFF);
+       color.r = v;
+       cx = x + center3x;
+       cy = y + center3y;
+       v = 127 * (1 + float(sin16(_scale * SQRT_VARIANT(cx * cx + cy * cy))) / 0x7FFF);
+       color.b = v;
+       drawPixelXY(x, y, color);
+     }
+   }
+ }
 
 // ------------------------------ ЭФФЕКТ КОЛЬЦА / КОДОВЫЙ ЗАМОК ----------------------
 // (c) SottNick
@@ -4084,66 +4096,6 @@ void LLandRoutine(){
   ff_z++;      
 }
 
-/*// ============= Эффект Цветные драже ===============
-// (c) SottNick
-//по мотивам визуала эффекта by Yaroslaw Turbin 14.12.2020
-//https://vk.com/ldirko программный код которого он запретил брать
-void sandRoutine(){
-  if (loadingFlag) {
-    loadingFlag = false;
-    pcnt = 0U;// = pHEIGHT;
-  }
-  // если насыпалось уже достаточно, бахаем рандомные песчинки
-  uint8_t temp = map8(random8(), modes[currentMode].Scale * 2.55, 255U);
-  if (pcnt >= map8(temp, 2U, pHEIGHT - 3U)){
-    temp = pHEIGHT + 1U - pcnt;
-    if (!random8(4U)) // иногда песка осыпается до половины разом
-      if (random8(2U))
-        temp = 2U;
-      else
-        temp = 3U;
-    for (uint8_t y = 0; y < pcnt; y++)
-      for (uint8_t x = 0; x < pWIDTH; x++)
-        if (!random8(temp))
-          leds[XY(x,y)] = 0;
-  }
-  pcnt = 0U;
-  // осыпаем всё, что есть на экране
-  for (uint8_t y = 1; y < pHEIGHT; y++)
-    for (uint8_t x = 0; x < pWIDTH; x++)
-      if (leds[XY(x,y)])                                                           // проверяем для каждой песчинки
-        if (!leds[XY(x,y-1)]){                                                     // если под нами пусто, просто падаем
-          leds[XY(x,y-1)] = leds[XY(x,y)];
-          leds[XY(x,y)] = 0;
-        }
-        else if (x>0U && !leds[XY(x-1,y-1)] && x<pWIDTH-1 && !leds[XY(x+1,y-1)]){   // если под нами пик
-          if (random8(2U))
-            leds[XY(x-1,y-1)] = leds[XY(x,y)];
-          else
-            leds[XY(x-1,y-1)] = leds[XY(x,y)];
-          leds[XY(x,y)] = 0;
-          pcnt = y-1;
-        }
-        else if (x>0U && !leds[XY(x-1,y-1)]){                                      // если под нами склон налево
-          leds[XY(x-1,y-1)] = leds[XY(x,y)];
-          leds[XY(x,y)] = 0;
-          pcnt = y-1;
-        }
-        else if (x<pWIDTH-1 && !leds[XY(x+1,y-1)]){                                 // если под нами склон направо
-          leds[XY(x+1,y-1)] = leds[XY(x,y)];
-          leds[XY(x,y)] = 0;
-          pcnt = y-1;
-        }
-        else                                                                       // если под нами плато
-          pcnt = y;
-  // эмиттер новых песчинок
-  if (!leds[XY(CENTER_X_MINOR,pHEIGHT-2)] && !leds[XY(CENTER_X_MAJOR,pHEIGHT-2)] && !random8(3)){
-    temp = random8(2) ? CENTER_X_MINOR : CENTER_X_MAJOR;
-    leds[XY(temp,pHEIGHT-1)] = CHSV(random8(), 255U, 255U);
-  }
-}*/
-
-
 // ============= Эффект Цветные драже ===============
 // (c) SottNick
 //по мотивам визуала эффекта by Yaroslaw Turbin 14.12.2020
@@ -4196,7 +4148,7 @@ void sandRoutine(){
         }
         else                                                                       // если под нами плато
           pcnt = y;
-  // эмиттер новых песчинок
+  // эмиттер новых песчинок в оригинале тут было что-то непонятное, поэтому чтобы точно найти центр, тупо делим ширину пополам и округляем (округление нужно для матриц с нечетным числом колонок)
   if (!leds[XY(round(pWIDTH/2),pHEIGHT-2)] && !leds[XY(round(pWIDTH/2),pHEIGHT-2)] && !random8(3)){
     temp = round(pWIDTH/2);
     leds[XY(temp,pHEIGHT-1)] = CHSV(random8(), 255U, 255U);
@@ -4206,14 +4158,7 @@ void sandRoutine(){
 // ============= ЭФФЕКТ ВОЛНЫ ===============
 // https://github.com/pixelmatix/aurora/blob/master/PatternWave.h
 // Адаптация от (c) SottNick
-    byte waveThetaUpdate = 0;
-    byte waveThetaUpdateFrequency = 0;
-    byte waveTheta = 0;
-    byte hueUpdate = 0;
-    byte hueUpdateFrequency = 0;
-    byte waveRotation = 0;
-    uint8_t waveScale = 256 / pWIDTH;
-    uint8_t waveCount = 1;
+    
 void WaveRoutine() {
     if (loadingFlag)
     {
@@ -4229,72 +4174,11 @@ void WaveRoutine() {
         dimAll(254);
         int n = 0;
         switch (waveRotation) {
-            case 1:
-                for (uint8_t x = 0; x < pWIDTH; x++) {
-                    n = quadwave8(x * 2 + waveTheta) / waveScale;
-                    drawPixelXY(x, n, ColorFromPalette(*curPalette, hue + x));
-                    if (waveCount != 1)
-                        drawPixelXY(x, pHEIGHT - 1 - n, ColorFromPalette(*curPalette, hue + x));
-                }
-                break;
-            case 2:
-                for (uint8_t y = 0; y < pHEIGHT; y++) {
-                    n = quadwave8(y * 2 + waveTheta) / waveScale;
-                    drawPixelXY(n, y, ColorFromPalette(*curPalette, hue + y));
-                    if (waveCount != 1)
-                        drawPixelXY(pWIDTH - 1 - n, y, ColorFromPalette(*curPalette, hue + y));
-                }
-                break;
-            case 3:
-                for (uint8_t x = 0; x < pWIDTH; x++) {
-                    n = quadwave8(x * 2 - waveTheta) / waveScale;
-                    drawPixelXY(x, n, ColorFromPalette(*curPalette, hue + x));
-                    if (waveCount != 1)
-                        drawPixelXY(x, pHEIGHT - 1 - n, ColorFromPalette(*curPalette, hue + x));
-                }
-                break;
-            case 4:
-                for (uint8_t y = 0; y < pHEIGHT; y++) {
-                    n = quadwave8(y * 2 - waveTheta) / waveScale;
-                    drawPixelXY(n, y, ColorFromPalette(*curPalette, hue + y));
-                    if (waveCount != 1)
-                        drawPixelXY(pWIDTH - 1 - n, y, ColorFromPalette(*curPalette, hue + y));
-                }
-                break;
-            case 5:     //попытался сделать, чтобы эффекты 1-4 воспроизводились последовательно. Но получилась какая-то хрень. Впрочем, смотрится тоже ничего так
-                for (uint8_t x = 0; x < pWIDTH; x++) {
-                    n = quadwave8(x * 2 + waveTheta) / waveScale;
-                    drawPixelXY(x, n, ColorFromPalette(*curPalette, hue + x));
-                    if (waveCount != 1)
-                        drawPixelXY(x, pHEIGHT - 1 - n, ColorFromPalette(*curPalette, hue + x));
-                }
-                for (uint8_t y = 0; y < pHEIGHT; y++) {
-                    n = quadwave8(y * 2 + waveTheta) / waveScale;
-                    drawPixelXY(n, y, ColorFromPalette(*curPalette, hue + y));
-                    if (waveCount != 1)
-                        drawPixelXY(pWIDTH - 1 - n, y, ColorFromPalette(*curPalette, hue + y));
-                }
-                for (uint8_t x = 0; x < pWIDTH; x++) {
-                    n = quadwave8(x * 2 - waveTheta) / waveScale;
-                    drawPixelXY(x, n, ColorFromPalette(*curPalette, hue + x));
-                    if (waveCount != 1)
-                        drawPixelXY(x, pHEIGHT - 1 - n, ColorFromPalette(*curPalette, hue + x));
-                }
-                for (uint8_t y = 0; y < pHEIGHT; y++) {
-                    n = quadwave8(y * 2 - waveTheta) / waveScale;
-                    drawPixelXY(n, y, ColorFromPalette(*curPalette, hue + y));
-                    if (waveCount != 1)
-                        drawPixelXY(pWIDTH - 1 - n, y, ColorFromPalette(*curPalette, hue + y));
-                }
-                break;
-            default:
-                for (uint8_t x = 0; x < pWIDTH; x++) {
-                    n = quadwave8(x * 2 + waveTheta) / waveScale;
-                    drawPixelXY(x, n, ColorFromPalette(*curPalette, hue + x));
-                    if (waveCount != 1)
-                        drawPixelXY(x, pHEIGHT - 1 - n, ColorFromPalette(*curPalette, hue + x));
-                }
-                break; 
+          case 1:   waveRotationI(n);       break;
+          case 2:   waveRotationII(n);      break;
+          case 3:   waveRotationIII(n);     break;
+          case 4:   waveRotationIV(n);      break;
+          default:  waveRotationV(n);       break;
         }
         if (waveThetaUpdate >= waveThetaUpdateFrequency) {
             waveThetaUpdate = 0;
@@ -4310,7 +4194,56 @@ void WaveRoutine() {
         else {
             hueUpdate++;
         }
-        blurScreen(20); // @Palpalych советует делать размытие. вот в этом эффекте его явно не хватает...*/     
+        blurScreen(20); // @Palpalych советует делать размытие. вот в этом эффекте его явно не хватает...   */
+}
+
+//здесь тоже распихал код по функциям
+void waveRotationI(int n)
+{
+  for (uint8_t x = 0; x < pWIDTH; x++) {
+    n = quadwave8(x * 2 + waveTheta) / waveScale;
+    drawPixelXY(x, n, ColorFromPalette(*curPalette, hue + x));
+    if (waveCount != 1)
+      drawPixelXY(x, pHEIGHT - 1 - n, ColorFromPalette(*curPalette, hue + x));
+  }
+}
+
+void waveRotationII(int n)
+{
+  for (uint8_t y = 0; y < pHEIGHT; y++) {
+    n = quadwave8(y * 2 + waveTheta) / waveScale;
+    drawPixelXY(n, y, ColorFromPalette(*curPalette, hue + y));
+    if (waveCount != 1)
+    drawPixelXY(pWIDTH - 1 - n, y, ColorFromPalette(*curPalette, hue + y));
+  }
+}
+
+void waveRotationIII(int n)
+{
+  for (uint8_t x = 0; x < pWIDTH; x++) {
+    n = quadwave8(x * 2 - waveTheta) / waveScale;
+    drawPixelXY(x, n, ColorFromPalette(*curPalette, hue + x));
+    if (waveCount!= 1)
+      drawPixelXY(x, pHEIGHT - 1 - n, ColorFromPalette(*curPalette, hue + x));
+  }
+}
+
+void waveRotationIV(int n)
+{
+  for (uint8_t y = 0; y < pHEIGHT; y++) {
+    n = quadwave8(y * 2 - waveTheta) / waveScale;
+    drawPixelXY(n, y, ColorFromPalette(*curPalette, hue + y));
+    if (waveCount != 1)
+      drawPixelXY(pWIDTH - 1 - n, y, ColorFromPalette(*curPalette, hue + y));
+  }
+}
+                
+void waveRotationV(int n)     //попытался сделать, чтобы эффекты 1-4 воспроизводились последовательно. Но получилась какая-то хрень. Впрочем, смотрится тоже ничего так
+{
+  waveRotationI(n);
+  waveRotationII(n);
+  waveRotationIII(n);
+  waveRotationIV(n);
 }
 
 // --------------------------- эффект МетаБолз ----------------------
@@ -4442,6 +4375,7 @@ void PicassoRoutine3(){
   }
   blurScreen(80);
 }
+uint8_t picselect = 0;
 void picassoSelector(){
   if (loadingFlag)
   {
@@ -4451,13 +4385,16 @@ void picassoSelector(){
       enlargedObjectNUM = (modes[currentMode].Scale - 68U) / 32.0 * (enlargedOBJECT_MAX_COUNT - 3U) + 3U;
     else                                          // для масштабов посередине
       enlargedObjectNUM = (modes[currentMode].Scale - 34U) / 33.0 * (enlargedOBJECT_MAX_COUNT - 1U) + 1U;
+    picselect = (specialTextEffectParam >= 0) ? specialTextEffectParam : getEffectScaleParamValue2(MC_PICASSO);
+   if (picselect == 1 || picselect > 3) {
+      picselect = random8(1,3);
+   }
   }
-  if (modes[currentMode].Scale < 34U)           // если масштаб до 34
-    PicassoRoutine();
-  else if (modes[currentMode].Scale > 67U)      // если масштаб больше 67
-    PicassoRoutine3();
-  else                                          // для масштабов посередине
-    PicassoRoutine2();
+  switch (picselect) {
+      case 1:    PicassoRoutine();       break;
+      case 2:    PicassoRoutine2();      break;
+      default:   PicassoRoutine3();      break; 
+  }
 }
 
 // =============== Эффект Lumenjer ================
@@ -5496,8 +5433,7 @@ void smokeRoutine() {
     FastLED.clear();  // очистить
   }
   switch (smoke_type) {
-    case 1:  MultipleStreamSmoke(false); break;
-    case 2:  MultipleStreamSmoke(true); break;
+    case 1:  MultipleStreamSmoke(true); break;
     default: MultipleStreamSmoke(false); break;
   }
 }
@@ -5587,9 +5523,8 @@ void pulseRoutine() {
     FastLED.clear();  // очистить
   }
   switch (pulse_type) {
-    case 1:  pulse_routine(2U); break;
-    case 2:  pulse_routine(4U); break;
-    case 3:  pulse_routine(8U); break;
+    case 1:  pulse_routine(4U); break;
+    case 2:  pulse_routine(8U); break;
     default: pulse_routine(2U); break;
   }
 }
@@ -5675,8 +5610,7 @@ void waterfallRoutine() {
       waterfall_type = random8(1,2);
     }     
   switch (waterfall_type) {
-    case 1:  fire2012WithPalette(); break;
-    case 2:  fire2012WithPalette4in1(); break;
+    case 1:  fire2012WithPalette4in1(); break;
     default: fire2012WithPalette(); break;
   }
 }
@@ -5786,8 +5720,7 @@ void whirl() {
       whirl_type = random8(1,2);
     }     
   switch (whirl_type) {
-    case 1:  whirlRoutine(true); break;
-    case 2:  whirlRoutine(false); break;
+    case 1:  whirlRoutine(false); break;
     default: whirlRoutine(true); break;
   }
 }
@@ -5832,20 +5765,24 @@ void whirlRoutine(bool oneColor) {
 //================================кометы======================
 uint8_t comet_type = 0;
 void comet() {
+  if (loadingFlag)
+  {
+    loadingFlag = false;
     comet_type = (specialTextEffectParam >= 0) ? specialTextEffectParam : getEffectScaleParamValue2(MC_COMET);
      // Если авто - генерировать один из типов
     if (comet_type == 0 || comet_type > 5) {
       comet_type = random8(1,5);
-    }     
+    }
+  }     
   switch (comet_type) {
-    case 1:  RainbowCometRoutine(); break;
+    case 1: RainbowCometRoutine(); break;
     case 2:  ColorCometRoutine(); break;
     case 3:  MultipleStream(); break;
     case 4:  MultipleStream2(); break;
-    case 5:  starwarsRoutine(); break;
-    default: RainbowCometRoutine(); break;
+    default: starwarsRoutine(); break;
   }
 }
+
 // Кометы обычные
 void RainbowCometRoutine() {
   dimAll(254U); // < -- затухание эффекта для последующего кадра
@@ -5885,9 +5822,9 @@ void ColorCometRoutine() {      // <- ******* для оригинальной п
 }
 // NoiseSmearing(by StefanPetrick) Effect mod for GyverLamp by PalPalych
 void MultipleStream() { // 2 comets
-  if (loadingFlag)
-  {
-    loadingFlag = false;
+//  if (loadingFlag)
+//  {
+//    loadingFlag = false;
     trackingObjectState[0] = pWIDTH / 8;
     trackingObjectState[1] = pHEIGHT / 8;
     trackingObjectShift[0] = 255./(pWIDTH-1.-trackingObjectState[0]-trackingObjectState[0]);
@@ -5896,7 +5833,7 @@ void MultipleStream() { // 2 comets
     trackingObjectState[3] = pHEIGHT / 4;
     trackingObjectShift[2] = 255./(pWIDTH-1.-trackingObjectState[2]-trackingObjectState[2]);// ((pWIDTH>10)?9.:5.));
     trackingObjectShift[3] = 255./(pHEIGHT-1.-trackingObjectState[3]-trackingObjectState[3]);//- ((pHEIGHT>10)?9.:5.));
-  }
+ // }
   dimAll(255U - modes[currentMode].Scale * 2);
   // gelb im Kreis
   byte xx = trackingObjectState[0] + sin8( millis() / 10) / trackingObjectShift[0];// / 22;
@@ -5920,9 +5857,9 @@ if (xx < pWIDTH && yy < pHEIGHT)
 }
 
 void MultipleStream2() { // 3 comets
-  if (loadingFlag)
-  {
-    loadingFlag = false;
+//  if (loadingFlag)
+//  {
+//    loadingFlag = false;
     trackingObjectState[0] = pWIDTH / 8;
     trackingObjectState[1] = pHEIGHT / 8;
     trackingObjectShift[0] = 255./(pWIDTH-1.-trackingObjectState[0]-trackingObjectState[0]);
@@ -5931,7 +5868,7 @@ void MultipleStream2() { // 3 comets
     trackingObjectState[3] = pHEIGHT / 4;
     trackingObjectShift[2] = 255./(pWIDTH-1.-trackingObjectState[2]-trackingObjectState[2]);// ((pWIDTH>10)?9.:5.));
     trackingObjectShift[3] = 255./(pHEIGHT-1.-trackingObjectState[3]-trackingObjectState[3]);//- ((pHEIGHT>10)?9.:5.));
-  }
+ // }
   dimAll(255U - modes[currentMode].Scale * 2);
   byte xx = trackingObjectState[0] + sin8( millis() / 10) / trackingObjectShift[0];// / 22;
   byte yy = trackingObjectState[1] + cos8( millis() / 9) / trackingObjectShift[1];// / 22;
@@ -5987,9 +5924,9 @@ void starwarsEmit(uint8_t i) //particlesEmit(Particle_Abstract *particle, Partic
 }
 
 void starwarsRoutine(){
-  if (loadingFlag)
-  {
-    loadingFlag = false;
+ // if (loadingFlag)
+ // {
+ //   loadingFlag = false;
     //speedfactor = (float)modes[currentMode].Speed / 510.0f + 0.001f;    
     deltaValue = 1; // количество зарождающихся частиц за 1 цикл //perCycle = 1;
     enlargedObjectNUM = (modes[currentMode].Scale - 1U) / 99.0 * (trackingOBJECT_MAX_COUNT - 1U) + 1U;
@@ -6009,7 +5946,7 @@ void starwarsRoutine(){
     trackingObjectShift[2] = 255./(pWIDTH-1.-trackingObjectShift[6]-trackingObjectShift[6]);// ((pWIDTH>10)?9.:5.));
     trackingObjectShift[3] = 255./(pHEIGHT-1.-trackingObjectShift[7]-trackingObjectShift[7]);//- ((pHEIGHT>10)?9.:5.));
     
-  }
+//  }
   
   //boids[0].location.x = 2 + sin8( millis() / 10) / 22.;
   //boids[0].location.y = 2 + cos8( millis() / 10) / 22.;

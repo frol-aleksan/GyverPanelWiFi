@@ -140,9 +140,7 @@ void loadSettings() {
 
   // Инициализировано ли EEPROM
   bool isInitialized = EEPROMread(0) == EEPROM_OK;  
-  
   if (isInitialized) {    
-
     sWIDTH            = getMatrixSegmentWidth();
     sHEIGHT           = getMatrixSegmentHeight();
     sMATRIX_TYPE      = getMatrixSegmentType();

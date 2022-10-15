@@ -897,8 +897,35 @@ uint8_t    maxDim   = max(pWIDTH, pHEIGHT);
 uint8_t    minDim   = min(pWIDTH, pHEIGHT);
 const uint8_t    numlayersmax = 2;
 
-uint8_t ***noise_3d;  //Нормально объявляется и инициализируется только отсюда. Надеюсь, работать будет правильно.
 
+uint8_t ***noise_3d;  //Трехмерный динамический массив, необходимый для работы ряда эффектов из прошивки Gunner47. Нормально объявляется только отсюда.
+
+//Переменные для эффекта Спирали. Нормально объявляются только отсюда, иначе они оказываются за пределами видимости и получают значения размеров матрицы из a_def_soft
+byte spirotheta1;
+byte spirotheta2;
+uint8_t spiroradiusx;// - 1;
+uint8_t spiroradiusy;// - 1;
+uint8_t spirocenterX;
+uint8_t spirocenterY;
+uint8_t spirominx;
+uint8_t spiromaxx;//+ 1;
+uint8_t spirominy;
+uint8_t spiromaxy;//+ 1;
+uint8_t spirocount;
+uint8_t spirooffset;
+boolean spiroincrement;
+boolean spirohandledChange;
+
+
+//Переменные для эффекта Волны
+byte waveThetaUpdate;
+byte waveThetaUpdateFrequency;
+byte waveTheta;
+byte hueUpdate;
+byte hueUpdateFrequency;
+byte waveRotation;
+uint8_t waveScale;
+uint8_t waveCount;
 
 #if (BIG_FONT == 0)
   // Шрифт размером 5x8
