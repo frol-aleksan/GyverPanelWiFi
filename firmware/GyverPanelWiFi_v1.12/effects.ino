@@ -2999,10 +2999,7 @@ void spiroRoutine() {
     {
       loadingFlag = false;
       setCurrentPalette();
-      
     }
-  //    Serial.print(pWIDTH);
-  //    Serial.print(pHEIGHT);
       blurScreen(20); // @Palpalych советует делать размытие
       dimAll(255U - modes[currentMode].Speed / 10);
       boolean change = false;
@@ -3086,6 +3083,39 @@ if (modes[currentMode].Speed & 0x01)
 // (c) kostyamat
 // https://github.com/DmytroKorniienko/FireLamp_JeeUI/blob/master/src/effects.cpp
 uint8_t wormscount;
+uint8_t nexus_type = 0;
+void nexusRoutine() {
+  if (loadingFlag)
+  {
+    loadingFlag = false;
+    speedfactor = fmap(modes[currentMode].Speed, 1, 255, 0.1, .33);//(float)modes[currentMode].Speed / 555.0f + 0.001f;
+    wormscount = map8(getEffectScaleParamValue(MC_NEXUS),1,2*pWIDTH);   //количество червячков, которое можно задавать от 1 до 2*pWIDTH через ползунок варианта
+    enlargedObjectNUM = (modes[currentMode].Scale - 1U) / 99.0 * (wormscount - 1U) + 1U;
+    if (enlargedObjectNUM > wormscount) enlargedObjectNUM = wormscount;
+    for (uint8_t i = 0; i < enlargedObjectNUM; i++){
+      enlargedObjectTime[i] = 0;
+      trackingObjectPosX[i] = random8(pWIDTH);
+      trackingObjectPosY[i] = random8(pHEIGHT);
+      trackingObjectSpeedX[i] = (255. + random8()) / 255.;
+      trackingObjectSpeedY[i] = 0;
+      trackingObjectHue[i] = random8();
+      trackingObjectState[i] = random8(4);//     B00           направление головы змейки
+                                          // B10     B11
+                                          //     B01
+   }    
+  }
+  
+  nexus_type = (specialTextEffectParam >= 0) ? specialTextEffectParam : getEffectScaleParamValue2(MC_NEXUS);
+     // Если авто - генерировать один из типов - Вариант 1, Вариант 2
+    if (nexus_type == 0 || nexus_type > 2) {
+      nexus_type = random8(1,2);
+    }     
+  switch (nexus_type) {
+    case 1:  nexus(); break;
+    default: snake(); break;
+  }
+}
+
 void nexusReset(uint8_t i){
       trackingObjectHue[i] = random8();
       trackingObjectState[i] = random8(4);
@@ -3109,25 +3139,10 @@ void nexusReset(uint8_t i){
             break;
         }
 }
-void nexusRoutine(){
-  if (loadingFlag)
-  {
-    wormscount = map8(getEffectScaleParamValue(MC_NEXUS),1,2*pWIDTH);   //количество червячков, которое можно задавать от 1 до 2*pWIDTH через ползунок варианта
-    loadingFlag = false;
-    speedfactor = fmap(modes[currentMode].Speed, 1, 255, 0.1, .33);//(float)modes[currentMode].Speed / 555.0f + 0.001f;
-    enlargedObjectNUM = (modes[currentMode].Scale - 1U) / 99.0 * (wormscount - 1U) + 1U;
-    if (enlargedObjectNUM > wormscount) enlargedObjectNUM = wormscount;
-    for (uint8_t i = 0; i < enlargedObjectNUM; i++){
-      trackingObjectPosX[i] = random8(pWIDTH);
-      trackingObjectPosY[i] = random8(pHEIGHT);
-      trackingObjectSpeedX[i] = (float)random8(5,11) / 70 + speedfactor; // делаем частицам немного разное ускорение и сразу пересчитываем под общую скорость
-      trackingObjectHue[i] = random8();
-      trackingObjectState[i] = random8(4);//     B00           // задаем направление
-                                           // B10     B11
-                                           //     B01
-   }
-    deltaValue = 255U - map(modes[currentMode].Speed, 1, 255, 11, 33);
-  }
+
+
+void nexus(){
+  deltaValue = 255U - map(modes[currentMode].Speed, 1, 255, 11, 33);
   dimAll(deltaValue);
   for (uint8_t i = 0; i < enlargedObjectNUM; i++){
         switch (trackingObjectState[i]) {
@@ -3153,6 +3168,173 @@ void nexusRoutine(){
             break;
         }
     drawPixelXYF(trackingObjectPosX[i], trackingObjectPosY[i],  CHSV(trackingObjectHue[i], 255U, 255));
+  }
+}
+
+#define SNAKES_LENGTH (8U)
+void snake() {
+  FastLED.clear();
+  int8_t dx, dy;
+  for (uint8_t i = 0; i < enlargedObjectNUM; i++){
+   trackingObjectSpeedY[i] += trackingObjectSpeedX[i] * speedfactor;
+   if (trackingObjectSpeedY[i] >= 1)
+   {
+    trackingObjectSpeedY[i] = trackingObjectSpeedY[i] - (int)trackingObjectSpeedY[i];
+    if (random8(9U) == 0U) // вероятность поворота
+      if (random8(2U)){ // <- поворот налево
+        enlargedObjectTime[i] = (enlargedObjectTime[i] << 2) | B01; // младший бит = поворот
+        switch (trackingObjectState[i]) {
+          case B10:
+            trackingObjectState[i] = B01;
+            if (trackingObjectPosY[i] == 0U)
+              trackingObjectPosY[i] = pHEIGHT - 1U;
+            else
+              trackingObjectPosY[i]--;
+            break;
+          case B11:
+            trackingObjectState[i] = B00;
+            if (trackingObjectPosY[i] >= pHEIGHT - 1U)
+              trackingObjectPosY[i] = 0U;
+            else
+              trackingObjectPosY[i]++;
+            break;
+          case B00:
+            trackingObjectState[i] = B10;
+            if (trackingObjectPosX[i] == 0U)
+              trackingObjectPosX[i] = pWIDTH - 1U;
+            else
+              trackingObjectPosX[i]--;
+            break;
+          case B01:
+            trackingObjectState[i] = B11;
+            if (trackingObjectPosX[i] >= pWIDTH - 1U)
+              trackingObjectPosX[i] = 0U;
+            else
+              trackingObjectPosX[i]++;
+            break;
+        }
+      }
+      else{ // -> поворот направо
+        enlargedObjectTime[i] = (enlargedObjectTime[i] << 2) | B11; // младший бит = поворот, старший = направо
+        switch (trackingObjectState[i]) {
+          case B11:
+            trackingObjectState[i] = B01;
+            if (trackingObjectPosY[i] == 0U)
+              trackingObjectPosY[i] = pHEIGHT - 1U;
+            else
+              trackingObjectPosY[i]--;
+            break;
+          case B10:
+            trackingObjectState[i] = B00;
+            if (trackingObjectPosY[i] >= pHEIGHT - 1U)
+              trackingObjectPosY[i] = 0U;
+            else
+              trackingObjectPosY[i]++;
+            break;
+          case B01:
+            trackingObjectState[i] = B10;
+            if (trackingObjectPosX[i] == 0U)
+              trackingObjectPosX[i] = pWIDTH - 1U;
+            else
+              trackingObjectPosX[i]--;
+            break;
+          case B00:
+            trackingObjectState[i] = B11;
+            if (trackingObjectPosX[i] >= pWIDTH - 1U)
+              trackingObjectPosX[i] = 0U;
+            else
+              trackingObjectPosX[i]++;
+            break;
+        }
+      }
+    else { // двигаем без поворота
+        enlargedObjectTime[i] = (enlargedObjectTime[i] << 2);
+        switch (trackingObjectState[i]) {
+          case B01:
+            if (trackingObjectPosY[i] == 0U)
+              trackingObjectPosY[i] = pHEIGHT - 1U;
+            else
+              trackingObjectPosY[i]--;
+            break;
+          case B00:
+            if (trackingObjectPosY[i] >= pHEIGHT - 1U)
+              trackingObjectPosY[i] = 0U;
+            else
+              trackingObjectPosY[i]++;
+            break;
+          case B10:
+            if (trackingObjectPosX[i] == 0U)
+              trackingObjectPosX[i] = pWIDTH - 1U;
+            else
+              trackingObjectPosX[i]--;
+            break;
+          case B11:
+            if (trackingObjectPosX[i] >= pWIDTH - 1U)
+              trackingObjectPosX[i] = 0U;
+            else
+              trackingObjectPosX[i]++;
+            break;
+        }
+    }
+   }
+  
+    switch (trackingObjectState[i]) {
+     case B01:
+       dy = 1;
+       dx = 0;
+       break;
+     case B00:
+       dy = -1;
+       dx = 0;
+       break;
+     case B10:
+       dy = 0;
+       dx = 1;
+       break;
+     case B11:
+       dy = 0;
+       dx = -1;
+       break;
+    }
+    long temp = enlargedObjectTime[i];
+    uint8_t x = trackingObjectPosX[i];
+    uint8_t y = trackingObjectPosY[i];
+    leds[XY(x,y)] += CHSV(trackingObjectHue[i], 255U, trackingObjectSpeedY[i] * 255); // тут рисуется голова
+    for (uint8_t m = 0; m < SNAKES_LENGTH; m++){ // 16 бит распаковываем, 14 ещё остаётся без дела в запасе, 2 на хвостик
+      x = (pWIDTH + x + dx) % pWIDTH;
+      y = (pHEIGHT + y + dy) % pHEIGHT;
+      leds[XY(x,y)] += CHSV(trackingObjectHue[i] + (m + trackingObjectSpeedY[i])*4U, 255U, 255U); // тут рисуется тело
+      if (temp & B01){ // младший бит = поворот, старший = направо
+        temp = temp >> 1;
+        if (temp & B01){ // старший бит = направо
+          if (dx == 0){
+            dx = 0 - dy;
+            dy = 0;
+          }
+          else{
+            dy = dx;
+            dx = 0;
+          }
+        }
+        else{ // иначе налево
+          if (dx == 0){
+            dx = dy;
+            dy = 0;
+          }
+          else{
+            dy = 0 - dx;
+            dx = 0;
+          }
+        }
+        temp = temp >> 1;
+      }
+      else { // если без поворота
+        temp = temp >> 2;
+      }
+    }
+    x = (pWIDTH + x + dx) % pWIDTH;
+    y = (pHEIGHT + y + dy) % pHEIGHT;
+    leds[XY(x,y)] += CHSV(trackingObjectHue[i] + (SNAKES_LENGTH + trackingObjectSpeedY[i])*4U, 255U, (1 - trackingObjectSpeedY[i]) * 255); // хвостик
   }
 }
 
@@ -3353,10 +3535,6 @@ void Sinusoid3Routine()
       }
     }
   }
-
-  //Этих двух вариантов в списке параметров эффекта нет, поскольку они хз по какой причине мерцают. Дальше начинается интересное и непонятное.
-  //Если изначально "мерцающие" эффекты убрать совсем, начинает мерцать первый вариант, даже если на него назначить заведомо рабочий эффект. 
-  //Поэтому пусть будут. С ними хотя бы не мерцают первые семь вариантов. Короче, мистика.
     
   //variant by SottNick
   //Sinusoid VII
@@ -5822,9 +6000,6 @@ void ColorCometRoutine() {      // <- ******* для оригинальной п
 }
 // NoiseSmearing(by StefanPetrick) Effect mod for GyverLamp by PalPalych
 void MultipleStream() { // 2 comets
-//  if (loadingFlag)
-//  {
-//    loadingFlag = false;
     trackingObjectState[0] = pWIDTH / 8;
     trackingObjectState[1] = pHEIGHT / 8;
     trackingObjectShift[0] = 255./(pWIDTH-1.-trackingObjectState[0]-trackingObjectState[0]);
@@ -5857,9 +6032,6 @@ if (xx < pWIDTH && yy < pHEIGHT)
 }
 
 void MultipleStream2() { // 3 comets
-//  if (loadingFlag)
-//  {
-//    loadingFlag = false;
     trackingObjectState[0] = pWIDTH / 8;
     trackingObjectState[1] = pHEIGHT / 8;
     trackingObjectShift[0] = 255./(pWIDTH-1.-trackingObjectState[0]-trackingObjectState[0]);
@@ -5868,7 +6040,6 @@ void MultipleStream2() { // 3 comets
     trackingObjectState[3] = pHEIGHT / 4;
     trackingObjectShift[2] = 255./(pWIDTH-1.-trackingObjectState[2]-trackingObjectState[2]);// ((pWIDTH>10)?9.:5.));
     trackingObjectShift[3] = 255./(pHEIGHT-1.-trackingObjectState[3]-trackingObjectState[3]);//- ((pHEIGHT>10)?9.:5.));
- // }
   dimAll(255U - modes[currentMode].Scale * 2);
   byte xx = trackingObjectState[0] + sin8( millis() / 10) / trackingObjectShift[0];// / 22;
   byte yy = trackingObjectState[1] + cos8( millis() / 9) / trackingObjectShift[1];// / 22;
@@ -5923,20 +6094,14 @@ void starwarsEmit(uint8_t i) //particlesEmit(Particle_Abstract *particle, Partic
     }
 }
 
-void starwarsRoutine(){
- // if (loadingFlag)
- // {
- //   loadingFlag = false;
-    //speedfactor = (float)modes[currentMode].Speed / 510.0f + 0.001f;    
+void starwarsRoutine(){   
     deltaValue = 1; // количество зарождающихся частиц за 1 цикл //perCycle = 1;
     enlargedObjectNUM = (modes[currentMode].Scale - 1U) / 99.0 * (trackingOBJECT_MAX_COUNT - 1U) + 1U;
     if (enlargedObjectNUM > trackingOBJECT_MAX_COUNT) enlargedObjectNUM = trackingOBJECT_MAX_COUNT;
     for(int i = 0; i<enlargedObjectNUM; i++)
       trackingObjectIsShift[i] = false; // particle->isAlive
-
     boids[0].colorIndex = random8();
     boids[1].colorIndex = boids[0].colorIndex + 127U;
-
     trackingObjectShift[4] = pWIDTH / 8;
     trackingObjectShift[5] = pHEIGHT / 8;
     trackingObjectShift[0] = 255./(pWIDTH-1.-trackingObjectShift[4]-trackingObjectShift[4]);
@@ -5945,19 +6110,11 @@ void starwarsRoutine(){
     trackingObjectShift[7] = pHEIGHT / 4;
     trackingObjectShift[2] = 255./(pWIDTH-1.-trackingObjectShift[6]-trackingObjectShift[6]);// ((pWIDTH>10)?9.:5.));
     trackingObjectShift[3] = 255./(pHEIGHT-1.-trackingObjectShift[7]-trackingObjectShift[7]);//- ((pHEIGHT>10)?9.:5.));
-    
-//  }
-  
-  //boids[0].location.x = 2 + sin8( millis() / 10) / 22.;
-  //boids[0].location.y = 2 + cos8( millis() / 10) / 22.;
+
   boids[0].location.x = trackingObjectShift[4] + sin8( millis() / 10) / trackingObjectShift[0];// / 22;
   boids[0].location.y = trackingObjectShift[5] + cos8( millis() / 10) / trackingObjectShift[1];// / 22;  
-  //boids[1].location.x = 4 + sin8( millis() / 46) / 32.;
-  //boids[1].location.y = 4 + cos8( millis() / 15) / 32.;
   boids[1].location.x = trackingObjectShift[6] + sin8( millis() / 46) / trackingObjectShift[2];// / 32;
   boids[1].location.y = trackingObjectShift[7] + cos8( millis() / 15) / trackingObjectShift[3];// / 32;
-    
-  //step = deltaValue; //счётчик количества частиц в очереди на зарождение в этом цикле
   step = random(2U);
   
   pcnt = 1U;
@@ -5973,13 +6130,10 @@ else FastLED.clear();
       step--;
     }
     if (trackingObjectIsShift[i]){ // particle->isAlive
-      //particles[i].update(this->g);
       particlesUpdate2(i);
 
       //generate RGB values for particle
       CRGB baseRGB = CHSV(trackingObjectHue[i], 255,255); // particles[i].hue
-
-      //baseRGB.fadeToBlackBy(255-trackingObjectState[i]);
       baseRGB.nscale8(trackingObjectState[i]);//эквивалент
       drawPixelXYF(trackingObjectPosX[i], trackingObjectPosY[i], baseRGB);
     }
@@ -6090,17 +6244,11 @@ void fountainsRoutine(){
     loadingFlag = false;
     enlargedObjectNUM = (modes[currentMode].Scale - 1U) / 99.0 * (AVAILABLE_BOID_COUNT - 1U) + 1U;
     if (enlargedObjectNUM > AVAILABLE_BOID_COUNT) enlargedObjectNUM = AVAILABLE_BOID_COUNT;
-    
-    //deltaValue = 10; // количество зарождающихся частиц за 1 цикл
     deltaValue = trackingOBJECT_MAX_COUNT / (SQRT_VARIANT(CENTER_X_MAJOR*CENTER_X_MAJOR + CENTER_Y_MAJOR*CENTER_Y_MAJOR) * 4U) + 1U; // 4 - это потому что за 1 цикл частица пролетает ровно четверть расстояния между 2мя соседними пикселями
-
     for(int i = 0; i<trackingOBJECT_MAX_COUNT; i++)
       trackingObjectIsShift[i] = false;
-    
     for(int j = 0; j<enlargedObjectNUM; j++){
       boids[j] = Boid(random8(pWIDTH), random8(pHEIGHT));
-      //boids[j].location.x = random8(pWIDTH);
-      //boids[j].location.y = random8(pHEIGHT);
       boids[j].velocity.x = ((float)random8()-127.)/512.; 
       boids[j].velocity.y = SQRT_VARIANT(0.0626-boids[j].velocity.x*boids[j].velocity.x) /  8.; // скорость источников в восемь раз ниже, чем скорость частиц
       boids[j].velocity.x                                                        /= 8.; // скорость источников в восемь раз ниже, чем скорость частиц
@@ -6129,6 +6277,87 @@ void fountainsRoutine(){
       //baseRGB.fadeToBlackBy(255-trackingObjectState[i]);
       baseRGB.nscale8(trackingObjectState[i]);//эквивалент
       drawPixelXYF(trackingObjectPosX[i], trackingObjectPosY[i], baseRGB);
+    }
+  }
+}
+
+// --------- Эффект "Северное Сияние"
+// (c) kostyamat 05.02.2021
+// идеи подсмотрены тут https://www.reddit.com/r/FastLED/comments/jyly1e/challenge_fastled_sketch_that_fits_entirely_in_a/
+// особая благодарность https://www.reddit.com/user/ldirko/ Yaroslaw Turbin aka ldirko
+// вместо набора палитр в оригинальном эффекте сделан генератор палитр
+#define AURORA_COLOR_RANGE 10 // (+/-10 единиц оттенка) диапазон, в котором плавает цвет сияния относительно выбранного оттенка 
+#define AURORA_COLOR_PERIOD 2 // (2 раза в минуту) частота, с которой происходит колебание выбранного оттенка в разрешённом диапазоне
+
+// генератор палитр для Северного сияния (c) SottNick
+static const uint8_t MBAuroraColors_arr[5][4] PROGMEM = // палитра в формате CHSV
+{//№, цвет, насыщенность, яркость
+  {0  , 0 , 255,   0},// black
+  {80 , 0 , 255, 255},
+  {130, 25, 220, 255},
+  {180, 25, 185, 255},
+  {255, 25, 155, 255} //245
+};
+
+CRGBPalette16 myPal;
+
+void fillMyPal16_2(uint8_t hue, bool isInvert = false){ 
+// я бы, конечно, вместо копии функции генерации палитры "_2"
+// лучше бы сделал её параметром указатель на массив с базовой палитрой, 
+// но я пониятия не имею, как это делается с грёбаным PROGMEM
+
+  int8_t lastSlotUsed = -1;
+  uint8_t istart8, iend8;
+  CRGB rgbstart, rgbend;
+  
+  // начинаем с нуля
+  if (isInvert)
+    //с неявным преобразованием оттенков цвета получаются, как в фотошопе, но для данного эффекта не красиво выглядят
+    hsv2rgb_spectrum(CHSV(256 + hue - pgm_read_byte(&MBAuroraColors_arr[0][1]), pgm_read_byte(&MBAuroraColors_arr[0][2]), pgm_read_byte(&MBAuroraColors_arr[0][3])), rgbstart);
+  else
+    hsv2rgb_spectrum(CHSV(hue + pgm_read_byte(&MBAuroraColors_arr[0][1]), pgm_read_byte(&MBAuroraColors_arr[0][2]), pgm_read_byte(&MBAuroraColors_arr[0][3])), rgbstart);
+  int indexstart = 0; // начальный индекс палитры
+  for (uint8_t i = 1U; i < 5U; i++) { // в палитре @obliterator всего 5 строчек
+    int indexend = pgm_read_byte(&MBAuroraColors_arr[i][0]);
+    if (isInvert)
+      hsv2rgb_spectrum(CHSV(hue + pgm_read_byte(&MBAuroraColors_arr[i][1]), pgm_read_byte(&MBAuroraColors_arr[i][2]), pgm_read_byte(&MBAuroraColors_arr[i][3])), rgbend);
+    else
+      hsv2rgb_spectrum(CHSV(256 + hue - pgm_read_byte(&MBAuroraColors_arr[i][1]), pgm_read_byte(&MBAuroraColors_arr[i][2]), pgm_read_byte(&MBAuroraColors_arr[i][3])), rgbend);
+    istart8 = indexstart / 16;
+    iend8   = indexend   / 16;
+    if ((istart8 <= lastSlotUsed) && (lastSlotUsed < 15)) {
+       istart8 = lastSlotUsed + 1;
+       if (iend8 < istart8)
+         iend8 = istart8;
+    }
+    lastSlotUsed = iend8;
+    fill_gradient_RGB( myPal, istart8, rgbstart, iend8, rgbend);
+    indexstart = indexend;
+    rgbstart = rgbend;
+  }
+}
+
+unsigned long polarTimer;
+
+void auroraRoutine() {
+  if (loadingFlag) {
+    loadingFlag = false;
+    emitterX = 400. / pHEIGHT; // а это - максимум без яркой засветки крайних рядов матрицы (сверху и снизу)
+    ff_y = map(pWIDTH, 8, 64, 310, 63);
+    ff_z = ff_y;
+    speedfactor = map(modes[currentMode].Speed, 1, 255, 128, 16);
+  }
+  
+  if (modes[currentMode].Scale == 100){
+    if (hue2++ & 0x01 && deltaHue++ & 0x01 && deltaHue2++ & 0x01) hue++; // это ж бред, но я хз. как с 60ю кадрами в секунду можно эффективно скорость замедлять...
+      fillMyPal16_2((uint8_t)((modes[currentMode].Scale - 1U) * 2.55) + hue, modes[currentMode].Scale & 0x01);
+  }
+  else
+    fillMyPal16_2((uint8_t)((modes[currentMode].Scale - 1U) * 2.55) + AURORA_COLOR_RANGE - beatsin8(AURORA_COLOR_PERIOD, 0U, AURORA_COLOR_RANGE+AURORA_COLOR_RANGE), modes[currentMode].Scale & 0x01);
+  for (byte x = 0; x < pWIDTH; x++) {
+    for (byte y = 0; y < pHEIGHT; y++) {
+      polarTimer++;
+      leds[XY(x, y)]= ColorFromPalette(myPal, qsub8(inoise8(polarTimer % 2 + x * ff_z, y * 16 + polarTimer % 16, polarTimer / speedfactor), fabs((float)pHEIGHT/2 - (float)y) * emitterX));      
     }
   }
 }

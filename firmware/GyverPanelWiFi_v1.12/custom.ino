@@ -468,6 +468,7 @@ void processEffect(uint8_t aMode) {
     case MC_RAINBOWSNAKE:        MultipleStream8(); break; 
     case MC_PLASMALAMP:          spiderRoutine(); break; 
     case MC_FOUNTAIN:            fountainsRoutine(); break; 
+    case MC_AURORA:              auroraRoutine(); break; 
 
     #ifdef MC_IMAGE
     case MC_IMAGE:               animationRoutine(); break;
@@ -585,7 +586,7 @@ void releaseEffectResources(uint8_t aMode) {
     case MC_RAINBOWSNAKE:        break; 
     case MC_PLASMALAMP:          break; 
     case MC_FOUNTAIN:            break; 
-
+    case MC_AURORA:              break; 
     #ifdef MC_IMAGE
     case MC_IMAGE:               break;
     #endif  
@@ -882,6 +883,9 @@ void setTimersForMode(uint8_t aMode) {
       if (aMode == MC_FOUNTAIN) {
         effectTimer.setInterval(efSpeed);
       } else  
+      if (aMode == MC_AURORA) {
+        effectTimer.setInterval(efSpeed);
+      } else 
       {
         effectTimer.setInterval(10);
       }
