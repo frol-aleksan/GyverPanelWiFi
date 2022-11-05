@@ -6670,11 +6670,9 @@ uint8_t  cube_vh;          // 0 - вертикальное движение; 1 -
 uint8_t  cube_rl;          // верт: 0 - вниз, 1 - вверх; гориз: 0 - влево; 1 - вправо
 uint8_t  cube_move_cnt;    // На сколько линий в координатах матрицы (не плашек!) выполнять смещение
 uint8_t  RUBIK_BLOCK_SIZE; // Размер квадратика палитры
-
 uint8_t  py, px, ppx, ppy;
 CHSV     cubeColorFrom;
 CHSV     cubeColorTo;
-
 void rubikRoutine() {
   if (loadingFlag) {
     loadingFlag = false;

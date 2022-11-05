@@ -1490,7 +1490,7 @@ void parsing() {
               loadingFlag = true;
             } else 
             if (thisMode == tmp_eff && tmp_eff == MC_RUBICK) {
-              // При получении параметра эффекта "NEXUS" (кол-во червячков) - надо переинициализировать эффект
+              // При получении параметра эффекта "RUBICK" (размер плиток) - надо переинициализировать эффект
               loadingFlag = true;
             } else 
             if (thisMode == tmp_eff && tmp_eff == MC_SINWAVES) {
@@ -3171,14 +3171,39 @@ String getStateValue(String &key, int8_t effect, JsonVariant* value = nullptr) {
   // Контраст
   if (key == "BE") {
     if (value) {
-      if (effect == MC_PACIFICA || effect == MC_DAWN_ALARM || effect == MC_MAZE || effect == MC_SNAKE || effect == MC_TETRIS || effect == MC_ARKANOID || effect == MC_FLAPPY || effect == MC_RUNNER || effect == MC_CLOCK || MC_POPCORN || MC_DNA || MC_BALLS_BOUNCE || MC_SPIRO || MC_SMOKEBALLS || MC_NEXUS || MC_SINUSOID3 || MC_RINGS || MC_CUBE2D || MC_ATTRACT || MC_FAIRY || MC_DROPS || MC_OSCILLATING || MC_LLAND || MC_SAND || MC_WAVES || MC_METABALLS || MC_PICASSO || MC_LUMENJER || MC_SPHERES || MC_POOL || MC_SMOKE || MC_PULSE || MC_WATERFALL || MC_WHIRL || MC_COMET || MC_RAINBOWSNAKE || MC_PLASMALAMP || MC_FOUNTAIN || MC_AURORA || MC_CLOCKS || MC_FIREWORKS || MC_TRACKS || MC_PAINT || MC_CANDLE || MC_RUBICK || MC_FRIZZLE || MC_LOTUS || MC_TREE || effect == MC_SDCARD) {
+      if (effect == MC_PACIFICA || effect == MC_DAWN_ALARM || effect == MC_MAZE || effect == MC_SNAKE || effect == MC_TETRIS || 
+          effect == MC_ARKANOID || effect == MC_FLAPPY || effect == MC_RUNNER || effect == MC_CLOCK || effect == MC_POPCORN || 
+          effect == MC_DNA || effect == MC_BALLS_BOUNCE || effect == MC_SPIRO || effect == MC_SMOKEBALLS || effect == MC_NEXUS || 
+          effect == MC_SINUSOID3 || effect == MC_RINGS || effect == MC_CUBE2D || effect == MC_ATTRACT || effect == MC_FAIRY || 
+          effect == MC_DROPS || effect == MC_OSCILLATING || effect == MC_LLAND || effect == MC_SAND || effect == MC_WAVES || 
+          effect == MC_METABALLS || effect == MC_PICASSO || effect == MC_LUMENJER || effect == MC_SPHERES || effect == MC_POOL || 
+          effect == MC_SMOKE || effect == MC_PULSE || effect == MC_WATERFALL || effect == MC_WHIRL || effect == MC_COMET || 
+          effect == MC_RAINBOWSNAKE || effect == MC_PLASMALAMP || effect == MC_FOUNTAIN || effect == MC_AURORA || effect == MC_CLOCKS || 
+          effect == MC_FIREWORKS || effect == MC_TRACKS || effect == MC_PAINT || effect == MC_CANDLE || effect == MC_RUBICK || 
+          effect == MC_FRIZZLE || effect == MC_LOTUS || effect == MC_TREE
+          #if (USE_SD == 1) 
+            || effect == MC_SDCARD
+          #endif
+          ) {
         value->set("X");
         return "X";
       }  
       value->set(getEffectContrast(effect));
       return String(getEffectContrast(effect));
     }
-    return str + "BE:" +  (effect == MC_PACIFICA || effect == MC_DAWN_ALARM || effect == MC_MAZE || effect == MC_SNAKE || effect == MC_TETRIS || effect == MC_ARKANOID || effect == MC_FLAPPY || effect == MC_RUNNER || effect == MC_CLOCK || MC_POPCORN || MC_DNA || MC_BALLS_BOUNCE || MC_SPIRO || MC_SMOKEBALLS || MC_NEXUS || MC_SINUSOID3 || MC_RINGS || MC_CUBE2D || MC_ATTRACT || MC_FAIRY || MC_DROPS || MC_OSCILLATING || MC_LLAND || MC_SAND || MC_WAVES || MC_METABALLS || MC_PICASSO || MC_LUMENJER || MC_SPHERES || MC_POOL || MC_SMOKE || MC_PULSE || MC_WATERFALL || MC_WHIRL || MC_COMET || MC_RAINBOWSNAKE || MC_PLASMALAMP || MC_FOUNTAIN || MC_AURORA || MC_CLOCKS || MC_FIREWORKS || MC_TRACKS || MC_PAINT || MC_CANDLE || MC_RUBICK || MC_FRIZZLE || MC_LOTUS || MC_TREE || effect == MC_SDCARD
+    return str + "BE:" +  (effect == MC_PACIFICA || effect == MC_DAWN_ALARM || effect == MC_MAZE || effect == MC_SNAKE || effect == MC_TETRIS || 
+                           effect == MC_ARKANOID || effect == MC_FLAPPY || effect == MC_RUNNER || effect == MC_CLOCK || effect == MC_POPCORN || 
+                           effect == MC_DNA || effect == MC_BALLS_BOUNCE || effect == MC_SPIRO || effect == MC_SMOKEBALLS || effect == MC_NEXUS || 
+                           effect == MC_SINUSOID3 || effect == MC_RINGS || effect == MC_CUBE2D || effect == MC_ATTRACT || effect == MC_FAIRY || 
+                           effect == MC_DROPS || effect == MC_OSCILLATING || effect == MC_LLAND || effect == MC_SAND || effect == MC_WAVES || 
+                           effect == MC_METABALLS || effect == MC_PICASSO || effect == MC_LUMENJER || effect == MC_SPHERES || effect == MC_POOL || 
+                           effect == MC_SMOKE || effect == MC_PULSE || effect == MC_WATERFALL || effect == MC_WHIRL || effect == MC_COMET || 
+                           effect == MC_RAINBOWSNAKE || effect == MC_PLASMALAMP || effect == MC_FOUNTAIN || effect == MC_AURORA || effect == MC_CLOCKS || 
+                           effect == MC_FIREWORKS || effect == MC_TRACKS || effect == MC_PAINT || effect == MC_CANDLE || effect == MC_RUBICK || 
+                           effect == MC_FRIZZLE || effect == MC_LOTUS || effect == MC_TREE
+                           #if (USE_SD == 1)
+                             || effect == MC_SDCARD
+                           #endif
          ? "X" 
          : String(getEffectContrast(effect)));
   }
