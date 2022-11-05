@@ -469,7 +469,16 @@ void processEffect(uint8_t aMode) {
     case MC_PLASMALAMP:          spiderRoutine(); break; 
     case MC_FOUNTAIN:            fountainsRoutine(); break; 
     case MC_AURORA:              auroraRoutine(); break; 
-
+    case MC_CLOCKS:              clocks(); break;
+    case MC_FIREWORKS:           salute(); break;
+    case MC_TRACKS:              Swirl(); break;         
+    case MC_PAINT:               paint(); break; 
+    case MC_CANDLE:              FeatherCandleRoutine(); break; 
+    case MC_RUBICK:              rubikRoutine(); break; 
+    case MC_FRIZZLE:             ColorFrizzles(); break; 
+    case MC_LOTUS:               LotusFlower(); break; 
+    case MC_TREE:                ChristmasTree(); break; 
+    
     #ifdef MC_IMAGE
     case MC_IMAGE:               animationRoutine(); break;
     #endif  
@@ -587,6 +596,16 @@ void releaseEffectResources(uint8_t aMode) {
     case MC_PLASMALAMP:          break; 
     case MC_FOUNTAIN:            break; 
     case MC_AURORA:              break; 
+    case MC_CLOCKS:              break;
+    case MC_FIREWORKS:           break;
+    case MC_TRACKS:              break;         
+    case MC_PAINT:               break;
+    case MC_CANDLE:              break; 
+    case MC_RUBICK:              rubikRoutineRelease(); break; 
+    case MC_FRIZZLE:             break; 
+    case MC_LOTUS:               break; 
+    case MC_TREE:                break; 
+    
     #ifdef MC_IMAGE
     case MC_IMAGE:               break;
     #endif  
@@ -766,7 +785,7 @@ void setTimersForMode(uint8_t aMode) {
     if (efSpeed == 0) efSpeed = 1;
     // Эти режимы смотрятся (работают) только на максимальной скорости;
     if (aMode == MC_PAINTBALL || aMode == MC_SWIRL || aMode == MC_FLICKER || aMode == MC_PACIFICA || aMode == MC_LIFE ||
-        aMode == MC_SHADOWS || aMode == MC_PRIZMATA || aMode == MC_FIRE2 || aMode == MC_WEATHER || aMode == MC_ARKANOID ||
+        aMode == MC_SHADOWS || aMode == MC_PRIZMATA || aMode == MC_WEATHER || aMode == MC_ARKANOID ||
         aMode == MC_TETRIS || aMode == MC_FLAPPY || aMode == MC_RUNNER || aMode == MC_PATTERNS
         #ifdef MC_IMAGE
          || aMode == MC_IMAGE
@@ -886,6 +905,21 @@ void setTimersForMode(uint8_t aMode) {
       if (aMode == MC_AURORA) {
         effectTimer.setInterval(efSpeed);
       } else 
+      if (aMode == MC_CLOCKS) {
+        effectTimer.setInterval(efSpeed);
+      } else 
+      if (aMode == MC_FIREWORKS) {
+        effectTimer.setInterval(efSpeed);
+      } else 
+      if (aMode == MC_TRACKS) {
+        effectTimer.setInterval(efSpeed);
+      } else 
+      if (aMode == MC_PAINT) {
+        effectTimer.setInterval(efSpeed);
+      } else 
+      if (aMode == MC_FIRE2) {
+        effectTimer.setInterval(efSpeed);
+      } else 
       {
         effectTimer.setInterval(10);
       }
@@ -909,7 +943,6 @@ void setTimersForMode(uint8_t aMode) {
   } else {
     clockTimer.setInterval(clockScrollSpeed);
   }
-
   if (!e131_wait_command) {
     set_textScrollSpeed(getTextScrollSpeed());
     if (textScrollSpeed < D_TEXT_SPEED_MIN) set_textScrollSpeed(D_TEXT_SPEED_MIN); // Если textScrollSpeed == 0 - бегущая строка начинает дергаться.

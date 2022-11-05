@@ -381,6 +381,7 @@ void saveDefaults() {
   putEffectUsage(MC_CLOCK, false);
   putClockScrollSpeed(250);  
   putEffectTextOverlayUsage(MC_CLOCK, false); 
+  putEffectTextOverlayUsage(MC_CLOCKS, false); 
   putEffectTextOverlayUsage(MC_MAZE, false);
   putEffectTextOverlayUsage(MC_SNAKE, false);
   putEffectTextOverlayUsage(MC_TETRIS, false);
@@ -390,6 +391,7 @@ void saveDefaults() {
   putEffectTextOverlayUsage(MC_WEATHER, false);
   putEffectTextOverlayUsage(MC_LIFE, false);
   putEffectClockOverlayUsage(MC_CLOCK, false);
+  putEffectClockOverlayUsage(MC_CLOCKS, false);
   putEffectClockOverlayUsage(MC_MAZE, false);
   putEffectClockOverlayUsage(MC_SNAKE, false);
   putEffectClockOverlayUsage(MC_TETRIS, false);
@@ -400,8 +402,8 @@ void saveDefaults() {
   putEffectClockOverlayUsage(MC_LIFE, false);
 
   #ifdef MC_IMAGE
-  putEffectTextOverlayUsage(MC_IMAGE, false);
-  putEffectClockOverlayUsage(MC_IMAGE, false);
+    putEffectTextOverlayUsage(MC_IMAGE, false);
+    putEffectClockOverlayUsage(MC_IMAGE, false);
   #endif
 
   putClockScrollSpeed(250);
@@ -411,12 +413,12 @@ void saveDefaults() {
   putScaleForEffect2(MC_PAINTBALL, 1);      // Использовать сегменты для эффекта Пэйнтбол на широких матрицах
   putScaleForEffect2(MC_SWIRL, 1);          // Использовать сегменты для эффекта Водоворот на широких матрицах
   putScaleForEffect2(MC_RAINBOW, 0);        // Использовать рандомный выбор эффекта радуга 0 - random; 1 - диагональная; 2 - горизонтальная; 3 - вертикальная; 4 - вращающаяся  
-
+  
   uint8_t ball_size = 2;
   putScaleForEffect(MC_BALL, ball_size);    // Размер кубика по умолчанию
 
   uint8_t waves_count = 2;
-  putScaleForEffect(MC_WAVES, waves_count);    // Количество синусоид по умолчанию. 2 в самый раз
+  putScaleForEffect(MC_SINWAVES, waves_count);    // Количество синусоид по умолчанию. 2 в самый раз
   
   putGlobalColor(globalColor);              // Цвет панели в режиме "Лампа"
   putGlobalClockColor(globalClockColor);    // Цвет часов в режиме "Монохром" 
