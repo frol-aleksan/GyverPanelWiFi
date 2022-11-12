@@ -6341,19 +6341,40 @@ void auroraRoutine() {
 // ClockRoutine1(pWIDTH,pHEIGHT,false); - цвет всех элементов - белый
 
 uint8_t clock_type = 0;
+uint8_t clock_height;
+uint8_t clock_width;
 void clocks() {
   if (loadingFlag)
   {
     loadingFlag = false;
     clock_type = (specialTextEffectParam >= 0) ? specialTextEffectParam : getEffectScaleParamValue2(MC_CLOCKS);
+
+    //теперь часы всегда занимают квадратную область с размерами, соответствующими короткой стороне матрицы
+    //не то чтобы эффект до этого не работал, даже наоборот, выводился вполне корректно, но часы, растянутые на всю ширину прямоугольной матрицы, выглядели стремно и тупо
+    if (pWIDTH > pHEIGHT) 
+    {
+      clock_width = pHEIGHT;
+      clock_height = pHEIGHT;   
+    }
+    if (pWIDTH < pHEIGHT)
+    {
+      clock_width = pWIDTH;
+      clock_height = pWIDTH;   
+    }
+    if (pWIDTH == pHEIGHT)
+    {
+      clock_width = pWIDTH;
+      clock_height = pHEIGHT; 
+    }
      // Если авто - генерировать один из типов
     if (clock_type == 0 || clock_type > 2) {
       clock_type = random8(1,2);
     }
-  }     
+  }
+  
   switch (clock_type) {
-    case 1: ClockRoutine1(pWIDTH,pHEIGHT,false); break;
-    default: ClockRoutine1(pWIDTH,pHEIGHT,true); break;
+    case 1: ClockRoutine1(clock_width,clock_height,false); break;
+    default: ClockRoutine1(clock_width,clock_height,true); break;
   }
 }
 
@@ -6375,9 +6396,7 @@ void ClockRoutine1(uint8_t cl_w, uint8_t cl_h, bool fon_clear)
   uint32_t thisTime = hour(currentLocalTime) * 60 + minute(currentLocalTime);
   CHSV color = CHSV(0,(modes[currentMode].Speed>150)?0:255,(modes[currentMode].Speed<150)?0:255);
   int bridges=(thisTime < NIGHT_HOURS_START && thisTime > NIGHT_HOURS_STOP)?255:64;
-//Очистка
-// if (fon_clear)
- FastLED.clear();
+  FastLED.clear();
 
 //Циферблат
 // метки 1,2,4,5, 7,8, 10,11 (цвет метка сопровождает цвет минутной стрелки
@@ -6539,9 +6558,8 @@ const uint8_t  level = 160;
 const uint8_t  low_level = 110;
 const uint8_t *ptr  = anim;                     // Current pointer into animation data
 const uint8_t  wdth    = 7;                        // image width
-const uint8_t  hght    = 15;                       // image height
+const uint8_t  hght    = 15;                       // image height было 15
 uint8_t        img[wdth * hght];                      // Buffer for rendering image
-uint8_t        delta_X = floor(pWIDTH * 0.5) - 4; // position img
 uint8_t        last_brightness;
 
 void FeatherCandleRoutine() {  
@@ -6572,16 +6590,23 @@ void FeatherCandleRoutine() {
   int i = 0;
   uint8_t color = 40;  //красивое желто-оранжевое пламя с красными частицами, а не зеленое нечто
 
-  // draw flame -------------------
+  // рисуем статичное мерцающее пламя для маленьких матриц высотой менее 13 пикселей (если матрица крупнее, выводится анимированное пламя)
   for (uint8_t y = 1; y < hght; y++) {
-    if (pHEIGHT < 15) {
+    if (pHEIGHT < 13) {
       // for small matrix -----
-      if (y % 2 == 0) {
-        leds[XY(floor(pWIDTH * 0.5) - 2, 7)] = CHSV(color, 255U, 55 + random8(200));
-        leds[XY(floor(pWIDTH * 0.5) - 1, 5)] = CHSV(color, 255U, 205 + random8(50));
-        leds[XY(floor(pWIDTH * 0.5) - 1, 6)] = CHSV(color, 255U, 155 + random8(100));
-        leds[XY(floor(pWIDTH * 0.5) - 2, 4)] = CHSV(color - 64U , 255U, 120 + random8(130));
-        leds[XY(floor(pWIDTH * 0.5), 4)] = CHSV(color - 10U , 255U, 100 + random8(120));
+      if (y % 3 == 0) {
+        //рисуем пламя по строкам снизу вверх
+        leds[XY(floor(pWIDTH * 0.5) - 1, 3)] = CHSV(color - 20U , 255U, 50  + random8(50));
+        leds[XY(floor(pWIDTH * 0.5) - 2, 4)] = CHSV(color - 20U , 255U, 50  + random8(50));
+        leds[XY(floor(pWIDTH * 0.5) - 1, 4)] = CHSV(color       , 255U, 180 + random8(70));
+        leds[XY(floor(pWIDTH * 0.5),     4)] = CHSV(color - 20U , 255U, 50  + random8(50));
+        leds[XY(floor(pWIDTH * 0.5) - 2, 5)] = CHSV(color - 20U , 255U, 205 + random8(50));
+        leds[XY(floor(pWIDTH * 0.5) - 1, 5)] = CHSV(color,        255U, 205 + random8(50));
+        leds[XY(floor(pWIDTH * 0.5)    , 5)] = CHSV(color - 20U , 255U, 205 + random8(50));
+        leds[XY(floor(pWIDTH * 0.5) - 2, 6)] = CHSV(color - 20U , 255U, 50  + random8(50));
+        leds[XY(floor(pWIDTH * 0.5) - 1, 6)] = CHSV(color,        255U, 155 + random8(100));
+        leds[XY(floor(pWIDTH * 0.5)    , 6)] = CHSV(color - 20U , 255U, 50  + random8(50));
+        leds[XY(floor(pWIDTH * 0.5) - 1, 7)] = CHSV(color,        255U, 55 + random8(200));
       }
     } else {
       for (uint8_t x = 0; x < wdth; x++) {
@@ -6595,11 +6620,20 @@ void FeatherCandleRoutine() {
       if (y % 2 == 0) {
       }
     }
-//Рисуем свечку
+//Рисуем свечу попиксельно слева направо и построчно сверху вниз
+//Да, это сделано в лоб и топорно, но при оригинальном выводе в цикле у второго и последнего столбца получаются значения цветов, которые на малых яркостях не видны
+//Если же сделать так, выглядит гораздо лучше, хотя используется меньшее количество цветов
   for (uint8_t y = 0; y < 3; y++) {
-   for (uint8_t x = CENTER_X_MAJOR-5; x<CENTER_X_MAJOR+5 ; x++) {
-    leds[XY(x,y)] = CHSV(48, 160U+abs(x-CENTER_X_MAJOR)*30, 255-abs(x-CENTER_X_MAJOR)*60);
-   }
+    leds[XY(floor(pWIDTH * 0.5) - 5,y)] = CHSV(48, 160U + abs(floor(pWIDTH * 0.5) - 5 - floor(pWIDTH * 0.5)) * 30, 255 - abs(floor(pWIDTH * 0.5) - 5 - floor(pWIDTH * 0.5)) * 60);
+    leds[XY(floor(pWIDTH * 0.5) - 4,y)] = CHSV(48, 160U + abs(floor(pWIDTH * 0.5) - 2 - floor(pWIDTH * 0.5)) * 30, 255 - abs(floor(pWIDTH * 0.5) - 2 - floor(pWIDTH * 0.5)) * 60);
+    leds[XY(floor(pWIDTH * 0.5) - 3,y)] = CHSV(48, 160U + abs(floor(pWIDTH * 0.5) - 3 - floor(pWIDTH * 0.5)) * 30, 255 - abs(floor(pWIDTH * 0.5) - 3 - floor(pWIDTH * 0.5)) * 60);
+    leds[XY(floor(pWIDTH * 0.5) - 2,y)] = CHSV(48, 160U + abs(floor(pWIDTH * 0.5) - 2 - floor(pWIDTH * 0.5)) * 30, 255 - abs(floor(pWIDTH * 0.5) - 2 - floor(pWIDTH * 0.5)) * 60);
+    leds[XY(floor(pWIDTH * 0.5) - 1,y)] = CHSV(48, 160U + abs(floor(pWIDTH * 0.5) - 1 - floor(pWIDTH * 0.5)) * 30, 255 - abs(floor(pWIDTH * 0.5) - 1 - floor(pWIDTH * 0.5)) * 60);
+    leds[XY(floor(pWIDTH * 0.5)    ,y)] = CHSV(48, 160U + abs(floor(pWIDTH * 0.5)     - floor(pWIDTH * 0.5)) * 30, 255 - abs(floor(pWIDTH * 0.5)     - floor(pWIDTH * 0.5)) * 60);
+    leds[XY(floor(pWIDTH * 0.5) + 1,y)] = CHSV(48, 160U + abs(floor(pWIDTH * 0.5) + 1 - floor(pWIDTH * 0.5)) * 30, 255 - abs(floor(pWIDTH * 0.5) + 1 - floor(pWIDTH * 0.5)) * 60);
+    leds[XY(floor(pWIDTH * 0.5) + 2,y)] = CHSV(48, 160U + abs(floor(pWIDTH * 0.5) + 2 - floor(pWIDTH * 0.5)) * 30, 255 - abs(floor(pWIDTH * 0.5) + 2 - floor(pWIDTH * 0.5)) * 60);
+    leds[XY(floor(pWIDTH * 0.5) + 3,y)] = CHSV(48, 160U + abs(floor(pWIDTH * 0.5) + 3 - floor(pWIDTH * 0.5)) * 30, 255 - abs(floor(pWIDTH * 0.5) + 3 - floor(pWIDTH * 0.5)) * 60);
+    leds[XY(floor(pWIDTH * 0.5) + 4,y)] = CHSV(48, 160U + abs(floor(pWIDTH * 0.5) - 2 - floor(pWIDTH * 0.5)) * 30, 255 - abs(floor(pWIDTH * 0.5) - 2 - floor(pWIDTH * 0.5)) * 60);
   }
     // drops of wax move -------------
     switch (hue ) {
@@ -6637,7 +6671,6 @@ void FeatherCandleRoutine() {
     if (hue > 3) {
       hue++;
     } else {
-      // LOG.printf_P(PSTR("[0] = %03d | [1] = %03d | [2] = %03d \n\r"), trackingObjectState[0], trackingObjectState[1], trackingObjectState[2]);
       if (hue < 2) {
         leds[XY(trackingObjectState[4], 2)] = CHSV(50U, 20U, trackingObjectState[0]);
       }

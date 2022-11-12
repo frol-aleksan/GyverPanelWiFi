@@ -940,6 +940,9 @@ byte waveRotation;
 uint8_t waveScale;
 uint8_t waveCount;
 
+//переменные для свечи
+uint8_t delta_X;
+
 #if (BIG_FONT == 0)
   // Шрифт размером 5x8
   uint32_t OVERLAY_SIZE = pHEIGHT < 17 ? pWIDTH * pHEIGHT : pWIDTH * 17;
