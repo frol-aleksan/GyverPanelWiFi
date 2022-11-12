@@ -2043,28 +2043,25 @@ void prizmataRoutine() {
     if (prizmata_type == 0 || prizmata_type > 2) {
       prizmata_type = random8(1,2);
     }
-    //если матрица широкая - врубаем эффект горизонтально
-    if (pWIDTH > pHEIGHT)
+    if (pWIDTH > pHEIGHT)   //если матрица широкая - врубаем эффект горизонтально
     {
       direct = 0;
     } 
-    //если матрица высокая - врубаем эффект вертикально
-    if (pWIDTH < pHEIGHT)
+    if (pWIDTH < pHEIGHT)   //если матрица высокая - врубаем эффект вертикально
     {
       direct = 1;
     }
-    //если матрица квадратная - на все воля рандома, эффект может запуститься и так, и так
-    if (pWIDTH = pHEIGHT)
+    if (pWIDTH == pHEIGHT)  //если матрица квадратная - на все воля Великого Рандома, эффект может запуститься и так, и так
     {
       direct = random8(2);
     }
   }
   switch (prizmata_type) {
-    case 1:  prizmata(direct); break;
+    case 1:  prizmata(); break;
     default: prismata(); break;
   }
 }
-void prizmata(uint8_t direct) {
+void prizmata() {
   // Если совсем задержки нет - матрица мерцает от постоянного обновления
   delay(5);
   EVERY_N_MILLIS(33) {
@@ -2087,6 +2084,7 @@ void prizmata(uint8_t direct) {
   }
 }
 void prismata() {
+  uint8_t spd = map8(255-getEffectSpeedValue(MC_PRIZMATA), 12, 64); 
   uint8_t beat;
   uint8_t x;
   uint8_t y;
@@ -2100,14 +2098,14 @@ void prismata() {
   if (direct == 0) {
      for (uint8_t x = 0; x < pWIDTH; x++)
      {
-       beat = (GET_MILLIS() * (accum88(x + 1)) * 28 * modes[currentMode].Speed - 10) >> 17; //и чуть замедлили эффект
+       beat = (GET_MILLIS() * (accum88(x + 1)) * spd/1000); //и чуть замедлили эффект
        y = scale8(sin8(beat), pHEIGHT-1);
        drawPixelXY(x, y, ColorFromPalette(RainbowColors_p, x * 7 + hue, effectBrightness));
      }  
   } else {
      for (uint8_t y = 0; y < pHEIGHT; y++)
      {
-       beat = (GET_MILLIS() * (accum88(y + 1)) * 28 * modes[currentMode].Speed - 10) >> 17; //и чуть замедлили эффект
+       beat = (GET_MILLIS() * (accum88(y + 1)) * spd/1000); //и чуть замедлили эффект
        x = scale8(sin8(beat), pWIDTH-1);
        drawPixelXY(x, y, ColorFromPalette(RainbowColors_p, y * 7 + hue, effectBrightness));
      }
