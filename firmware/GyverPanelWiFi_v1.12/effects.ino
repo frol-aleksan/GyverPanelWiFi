@@ -2042,8 +2042,22 @@ void prizmataRoutine() {
      // Если авто - генерировать один из типов - 1 вариант, 2 вариант
     if (prizmata_type == 0 || prizmata_type > 2) {
       prizmata_type = random8(1,2);
+    }
+    //если матрица широкая - врубаем эффект горизонтально
+    if (pWIDTH > pHEIGHT)
+    {
+      direct = 0;
     } 
-    direct = random8(2); //направление горизонтально/вертикально для первого варианта
+    //если матрица высокая - врубаем эффект вертикально
+    if (pWIDTH < pHEIGHT)
+    {
+      direct = 1;
+    }
+    //если матрица квадратная - на все воля рандома, эффект может запуститься и так, и так
+    if (pWIDTH = pHEIGHT)
+    {
+      direct = random8(2);
+    }
   }
   switch (prizmata_type) {
     case 1:  prizmata(direct); break;
@@ -2073,14 +2087,30 @@ void prizmata(uint8_t direct) {
   }
 }
 void prismata() {
-  hue++; //добавили радугу
+  uint8_t beat;
+  uint8_t x;
+  uint8_t y;
+  uint8_t effectBrightness = getBrightnessCalculated(globalBrightness, getEffectContrastValue(thisMode));
+  EVERY_N_MILLIS(33) {
+     hue++;
+  } //добавили радугу
   blurScreen(20); // @Palpalych посоветовал делать размытие
   dimAll(255U - (modes[currentMode].Scale - 1U) % 11U * 3U);
-  for (uint8_t x = 0; x < pWIDTH; x++)
-  {
-    uint8_t beat = (GET_MILLIS() * (accum88(x + 1)) * 28 * modes[currentMode].Speed - 5) >> 17; //и чуть замедлили эффект
-    uint8_t y = scale8(sin8(beat), pHEIGHT-1);
-    drawPixelXY(x, y, ColorFromPalette(*curPalette, x * 7 + hue));
+  //добавили направление
+  if (direct == 0) {
+     for (uint8_t x = 0; x < pWIDTH; x++)
+     {
+       beat = (GET_MILLIS() * (accum88(x + 1)) * 28 * modes[currentMode].Speed - 10) >> 17; //и чуть замедлили эффект
+       y = scale8(sin8(beat), pHEIGHT-1);
+       drawPixelXY(x, y, ColorFromPalette(RainbowColors_p, x * 7 + hue, effectBrightness));
+     }  
+  } else {
+     for (uint8_t y = 0; y < pHEIGHT; y++)
+     {
+       beat = (GET_MILLIS() * (accum88(y + 1)) * 28 * modes[currentMode].Speed - 10) >> 17; //и чуть замедлили эффект
+       x = scale8(sin8(beat), pWIDTH-1);
+       drawPixelXY(x, y, ColorFromPalette(RainbowColors_p, y * 7 + hue, effectBrightness));
+     }
   }
 }
 
@@ -2693,7 +2723,6 @@ void arrowSetup_mode4() {
 // https://editor.soulmatelights.com/gallery/117
 // переосмысление (c) SottNick
 void popcornRestart_rocket(uint8_t r) {
-  //deltaHue = !deltaHue; // "Мальчик" <> "Девочка"
   trackingObjectSpeedX[r] = (float)(random(-(pWIDTH * pHEIGHT + (pWIDTH*2)), pWIDTH*pHEIGHT + (pWIDTH*2))) / 256.0; // * (deltaHue ? 1 : -1); // Наклон. "Мальчики" налево, "девочки" направо. :)
   if ((trackingObjectPosX[r] < 0 && trackingObjectSpeedX[r] < 0) || (trackingObjectPosX[r] > (pWIDTH-1) && trackingObjectSpeedX[r] > 0)) { // меняем направление только после выхода за пределы экрана
     // leap towards the centre of the screen
@@ -2705,13 +2734,15 @@ void popcornRestart_rocket(uint8_t r) {
   trackingObjectPosX[r] = random8(pWIDTH);
 }
 
+uint8_t popcorncount;
 void popcornRoutine() {
   if (loadingFlag) {
     loadingFlag = false;
     speedfactor = fmap((float)modes[currentMode].Speed, 1., 255., 0.25, 1.0);
     setCurrentPalette();
-    enlargedObjectNUM = (modes[currentMode].Scale - 1U) % 11U / 10.0 * (enlargedOBJECT_MAX_COUNT - 1U) + 1U;
-    if (enlargedObjectNUM > enlargedOBJECT_MAX_COUNT) enlargedObjectNUM = enlargedOBJECT_MAX_COUNT;
+    popcorncount = map8(getEffectScaleParamValue(MC_POPCORN),round(pWIDTH / 2),round(1.5 * pWIDTH));   //количество частиц, которое можно задавать от pWIDTH/2 до 1.5*pWIDTH через ползунок варианта
+    enlargedObjectNUM = (modes[currentMode].Scale - 1U) % 11U / 10.0 * (popcorncount - 1U) + 1U;
+    if (enlargedObjectNUM > popcorncount) enlargedObjectNUM = popcorncount;    
     for (uint8_t r = 0; r < enlargedObjectNUM; r++) {
       trackingObjectPosX[r] = random8(pWIDTH);
       trackingObjectPosY[r] = random8(pHEIGHT);
@@ -2834,7 +2865,12 @@ else
 // Copyright(c) 2014 Jason Coon
 // v1.0 - Updating for GuverLamp v1.7 by Palpalych 14.04.2020
 uint8_t bounce_type = 0;
+uint8_t leapcount;
 void bounceRoutine() {
+  
+    leapcount = map8(getEffectScaleParamValue(MC_BALLS_BOUNCE),round(pWIDTH / 2),2 * pWIDTH);   //количество частиц, которое можно задавать от pWIDTH/2 до 2*pWIDTH через ползунок варианта
+    enlargedObjectNUM = (modes[currentMode].Scale - 1U) % 11U / 10.0 * (leapcount - 1U) + 1U;
+    if (enlargedObjectNUM > leapcount) enlargedObjectNUM = leapcount;
     bounce_type = (specialTextEffectParam >= 0) ? specialTextEffectParam : getEffectScaleParamValue2(MC_BALLS_BOUNCE);
      // Если авто - генерировать один из типов - Вариант 1, Вариант 2
     if (bounce_type == 0 || bounce_type > 2) {
@@ -2853,7 +2889,6 @@ void bounce_Routine()
   if (loadingFlag) {
     loadingFlag = false;
     setCurrentPalette();
-    enlargedObjectNUM = (modes[currentMode].Scale - 1U) % 11U / 10.0 * (AVAILABLE_BOID_COUNT - 1U) + 1U;
     uint8_t colorWidth = 256U / enlargedObjectNUM;
     for (uint8_t i = 0; i < enlargedObjectNUM; i++)
     {
@@ -2944,8 +2979,6 @@ void Leapers_Routine(){
   {
     loadingFlag = false;
     setCurrentPalette();    
-    enlargedObjectNUM = (modes[currentMode].Scale - 1U) % 11U / 10.0 * (enlargedOBJECT_MAX_COUNT - 1U) + 1U;
-    if (enlargedObjectNUM > enlargedOBJECT_MAX_COUNT) enlargedObjectNUM = enlargedOBJECT_MAX_COUNT;
     for (uint8_t i = 0 ; i < enlargedObjectNUM ; i++) {
       trackingObjectPosX[i] = random8(pWIDTH);
       trackingObjectPosY[i] = random8(pHEIGHT);

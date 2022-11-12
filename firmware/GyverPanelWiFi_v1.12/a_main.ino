@@ -1489,6 +1489,14 @@ void parsing() {
               // При получении параметра эффекта "NEXUS" (кол-во червячков) - надо переинициализировать эффект
               loadingFlag = true;
             } else 
+            if (thisMode == tmp_eff && tmp_eff == MC_POPCORN) {
+              // При получении параметра эффекта "Popcorn" (кол-во попкорнин) - надо переинициализировать эффект
+              loadingFlag = true;
+            } else 
+            if (thisMode == tmp_eff && tmp_eff == MC_BALLS_BOUNCE) {
+              // При получении параметра эффекта "Мячики" (кол-во мячиков) - надо переинициализировать эффект
+              loadingFlag = true;
+            } else 
             if (thisMode == tmp_eff && tmp_eff == MC_RUBICK) {
               // При получении параметра эффекта "RUBICK" (размер плиток) - надо переинициализировать эффект
               loadingFlag = true;
@@ -4192,9 +4200,7 @@ String getParamForMode(uint8_t mode) {
    case MC_WEATHER:
    case MC_LIFE:
    case MC_FIRE2:
-   case MC_POPCORN:
    case MC_DNA:
-   case MC_BALLS_BOUNCE:
    case MC_SPIRO:
    case MC_SMOKEBALLS:
    case MC_SINUSOID3:
