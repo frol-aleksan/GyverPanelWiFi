@@ -6742,6 +6742,7 @@ void rubikRoutine() {
     loadingFlag = false;
     uint8_t old_RBS = RUBIK_BLOCK_SIZE;
     uint8_t max_block_size;
+    set_EffectContrast(thisMode, 255);
  //определяем максимальный размер плитки как половину короткой стороны матрицы
     if (pWIDTH < pHEIGHT)
        max_block_size = round(pWIDTH/2);
