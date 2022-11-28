@@ -880,7 +880,7 @@ void rainbowRoutine() {
     rainbow_type = (specialTextEffectParam >= 0) ? specialTextEffectParam : getEffectScaleParamValue2(MC_RAINBOW);
     // Если авто - генерировать один из типов - 1-Вертикальная радуга, 2-Горизонтальная радуга, 3-Диагональная радуга, 4-Вращающаяся радуга
     if (rainbow_type == 0 || rainbow_type > 4) {
-      rainbow_type = random8(1,4);
+      rainbow_type = random8(1,5);
     }     
     FastLED.clear();  // очистить
   }
@@ -1305,12 +1305,18 @@ void sparklesRoutine() {
   fader(map8(effectBrightness, 4, BRIGHT_STEP));
 }
 
+uint8_t loopCounter;
+uint8_t loopCounter2;
+
+/*
 // ----------------------------- СВЕТЛЯКИ ------------------------------
 #define LIGHTERS_AM 100
 int16_t lightersPos[2][LIGHTERS_AM];
 int8_t  lightersSpeed[2][LIGHTERS_AM];
 uint8_t lightersColor[LIGHTERS_AM];
 uint8_t loopCounter;
+uint8_t loopCounter2;
+
 int16_t angle[LIGHTERS_AM];
 int16_t speedV[LIGHTERS_AM];
 int8_t  angleSpeed[LIGHTERS_AM];
@@ -1352,6 +1358,74 @@ void lightersRoutine() {
     }
     drawPixelXY(lightersPos[0][i] / 10, lightersPos[1][i] / 10, CHSV(lightersColor[i], 255, effectBrightness));
   }
+}*/
+
+
+// ********************* СВЕТЛЯКИ *********************
+
+#define LIGHTERS_AM 100
+
+int8_t  **lightersPos;   // Позиции светляков
+int8_t  **lightersSpeed; // Скорость движения светляков
+uint8_t *lightersColor;  // Цвета светляков
+
+void lightersRoutine() {
+
+  if (loadingFlag) {
+    loadingFlag = false;
+    // modeCode = MC_LIGHTERS;
+
+    if (lightersPos == NULL) { lightersPos = new int8_t*[2]; for (uint8_t i = 0; i < 2; i++) { lightersPos[i] = new int8_t [LIGHTERS_AM]; }}
+    if (lightersSpeed == NULL) { lightersSpeed = new int8_t*[2]; for (uint8_t i = 0; i < 2; i++) { lightersSpeed[i] = new int8_t [LIGHTERS_AM]; }}
+    if (lightersColor == NULL) { lightersColor = new uint8_t [LIGHTERS_AM]; }
+
+    FOR_i (0, LIGHTERS_AM) {
+      lightersPos[0][i] = random16(0, pWIDTH);
+      lightersPos[1][i] = random16(0, pHEIGHT);
+      lightersSpeed[0][i] = random8(0, 4) - 2;
+      lightersSpeed[1][i] = random8(0, 4) - 2;
+      lightersColor[i] = random8(0, 255);
+    }
+  }
+
+  uint8_t effectBrightness = getBrightnessCalculated(globalBrightness, getEffectContrastValue(thisMode));
+  FastLED.clear();
+
+  if (++loopCounter > 20) loopCounter = 0;
+
+   FOR_i (0, map8(getEffectScaleParamValue(MC_LIGHTERS),5,100)) {
+    if (loopCounter == 0) {     // меняем скорость каждые 20 отрисовок
+      while (lightersSpeed[0][i] == 0 && lightersSpeed[1][i] == 0) {
+        lightersSpeed[0][i] += random8(0, 4) - 2;
+        lightersSpeed[1][i] += random8(0, 4) - 2;
+        lightersSpeed[0][i] = constrain(lightersSpeed[0][i], -5, 5);
+        lightersSpeed[1][i] = constrain(lightersSpeed[1][i], -5, 5);
+      }
+    }
+
+    lightersPos[0][i] += lightersSpeed[0][i];
+    lightersPos[1][i] += lightersSpeed[1][i];
+
+    if (lightersPos[0][i] < 0) lightersPos[0][i] = pWIDTH - 1;
+    if (lightersPos[0][i] >= pWIDTH) lightersPos[0][i] = 0;
+
+    if (lightersPos[1][i] < 0) {
+      lightersPos[1][i] = 0;
+      lightersSpeed[1][i] = -lightersSpeed[1][i];
+    }
+    if (lightersPos[1][i] >= pHEIGHT - 1) {
+      lightersPos[1][i] = pHEIGHT - 1;
+      lightersSpeed[1][i] = -lightersSpeed[1][i];
+    }
+    drawPixelXY(lightersPos[0][i], lightersPos[1][i], CHSV(lightersColor[i], 255, effectBrightness));
+  }
+}
+
+void lighters2RoutineRelease() {
+  if (lightersPos   != NULL) { for( uint8_t i = 0; i < 2; i++ ) { delete [] lightersPos[i];}   delete [] lightersPos;   lightersPos   = NULL; }
+  if (lightersSpeed != NULL) { for( uint8_t i = 0; i < 2; i++ ) { delete [] lightersSpeed[i];} delete [] lightersSpeed; lightersSpeed = NULL; }
+
+  if (lightersColor == NULL) { delete [] lightersColor; lightersColor = NULL; }
 }
 
 // ********************* БУДИЛЬНИК-РАССВЕТ *********************
@@ -2041,7 +2115,7 @@ void prizmataRoutine() {
     prizmata_type = (specialTextEffectParam >= 0) ? specialTextEffectParam : getEffectScaleParamValue2(MC_PRIZMATA);
      // Если авто - генерировать один из типов - 1 вариант, 2 вариант
     if (prizmata_type == 0 || prizmata_type > 2) {
-      prizmata_type = random8(1,2);
+      prizmata_type = random8(1,3);
     }
     if (pWIDTH > pHEIGHT)   //если матрица широкая - врубаем эффект горизонтально
     {
@@ -2824,8 +2898,22 @@ void DNARoutine()
     loadingFlag = false;
     step = map8(modes[currentMode].Speed, 10U, 60U);
     hue = modes[currentMode].Scale;
-    deltaHue = hue > 50U;
-    if (deltaHue)
+    //deltaHue = hue > 50U;
+
+    if (pWIDTH > pHEIGHT)   //если матрица широкая - врубаем эффект горизонтально
+    {
+      direct = 0;
+    } 
+    if (pWIDTH < pHEIGHT)   //если матрица высокая - врубаем эффект вертикально
+    {
+      direct = 1;
+    }
+    if (pWIDTH == pHEIGHT)  //если матрица квадратная - на все воля Великого Рандома, эффект может запуститься и так, и так
+    {
+      direct = random8(2);
+    }
+   // if (deltaHue)
+   if (direct == 1)
       hue = 101U - hue;
     hue = 255U - map( 51U - hue, 1U, 50U, 0, 255U);
   }
@@ -2833,7 +2921,8 @@ void DNARoutine()
   float mn =255.0/13.8;
   fadeToBlackBy(leds, NUM_LEDS, step);
   uint16_t ms = millis();
-if (deltaHue)
+//if (deltaHue)
+if (direct == 1)
   for (uint8_t i = 0; i < pWIDTH; i++)
   {
     uint32_t x = beatsin16(step, 0, (pHEIGHT - 1) * 256, 0, i * freq);
@@ -2865,15 +2954,43 @@ else
 uint8_t bounce_type = 0;
 uint8_t leapcount;
 void bounceRoutine() {
-  
+  if (loadingFlag)
+  {
+    loadingFlag = false;
     leapcount = map8(getEffectScaleParamValue(MC_BALLS_BOUNCE),round(pWIDTH / 2),2 * pWIDTH);   //количество частиц, которое можно задавать от pWIDTH/2 до 2*pWIDTH через ползунок варианта
     enlargedObjectNUM = (modes[currentMode].Scale - 1U) % 11U / 10.0 * (leapcount - 1U) + 1U;
     if (enlargedObjectNUM > leapcount) enlargedObjectNUM = leapcount;
     bounce_type = (specialTextEffectParam >= 0) ? specialTextEffectParam : getEffectScaleParamValue2(MC_BALLS_BOUNCE);
      // Если авто - генерировать один из типов - Вариант 1, Вариант 2
     if (bounce_type == 0 || bounce_type > 2) {
-      bounce_type = random8(1,2);
-    }     
+      bounce_type = random8(1,3);
+    }
+    if (bounce_type == 1)
+    {
+      setCurrentPalette();    
+      for (uint8_t i = 0 ; i < enlargedObjectNUM ; i++) {
+         trackingObjectPosX[i] = random8(pWIDTH);
+         trackingObjectPosY[i] = random8(pHEIGHT);
+         trackingObjectHue[i] = random8();
+      }    
+    }
+    if (bounce_type == 2)
+    {
+      setCurrentPalette();    
+      setCurrentPalette();
+    uint8_t colorWidth = 256U / enlargedObjectNUM;
+      for (uint8_t i = 0; i < enlargedObjectNUM; i++)
+      {
+         Boid boid = Boid(i % pWIDTH, 0);
+         boid.velocity.x = 0;
+         boid.velocity.y = i * -0.01;
+         boid.colorIndex = colorWidth * i;
+         boid.maxforce = 10;
+         boid.maxspeed = 10;
+         boids[i] = boid;
+      }
+    }
+  }
   switch (bounce_type) {
     case 1:  Leapers_Routine(); break;
     default: bounce_Routine(); break;
@@ -2884,21 +3001,6 @@ void bounceRoutine() {
 PVector gravity = PVector(0, -0.0125);
 void bounce_Routine()
 {
-  if (loadingFlag) {
-    loadingFlag = false;
-    setCurrentPalette();
-    uint8_t colorWidth = 256U / enlargedObjectNUM;
-    for (uint8_t i = 0; i < enlargedObjectNUM; i++)
-    {
-      Boid boid = Boid(i % pWIDTH, 0);
-      boid.velocity.x = 0;
-      boid.velocity.y = i * -0.01;
-      boid.colorIndex = colorWidth * i;
-      boid.maxforce = 10;
-      boid.maxspeed = 10;
-      boids[i] = boid;
-    }
-  }
   blurScreen(beatsin8(5U, 1U, 5U));
   dimAll(255U - modes[currentMode].Speed); // dimAll(hue2);
   for (uint8_t i = 0; i < enlargedObjectNUM; i++)
@@ -2973,16 +3075,6 @@ void LeapersMove_leaper(uint8_t l) {
   trackingObjectSpeedY[l] *= WIND;
 }
 void Leapers_Routine(){
-  if (loadingFlag)
-  {
-    loadingFlag = false;
-    setCurrentPalette();    
-    for (uint8_t i = 0 ; i < enlargedObjectNUM ; i++) {
-      trackingObjectPosX[i] = random8(pWIDTH);
-      trackingObjectPosY[i] = random8(pHEIGHT);
-      trackingObjectHue[i] = random8();
-    }
-  }
   FastLED.clear();
   for (uint8_t i = 0; i < enlargedObjectNUM; i++) {
     LeapersMove_leaper(i);
@@ -3122,14 +3214,13 @@ void nexusRoutine() {
       trackingObjectState[i] = random8(4);//     B00           направление головы змейки
                                           // B10     B11
                                           //     B01
-   }    
-  }
-  
-  nexus_type = (specialTextEffectParam >= 0) ? specialTextEffectParam : getEffectScaleParamValue2(MC_NEXUS);
+   } 
+   nexus_type = (specialTextEffectParam >= 0) ? specialTextEffectParam : getEffectScaleParamValue2(MC_NEXUS);
      // Если авто - генерировать один из типов - Вариант 1, Вариант 2
     if (nexus_type == 0 || nexus_type > 2) {
-      nexus_type = random8(1,2);
-    }     
+      nexus_type = random8(1,3);
+    }       
+  } 
   switch (nexus_type) {
     case 1:  nexus(); break;
     default: snake(); break;
@@ -3374,7 +3465,7 @@ void Sinusoid3Routine()
     sinusoid_type = (specialTextEffectParam >= 0) ? specialTextEffectParam : getEffectScaleParamValue2(MC_SINUSOID3);
      // Если авто - генерировать один из типов 1-8
     if (sinusoid_type == 0 || sinusoid_type > 8) {
-      sinusoid_type = random8(1,8);
+      sinusoid_type = random8(1,9);
     }     
     FastLED.clear();  // очистить     
       emitterX = pWIDTH * 0.5;
@@ -3395,14 +3486,14 @@ void Sinusoid3Routine()
   float center3y = float(e_s3_size * cos16(speedfactor * 170.3884 * time_shift)) / 0x7FFF - emitterY;
 
   switch (sinusoid_type) {
-     case 1:   SinusoidII(center1x, center2x, center3x, center1y, center2y, center3y, color, _scale);                  break;
-     case 2:   SinusoidIII(center1x, center2x, center3x, center1y, center2y, center3y, color, _scale, time_shift);     break;
-     case 3:   SinusoidIV(center1x, center1y, color, _scale, time_shift);                                              break;
-     case 4:   SinusoidV(center1x, center1y, color, _scale, time_shift);                                               break;
-     case 5:   SinusoidVI(center1x, center2x, center3x, center1y, center2y, center3y, color, _scale2, _scale3);        break;
-     case 6:   SinusoidVII(center1x, center2x, center3x, center1y, center2y, center3y, color, _scale3);                break;
-     case 7:   SinusoidVIII(center1x, center3x, center1y, center3y, color, _scale);                                    break;
-     default:  SinusoidI(center1x, center2x, center1y, center2y, color, _scale);                                       break;
+     case 1:  SinusoidI(center1x, center2x, center1y, center2y, color, _scale);                                        break;
+     case 2:   SinusoidII(center1x, center2x, center3x, center1y, center2y, center3y, color, _scale);                  break;
+     case 3:   SinusoidIII(center1x, center2x, center3x, center1y, center2y, center3y, color, _scale, time_shift);     break;
+     case 4:   SinusoidIV(center1x, center1y, color, _scale, time_shift);                                              break;
+     case 5:   SinusoidV(center1x, center1y, color, _scale, time_shift);                                               break;
+     case 6:   SinusoidVI(center1x, center2x, center3x, center1y, center2y, center3y, color, _scale2, _scale3);        break;
+     case 7:   SinusoidVII(center1x, center2x, center3x, center1y, center2y, center3y, color, _scale3);                break;
+     default:  SinusoidVIII(center1x, center3x, center1y, center3y, color, _scale);                                    break;
   }
 }
 
@@ -4364,7 +4455,8 @@ void WaveRoutine() {
       waveRotation = random8(1,5);
     }     
     FastLED.clear();  // очистить
-      waveCount = modes[currentMode].Speed & 0x01;//% 2;     
+ //     waveCount = modes[currentMode].Speed & 0x01;//% 2;     
+      waveCount = random8(4);
     }
         dimAll(254);
         int n = 0;
@@ -4372,8 +4464,8 @@ void WaveRoutine() {
           case 1:   waveRotationI(n);       break;
           case 2:   waveRotationII(n);      break;
           case 3:   waveRotationIII(n);     break;
-          case 4:   waveRotationIV(n);      break;
-          default:  waveRotationV(n);       break;
+          default:   waveRotationIV(n);      break;
+       //   default:  waveRotationV(n);       break;
         }
         if (waveThetaUpdate >= waveThetaUpdateFrequency) {
             waveThetaUpdate = 0;
@@ -4582,7 +4674,7 @@ void picassoSelector(){
       enlargedObjectNUM = (modes[currentMode].Scale - 34U) / 33.0 * (enlargedOBJECT_MAX_COUNT - 1U) + 1U;
     picselect = (specialTextEffectParam >= 0) ? specialTextEffectParam : getEffectScaleParamValue2(MC_PICASSO);
    if (picselect == 1 || picselect > 3) {
-      picselect = random8(1,3);
+      picselect = random8(1,4);
    }
   }
   switch (picselect) {
@@ -5623,7 +5715,7 @@ void smokeRoutine() {
     smoke_type = (specialTextEffectParam >= 0) ? specialTextEffectParam : getEffectScaleParamValue2(MC_SMOKE);
      // Если авто - генерировать один из типов - Дым, Цветной дым
     if (smoke_type == 0 || smoke_type > 2) {
-      smoke_type = random8(1,2);
+      smoke_type = random8(1,3);
     }     
     FastLED.clear();  // очистить
   }
@@ -5711,15 +5803,21 @@ void pulseRoutine() {
     loadingFlag = false;
     pulse_type = (specialTextEffectParam >= 0) ? specialTextEffectParam : getEffectScaleParamValue2(MC_PULSE);
      // Если авто - генерировать один из типов - Дым, Цветной дым
-    if (pulse_type == 0 || pulse_type > 3) {
-      pulse_type = random8(1,3);
+    if (pulse_type == 0 || pulse_type > 8) {
+      pulse_type = random8(1,9);
     }     
     FastLED.clear();  // очистить
   }
-  switch (pulse_type) {
-    case 1:  pulse_routine(4U); break;
-    case 2:  pulse_routine(8U); break;
-    default: pulse_routine(2U); break;
+  //ВНЕЗАПНО обнаружил, что там 8 вариантов вызова эффекта. Добавил все. Вывод: читайте код внимательно.
+  switch (pulse_type) { 
+    case 1:  pulse_routine(1U); break;
+    case 2:  pulse_routine(2U); break;
+    case 3:  pulse_routine(3U); break;
+    case 4:  pulse_routine(4U); break;
+    case 5:  pulse_routine(5U); break;
+    case 6:  pulse_routine(6U); break;
+    case 7:  pulse_routine(7U); break;
+    default: pulse_routine(8U); break;
   }
 }
  void pulse_routine(uint8_t PMode) {
@@ -5798,11 +5896,14 @@ void pulseRoutine() {
 // 50 чуть больше половины будет долетать. для цветных вариантов жидкости так более эффектно
 uint8_t waterfall_type = 0;
 void waterfallRoutine() {
+  if (loadingFlag) {
+    loadingFlag = false;
     waterfall_type = (specialTextEffectParam >= 0) ? specialTextEffectParam : getEffectScaleParamValue2(MC_WATERFALL);
      // Если авто - генерировать один из типов - Водопад Водопад 4в1
     if (waterfall_type == 0 || waterfall_type > 2) {
-      waterfall_type = random8(1,2);
-    }     
+      waterfall_type = random8(1,3);
+    }
+  }     
   switch (waterfall_type) {
     case 1:  fire2012WithPalette4in1(); break;
     default: fire2012WithPalette(); break;
@@ -5908,28 +6009,27 @@ static const uint8_t ff_speed = 1; // чем выше этот параметр,
 static const uint8_t ff_scale = 26; // чем больше этот параметр, тем больше "языков пламени" или как-то так. 26 - это норм
 uint8_t whirl_type = 0;
 void whirl() {
+  if (loadingFlag) {
+    loadingFlag = false;
+    setCurrentPalette();
+    ff_x = random16();
+    ff_y = random16();
+    ff_z = random16();
+    for (uint8_t i = 0; i < AVAILABLE_BOID_COUNT; i++) {
+      boids[i] = Boid(random8(pWIDTH), 0);
+    }
     whirl_type = (specialTextEffectParam >= 0) ? specialTextEffectParam : getEffectScaleParamValue2(MC_WHIRL);
      // Если авто - генерировать один из типов - Дым, Цветной дым
     if (whirl_type == 0 || whirl_type > 2) {
-      whirl_type = random8(1,2);
-    }     
+      whirl_type = random8(1,3);
+    } 
+  }      
   switch (whirl_type) {
     case 1:  whirlRoutine(false); break;
     default: whirlRoutine(true); break;
   }
 }
-void whirlRoutine(bool oneColor) {
-  if (loadingFlag)
-  {
-    loadingFlag = false;
-    setCurrentPalette();
-      ff_x = random16();
-      ff_y = random16();
-      ff_z = random16();
-      for (uint8_t i = 0; i < AVAILABLE_BOID_COUNT; i++) {
-        boids[i] = Boid(random8(pWIDTH), 0);
-      }
-  } 
+void whirlRoutine(bool oneColor) { 
   dimAll(240);
   for (uint8_t i = 0; i < AVAILABLE_BOID_COUNT; i++) {
     Boid * boid = &boids[i]; 
@@ -5965,7 +6065,7 @@ void comet() {
     comet_type = (specialTextEffectParam >= 0) ? specialTextEffectParam : getEffectScaleParamValue2(MC_COMET);
      // Если авто - генерировать один из типов
     if (comet_type == 0 || comet_type > 5) {
-      comet_type = random8(1,5);
+      comet_type = random8(1,6);
     }
   }     
   switch (comet_type) {
@@ -6399,7 +6499,7 @@ void clocks() {
     }
      // Если авто - генерировать один из типов
     if (clock_type == 0 || clock_type > 2) {
-      clock_type = random8(1,2);
+      clock_type = random8(1,3);
     }
   }
   
@@ -6408,9 +6508,6 @@ void clocks() {
     default: ClockRoutine1(clock_width,clock_height,true); break;
   }
 }
-
-#define NIGHT_HOURS_START     (1350U)
-#define NIGHT_HOURS_STOP      (479U)  
 
 void ClockRoutine1(uint8_t cl_w, uint8_t cl_h, bool fon_clear)
 {
@@ -6426,7 +6523,6 @@ void ClockRoutine1(uint8_t cl_w, uint8_t cl_h, bool fon_clear)
   time_t currentLocalTime = now();
   uint32_t thisTime = hour(currentLocalTime) * 60 + minute(currentLocalTime);
   CHSV color = CHSV(0,(modes[currentMode].Speed>150)?0:255,(modes[currentMode].Speed<150)?0:255);
-  int bridges=(thisTime < NIGHT_HOURS_START && thisTime > NIGHT_HOURS_STOP)?255:64;
   FastLED.clear();
 
 //Циферблат
@@ -6437,21 +6533,21 @@ void ClockRoutine1(uint8_t cl_w, uint8_t cl_h, bool fon_clear)
   c_x1=sin(r_clock)*(cl_w/2+dx-0.1)+cl_w/2+dx+c_cx;
   c_y1=cos(r_clock)*(cl_h/2+dy-0.1)+cl_h/2+dy+c_cy;
   
-  if (fon_clear) color=CHSV(i*21-map(thisTime%60,0,59,0,255)+map(modes[currentMode].Scale,1,100,0,255),255,bridges/4);
+  if (fon_clear) color=CHSV(i*21-map(thisTime%60,0,59,0,255)+map(modes[currentMode].Scale,1,100,0,255),255,255);
   drawPixelXY(c_x1, c_y1, color);
  }
 // метки 3, 9, 
  if (cl_h % 2 ==0) {
- if (fon_clear) color= CHSV(192-map(thisTime%60,0,59,0,255)+map(modes[currentMode].Scale,1,100,0,255),255,bridges/2);
+ if (fon_clear) color= CHSV(192-map(thisTime%60,0,59,0,255)+map(modes[currentMode].Scale,1,100,0,255),255,255);
  DrawLine(c_cx, cl_h/2-1+c_cy,  c_cx, cl_h/2+c_cy, color);
- if (fon_clear) color= CHSV(64-map(thisTime%60,0,59,0,255)+map(modes[currentMode].Scale,1,100,0,255),255,bridges/2);
+ if (fon_clear) color= CHSV(64-map(thisTime%60,0,59,0,255)+map(modes[currentMode].Scale,1,100,0,255),255,255);
  DrawLine(c_cx+cl_w-1,cl_h/2-1+c_cy,c_cx+cl_w-1,cl_h/2+c_cy, color);
  }
 // метки 12, 6, 
  if (cl_w % 2 ==0) {
- if (fon_clear) color= CHSV(128-map(thisTime%60,0,59,0,255)+map(modes[currentMode].Scale,1,100,0,255),255,bridges/2);
+ if (fon_clear) color= CHSV(128-map(thisTime%60,0,59,0,255)+map(modes[currentMode].Scale,1,100,0,255),255,255);
  DrawLine(cl_w/2-1+c_cx, c_cy,    cl_w/2+c_cx,    c_cy, color);
- if (fon_clear) color= CHSV(-map(thisTime%60,0,59,0,255)+map(modes[currentMode].Scale,1,100,0,255),255,bridges/2) ;
+ if (fon_clear) color= CHSV(-map(thisTime%60,0,59,0,255)+map(modes[currentMode].Scale,1,100,0,255),255,255);
  DrawLine(cl_w/2-1+c_cx, cl_h-1+c_cy, cl_w/2+c_cx, cl_h-1+c_cy,color);
  } 
  
@@ -6461,7 +6557,7 @@ void ClockRoutine1(uint8_t cl_w, uint8_t cl_h, bool fon_clear)
  c_y1=cos(r_clock)+cl_h/2+dy+c_cy;
  c_x2=sin(r_clock)*(cl_w/2.5)+cl_w/2+dx+c_cx;
  c_y2=cos(r_clock)*(cl_h/2.5)+cl_h/2+dy+c_cy;
- if (fon_clear) color=CHSV(map(modes[currentMode].Scale,1,100,0,255),255,bridges);
+ if (fon_clear) color=CHSV(map(modes[currentMode].Scale,1,100,0,255),255,255);
  DrawLine(c_x1,c_y1,c_x2,c_y2,color);
 
 // Часовая стрелка
@@ -6470,11 +6566,11 @@ void ClockRoutine1(uint8_t cl_w, uint8_t cl_h, bool fon_clear)
  c_y1=cos(r_clock)+cl_h/2+dy+c_cy;
  c_x2=sin(r_clock)*(cl_w/3)+cl_w/2+dx+c_cx;
  c_y2=cos(r_clock)*(cl_h/3)+cl_h/2+dy+c_cy;
- if (fon_clear) color=CHSV(modes[currentMode].Speed,255,bridges) ;
+ if (fon_clear) color=CHSV(modes[currentMode].Speed,255,255) ;
  DrawLine(c_x1,c_y1,c_x2,c_y2,color);
 }
 
-//Дополнитеьная функция построения линий
+//Дополнительная функция построения линий
 void DrawLine(int x1, int y1, int x2, int y2, CHSV color)
 {
   int tmp;
@@ -6637,7 +6733,7 @@ void FeatherCandleRoutine() {
         leds[XY(floor(pWIDTH * 0.5) - 2, 6)] = CHSV(color - 20U , 255U, 50  + random8(50));
         leds[XY(floor(pWIDTH * 0.5) - 1, 6)] = CHSV(color,        255U, 155 + random8(100));
         leds[XY(floor(pWIDTH * 0.5)    , 6)] = CHSV(color - 20U , 255U, 50  + random8(50));
-        leds[XY(floor(pWIDTH * 0.5) - 1, 7)] = CHSV(color,        255U, 55 + random8(200));
+        leds[XY(floor(pWIDTH * 0.5) - 1, 7)] = CHSV(color,        255U, 55  + random8(200));
       }
     } else {
       for (uint8_t x = 0; x < wdth; x++) {
@@ -7309,7 +7405,7 @@ void salute() {
     salute_type = (specialTextEffectParam >= 0) ? specialTextEffectParam : getEffectScaleParamValue2(MC_FIREWORKS);
      // Если авто - генерировать один из типов
     if (salute_type == 0 || salute_type > 2) {
-      salute_type = random8(1,2);
+      salute_type = random8(1,3);
     }
   }     
   switch (salute_type) {
@@ -7546,7 +7642,6 @@ void Firework() {
 
 // ================================
 //Салют
-
 //Функция построения окружности на цилиндре
 void DrawCircleCylinder(int xc, int yc, int r, CRGB color)
 {
@@ -7668,6 +7763,50 @@ void SaluteDecay()
  else SaluteStep=0;
 }
 
+//===========================================
+//объединяем акварель и масляные краски
+//===========================================
+uint8_t paint_type;
+uint8_t wave;
+uint16_t max_val;
+void paint(){
+ if (loadingFlag)
+  {
+    loadingFlag = false;
+    paint_type = (specialTextEffectParam >= 0) ? specialTextEffectParam : getEffectScaleParamValue2(MC_PAINT);
+     // Если авто - генерировать один из типов
+    if (paint_type == 0 || paint_type > 3) {
+      paint_type = random8(1,4);
+    }
+    if (paint_type == 1 || 2)
+    {
+      FastLED.clear();
+      deltaValue = 255U - modes[currentMode].Speed + 1U;
+      step = deltaValue;                    // чтообы при старте эффекта сразу покрасить лампу
+      hue = floor(21.25 * (random8(11) + 1)); // next color
+      deltaHue = hue - 22;                  // last color
+      deltaHue2 = 80;                       // min bright
+      wave = floor(pHEIGHT * 0.5);           // position swap color
+      max_val = pow(2, pWIDTH);
+    }
+    if (paint_type == 3)
+    {
+      FastLED.clear();
+      deltaValue = 255U - modes[currentMode].Speed + 1U;
+      step = deltaValue;                    // чтообы при старте эффекта сразу покрасить лампу
+      hue = 0;
+      deltaHue = 255;                       // last color
+      trackingObjectHue[1] = floor(pWIDTH * 0.25);
+      trackingObjectHue[3] = floor(pHEIGHT * 0.25);
+    }  
+  }   
+  switch (paint_type) {
+    case 1:  OilPaints(false); break;
+    case 2:  OilPaints(true);  break;
+    default: Watercolor();     break;
+  }
+}
+
 // ============ Watercolor ==============
 //      © SlingMaster | by Alex Dovby
 //            EFF_WATERCOLOR
@@ -7721,7 +7860,7 @@ void SmearPaint(uint8_t obj[trackingOBJECT_MAX_COUNT]) {
   drawPixelXY(obj[1], obj[3], colors[divide][hue]);
 }
 
-void paint(){
+void Watercolor() {
   uint8_t divide;
   if (loadingFlag) {
     loadingFlag = false;
@@ -7770,4 +7909,676 @@ void paint(){
     blurScreen(beatsin8(1U, 1U, 6U));
   }
   step++;
+}
+
+// ============ Oil Paints ==============
+//      © SlingMaster | by Alex Dovby
+//              EFF_PAINT
+//           Масляные Краски
+//---------------------------------------
+void OilPaints(bool custeff) {
+  uint8_t divide;
+  uint8_t entry_point;
+  uint16_t value;
+  //"побочный эффект", вызывается как OilPaints(true)
+    if (custeff == true) {
+      if (step % wave - 1 == 0) {
+        drawPixelXY(random8(pWIDTH), 1U + random8(4), CHSV(hue + 180, 255U, 255U));
+        drawPixelXY(random8(pWIDTH), 1U + random8(4), CHSV(hue + 90, 255U, 255U));
+      }
+      blurScreen(32U);
+      // blurScreen(beatsin8(2U, 7U, 2U));
+    }
+
+  if (step >= deltaValue) {
+    step = 0U;
+    // LOG.printf_P(PSTR("%03d | log: %f | val: %03d\n\r"), modes[currentMode].Brightness, log(modes[currentMode].Brightness), deltaHue2);
+  }
+
+  // Create Oil Paints --------------
+  // выбираем краски  ---------------
+  if (step % wave == 0) {
+    divide = floor((modes[currentMode].Scale - 1) / 10);             // маштаб задает диапазон изменения цвета
+    deltaHue = hue;                                                   // set last color
+    hue += 6 * divide;                                               // new color
+    hue2 = 255;                                                       // restore brightness
+    deltaHue2 = 80 - floor(log(modes[currentMode].Brightness) * 6);   // min bright
+    entry_point = random8(pWIDTH);                                     // start X position
+    trackingObjectHue[entry_point] = hue;                             // set start position
+    drawPixelXY(entry_point,  pHEIGHT - 2, CHSV(hue, 255U, 255U));
+    // !!! ********
+//    if (custeff == true) {
+      drawPixelXY(entry_point + 1,  pHEIGHT - 3, CHSV(hue + 30, 255U, 255U));
+//    }
+  }
+
+  // формируем форму краски, плавно расширяя струю ----
+  if (random8(3) == 1) {
+    for (uint8_t x = 1U; x < pWIDTH; x++) {
+      if (trackingObjectHue[x] == hue) {
+        trackingObjectHue[x - 1] = hue;
+        break;
+      }
+    }
+  } else {
+    for (uint8_t x = pWIDTH - 1; x > 0U ; x--) {
+      if (trackingObjectHue[x] == hue) {
+        trackingObjectHue[x + 1] = hue;
+        break;
+      }
+    }
+  }
+  for (uint8_t x = 0U; x < pWIDTH; x++) {
+    //                                                                                set color  next |    last  |
+    drawPixelXY(x,  pHEIGHT - 1, CHSV(trackingObjectHue[x], 255U, (trackingObjectHue[x] == hue) ? hue2 : deltaHue2));
+  }
+  // уменьшаем яркость для следующих строк
+  if ( hue2 > (deltaHue2 + 16)) {
+    hue2 -= 16U;
+  }
+  // сдвигаем неравномерно поток вниз ---
+  value = random16(max_val);
+  //LOG.printf_P(PSTR("value = %06d | "), value);
+  for (uint8_t x = 0U; x < pWIDTH; x++) {
+    if ( bitRead(value, x ) == 0) {
+      //LOG.print (" X");
+      for (uint8_t y = 0U; y < pHEIGHT - 1; y++) {
+        drawPixelXY(x, y, getPixColorXY(x, y + 1U));
+      }
+    }
+  }
+  step++;
+}
+
+//=====================================================================
+//NoiseEffects Объединяем все шумовые эффекты в один для экономии места
+//=====================================================================
+
+CRGBPalette16 currentPalette( PartyColors_p );
+uint8_t noiseefftype;
+uint8_t colorLoop = 1;
+void noiseEffectsRoutine()
+{
+  if (loadingFlag) {
+    loadingFlag = false;
+    noiseefftype = getEffectScaleParamValue2(MC_NOISE_EFFECTS);  
+  if (noiseefftype == 0) noiseefftype = random8(1, 10);
+  
+  if (noiseefftype == 1) {
+    // modeCode = MC_NOISE_MADNESS;
+    createNoise();
+  }
+
+  if (noiseefftype == 2) {
+    // modeCode = MC_NOISE_RAINBOW;
+    createNoise();
+    currentPalette = RainbowColors_p;
+    colorLoop = 1;
+  }
+
+  if (noiseefftype == 3) {
+    // modeCode = MC_NOISE_RAINBOW_STRIP;
+    createNoise();
+    currentPalette = RainbowStripeColors_p;
+    colorLoop = 1;
+  }
+
+  if (noiseefftype == 4) {
+    // modeCode = MC_NOISE_ZEBRA;
+    // 'black out' all 16 palette entries...
+    createNoise();
+    fill_solid( currentPalette, 16, CRGB::Black);
+    // and set every fourth one to white.
+    currentPalette[0] = CRGB::White;
+    currentPalette[4] = CRGB::White;
+    currentPalette[8] = CRGB::White;
+    currentPalette[12] = CRGB::White;
+    colorLoop = 1;
+  }
+
+  if (noiseefftype == 5) {
+    // modeCode = MC_NOISE_FOREST;
+    createNoise();
+    currentPalette = ForestColors_p;
+    colorLoop = 0;
+  }
+
+  if (noiseefftype == 6) {
+    // modeCode = MC_NOISE_OCEAN;
+    createNoise();
+    currentPalette = OceanColors_p;
+    colorLoop = 0;
+  }
+
+  if (noiseefftype == 7) {
+    // modeCode = MC_NOISE_PLASMA;
+    createNoise();
+    currentPalette = PartyColors_p;
+    colorLoop = 1;
+  }
+
+  if (noiseefftype == 8) {
+    // modeCode = MC_NOISE_CLOUD;
+    createNoise();
+    currentPalette = CloudColors_p;
+    colorLoop = 0;
+  }
+
+  if (noiseefftype == 9) {
+    // modeCode = MC_NOISE_LAVA;
+    createNoise();
+    currentPalette = LavaColors_p;
+    colorLoop = 0;
+  }
+    FastLED.clear();  // очистить
+  }
+  switch (noiseefftype) {
+    case 1:  madnessNoise(); break;
+    case 2:  cloudNoise(); break;
+    case 3:  lavaNoise(); break;
+    case 4:  plasmaNoise(); break;
+    case 5:  rainbowNoise(); break;
+    case 6:  rainbowStripeNoise(); break;
+    case 7:  zebraNoise(); break;
+    case 8:  forestNoise(); break;
+    default: oceanNoise(); break;
+  }
+}
+
+// =====================================
+//             Мечта Дизайнера
+//                WebTools
+//             © SlingMaster
+// =====================================
+/* --------------------------------- */
+int getRandomPos(uint8_t STEP) {
+  uint8_t val = floor(random(0, (STEP * 16 - pWIDTH - 1)) / STEP) * STEP;
+  return -val;
+}
+
+/* --------------------------------- */
+int getHue(uint8_t x, uint8_t y) {
+  return ( x * 32 +  y * 24U );
+}
+
+/* --------------------------------- */
+uint8_t getSaturationStep() {
+  return (modes[currentMode].Speed > 170U) ? ((pHEIGHT > 24) ? 12 : 24) : 0;
+}
+
+/* --------------------------------- */
+uint8_t getBrightnessStep() {
+  return (modes[currentMode].Speed < 85U) ? ((pHEIGHT > 24) ? 16 : 24) : 0;
+}
+
+/* --------------------------------- */
+void drawPalette(int posX, int posY, uint8_t STEP) {
+  int PX, PY;
+  const uint8_t SZ = STEP - 1;
+  const uint8_t maxY = floor(pHEIGHT / SZ);
+  uint8_t sat = getSaturationStep();
+  uint8_t br  = getBrightnessStep();
+  FastLED.clear();
+  for (uint8_t y = 0; y < maxY; y++) {
+    for (uint8_t x = 0; x < 16; x++) {
+      PY = y * STEP;
+      PX = posX + x * STEP;
+      if ((PX >= - STEP ) && (PY >= - STEP) && (PX < pWIDTH) && (PY < pHEIGHT)) {
+        // LOG.printf_P(PSTR("y: %03d | br • %03d | sat • %03d\n"), y, (240U - br * y), sat);
+        drawRecCHSV(PX, PY, PX + SZ, PY + SZ, CHSV( getHue(x, y), (255U - sat * y), (240U - br * y)));
+      }
+    }
+  }
+}
+
+void drawRecCHSV(uint8_t startX, uint8_t startY, uint8_t endX, uint8_t endY, CHSV color) {
+  for (uint8_t y = startY; y < endY; y++) {
+    for (uint8_t x = startX; x < endX; x++) {
+      drawPixelXY(x, y, color);
+    }
+  }
+}
+
+/* --------------------------------- */
+void selectColor(uint8_t sc) {
+  uint8_t offset = (pWIDTH >= 16) ? pWIDTH * 0.25 : 0;
+  hue = getHue(random(offset, pWIDTH - offset), random(pHEIGHT));
+  uint8_t sat = getSaturationStep();
+  uint8_t br  = getBrightnessStep();
+
+  for (uint8_t y = 0; y < pHEIGHT; y++) {
+    for (uint8_t x = offset; x < (pWIDTH - offset); x++) {
+      CHSV curColor = CHSV(hue, (255U - sat * y), (240U - br * y));
+      if (curColor == getPixColorXY(x, y)) {
+        /* show srlect color */
+        drawRecCHSV(x, y, x + sc, y + sc, CHSV( hue, 64U, 255U));
+        FastLED.show();
+        delay(400);
+        drawRecCHSV(x, y, x + sc, y + sc, CHSV( hue, 255U, 255U));
+        y = pHEIGHT;
+        x = pWIDTH;
+      }
+    }
+  }
+}
+
+// альтернативный градиент для ламп собраных из лент с вертикальной компоновкой
+// gradientHorizontal | gradientVertical менее производительный но работает на всех видах ламп
+//--------------------------------------
+void gradientHorizontal(uint8_t startX, uint8_t startY, uint8_t endX, uint8_t endY, uint8_t start_color, uint8_t end_color, uint8_t start_br, uint8_t end_br, uint8_t saturate) {
+  float step_color = 0;
+  float step_br = 0;
+  if (startX == endX) {
+    endX++;
+  }
+  if (startY == endY) {
+    endY++;
+  }
+  step_color = (end_color - start_color) / abs(startX - endX);
+  if (start_color >  end_color) {
+    step_color -= 1.2;
+  } else {
+    step_color += 1.2;
+  }
+
+  step_br = (end_br - start_br) / abs(startX - endX);
+  if (start_br >  end_color) {
+    step_br -= 1.2;
+  } else {
+    step_br += 1.2;
+  }
+
+  // LOG.printf_P(PSTR( "\n step_color: %f | step_br: %f \n\n\r"), step_color, step_br);
+  for (uint8_t x = startX; x < endX; x++) {
+    for (uint8_t y = startY; y < endY; y++) {
+      CHSV thisColor = CHSV((uint8_t) validMinMax((start_color + (x - startX) * step_color), 1, 254), saturate,
+                            (uint8_t) validMinMax((start_br + (x - startX) * step_br), 0, 255) );
+      drawPixelXY(x, y, thisColor);
+    }
+  }
+}
+
+/* ------запускать отсюда-------- */
+void WebTools() {
+  const uint8_t FPS_D = 24U;
+  static uint8_t STEP = 3U;
+  static int posX = -STEP;
+  static int posY = 0;
+  static int nextX = -STEP * 2;
+  static bool stop_moving = true;
+  uint8_t speed = constrain (modes[currentMode].Speed, 65, 255);
+  if (loadingFlag) {
+    loadingFlag = false;
+    FPSdelay = 1U;
+    step = 0;
+    STEP = 2U + floor(modes[currentMode].Scale / 35);
+    posX = 0;
+    posY = 0;
+    drawPalette(posX, posY, STEP);
+  }
+  /* auto scenario */
+  //switch (step) {
+    if (step == 0){     /* restart ----------- */
+      nextX = 0;
+      FPSdelay = FPS_D;
+    }
+    else 
+    if (step == speed/16+1){    /* start move -------- 16*/
+      nextX = getRandomPos(STEP);
+      FPSdelay = FPS_D;
+    }
+    else
+    if (step == speed/10+1){    /* find --------------100 */
+      nextX = getRandomPos(STEP);
+      FPSdelay = FPS_D;
+    }
+    else
+    if (step == speed/7+1){    /* find 2 ----------- 150*/
+      nextX = getRandomPos(STEP);
+      FPSdelay = FPS_D;
+    }
+    else
+    if (step == speed/6+1){    /* find 3 -----------200 */
+      nextX = - STEP * random(4, 8);
+      // nextX = getRandomPos(STEP);
+      FPSdelay = FPS_D;
+    }
+    else
+    if (step == speed/5+1){   /* select color ------220 */
+      FPSdelay = 200U;
+      selectColor(STEP - 1);
+    }
+    else
+    if (step == speed/4+1){   /* show color -------- 222*/
+      FPSdelay = FPS_D;
+      nextX = pWIDTH;
+    }
+    else
+    if (step == speed/4+3){
+      step = 252;
+    }
+    
+  //}
+  if (posX < nextX) posX++;
+  if (posX > nextX) posX--;
+
+  if (stop_moving)   {
+    FPSdelay = 80U;
+    step++;
+  } else {
+    drawPalette(posX, posY, STEP);
+    if ((nextX == pWIDTH) || (nextX == 0)) {
+      /* show select color bar gradient */
+      // LOG.printf_P(PSTR("step: %03d | Next x: %03d • %03d | fps %03d\n"), step, nextX, posX, FPSdelay);
+      if (posX > 1) {
+        gradientHorizontal(0, 0, (posX - 1), pHEIGHT, hue, hue, 255U, 96U, 255U);
+      }
+      if (posX > 3) DrawLine(posX - 3, CENTER_Y_MINOR, posX - 3, CENTER_Y_MAJOR, CHSV( hue, 192U, 255U));
+    }
+  }
+
+  stop_moving = (posX == nextX); 
+}
+
+// =====================================
+//                Contacts
+//             © Yaroslaw Turbin
+//        Adaptation © SlingMaster
+// =====================================
+
+void Contacts() {
+  static const uint8_t exp_gamma[256] = {
+    0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   1,   1,   1,
+    1,   1,   1,   1,   1,   1,   1,   1,   1,   1,   1,   1,   1,   1,   1,
+    1,   2,   2,   2,   2,   2,   2,   2,   2,   2,   3,   3,   3,   3,   3,
+    4,   4,   4,   4,   4,   5,   5,   5,   5,   5,   6,   6,   6,   7,   7,
+    7,   7,   8,   8,   8,   9,   9,   9,   10,  10,  10,  11,  11,  12,  12,
+    12,  13,  13,  14,  14,  14,  15,  15,  16,  16,  17,  17,  18,  18,  19,
+    19,  20,  20,  21,  21,  22,  23,  23,  24,  24,  25,  26,  26,  27,  28,
+    28,  29,  30,  30,  31,  32,  32,  33,  34,  35,  35,  36,  37,  38,  39,
+    39,  40,  41,  42,  43,  44,  44,  45,  46,  47,  48,  49,  50,  51,  52,
+    53,  54,  55,  56,  57,  58,  59,  60,  61,  62,  63,  64,  65,  66,  67,
+    68,  70,  71,  72,  73,  74,  75,  77,  78,  79,  80,  82,  83,  84,  85,
+    87,  89,  91,  92,  93,  95,  96,  98,  99,  100, 101, 102, 105, 106, 108,
+    109, 111, 112, 114, 115, 117, 118, 120, 121, 123, 125, 126, 128, 130, 131,
+    133, 135, 136, 138, 140, 142, 143, 145, 147, 149, 151, 152, 154, 156, 158,
+    160, 162, 164, 165, 167, 169, 171, 173, 175, 177, 179, 181, 183, 185, 187,
+    190, 192, 194, 196, 198, 200, 202, 204, 207, 209, 211, 213, 216, 218, 220,
+    222, 225, 227, 229, 232, 234, 236, 239, 241, 244, 246, 249, 251, 253, 254,
+    255
+  };
+  if (loadingFlag) {
+    loadingFlag = false;
+    FPSdelay = 80U;
+    FastLED.clear();
+  }
+
+  int a = millis() / floor((255 - modes[currentMode].Speed) / 10);
+  hue = floor(modes[currentMode].Scale / 17);
+  for (int x = 0; x < pWIDTH; x++) {
+    for (int y = 0; y < pHEIGHT; y++) {
+      int index = XY(x, y);
+      uint8_t color1 = exp_gamma[sin8((x - 8) * cos8((y + 20) * 4) / 4)];
+      uint8_t color2 = exp_gamma[(sin8(x * 16 + a / 3) + cos8(y * 8 + a / 2)) / 2];
+      uint8_t color3 = exp_gamma[sin8(cos8(x * 8 + a / 3) + sin8(y * 8 + a / 4) + a)];
+      if (hue == 0) {
+        leds[index].b = color3 / 4;
+        leds[index].g = color2;
+        leds[index].r = 0;
+      } else if (hue == 1) {
+        leds[index].b = color1;
+        leds[index].g = 0;
+        leds[index].r = color3 / 4;
+      } else if (hue == 2) {
+        leds[index].b = 0;
+        leds[index].g = color1 / 4;
+        leds[index].r = color3;
+      } else if (hue == 3) {
+        leds[index].b = color1;
+        leds[index].g = color2;
+        leds[index].r = color3;
+      } else if (hue == 4) {
+        leds[index].b = color3;
+        leds[index].g = color1;
+        leds[index].r = color2;
+      } else if (hue == 5) {
+        leds[index].b = color2;
+        leds[index].g = color3;
+        leds[index].r = color1;
+      }
+    }
+  }
+}
+
+// *********************  ЗВЕЗДОЧКИ ******************
+
+#define STARS_FADE_STEP 5     // шаг уменьшения яркости
+uint8_t drawRays = 0;
+
+void starsRoutine() {
+  if (loadingFlag) {
+    // modeCode = MC_STARS;
+    loadingFlag = false;
+    loopCounter = 0;
+    hue = 46;
+    //   0               1         2        3        4
+    // ">Случайный выбор,Без лучей,Лучи '+',Лучи 'X',Лучи '+' и 'X'"
+    drawRays = getEffectScaleParamValue2(thisMode);  
+    if (drawRays == 0) drawRays = random8(1, 4);
+    FastLED.clear();  // очистить
+  }
+
+  delay(5);  
+  fader(STARS_FADE_STEP);
+
+  uint8_t spd = getEffectSpeedValue(thisMode);
+  if (spd > 0 && loopCounter++ < map8(spd, 0, 30)) return;
+  loopCounter = 0;
+    
+  uint8_t effectBrightness = getBrightnessCalculated(globalBrightness, getEffectContrastValue(thisMode));
+  uint8_t fadeBrightness =  effectBrightness / 4 * 3;  
+  uint8_t the_color = getEffectScaleParamValue(thisMode);
+  uint8_t color = the_color;
+  int8_t  delta = random8(0, 12) - 6;
+
+  if (the_color < 2) {
+    color = random8(0, 255);
+  } else if (the_color > 252) {
+    color = hue += (spd == 0 ? 1 : 2);
+  } else {
+    color += delta;
+  }
+
+  uint8_t cnt = 0;
+  while (cnt<25) {
+    cnt++;
+    uint8_t x = random8(1, pWIDTH - 1);
+    uint8_t y = random8(1, pHEIGHT - 1);
+    bool enable = drawRays == 1 ||
+                  getPixColorXY(x,   y  ) == 0 && 
+                  getPixColorXY(x+1, y  ) == 0 &&
+                  getPixColorXY(x-1, y  ) == 0 &&
+                  getPixColorXY(x,   y+1) == 0 &&
+                  getPixColorXY(x,   y-1) == 0 &&
+                  getPixColorXY(x+1, y+1) == 0 &&
+                  getPixColorXY(x+1, y-1) == 0 &&
+                  getPixColorXY(x-1, y+1) == 0 &&
+                  getPixColorXY(x-1, y-1) == 0;
+                  
+    if (enable) {
+      uint8_t sat = (random8(0, 100) % 10 == 0) ? 32 : 255;   // Одна из 10 звезд - белая
+      CHSV star_color = CHSV(color, sat, effectBrightness);  
+      // Центр
+      idx = getPixelNumber(x, y); 
+      if (idx >= 0) leds[idx] = star_color;
+      if (drawRays > 1) {
+        // Стороны лучей
+        star_color = CHSV(color, sat, fadeBrightness);
+        bool useXRay = random8(0, 50) % 2 == 0;
+        if (drawRays == 3 || drawRays == 4 && useXRay) {
+          // Тип - X
+          idx = getPixelNumber(x+1, y+1); 
+          if (idx >= 0) leds[idx] = star_color;
+          idx = getPixelNumber(x-1, y+1); 
+          if (idx >= 0) leds[idx] = star_color;
+          idx = getPixelNumber(x+1, y-1); 
+          if (idx >= 0) leds[idx] = star_color;
+          idx = getPixelNumber(x-1, y-1); 
+          if (idx >= 0) leds[idx] = star_color;              
+        } else if (drawRays == 2 || drawRays == 4 && !useXRay) {
+          // Тип - крест +
+          idx = getPixelNumber(x+1, y); 
+          if (idx >= 0) leds[idx] = star_color;
+          idx = getPixelNumber(x-1, y); 
+          if (idx >= 0) leds[idx] = star_color;
+          idx = getPixelNumber(x, y+1); 
+          if (idx >= 0) leds[idx] = star_color;
+          idx = getPixelNumber(x, y-1); 
+          if (idx >= 0) leds[idx] = star_color;      
+        }
+      }
+      break;
+    }
+  }
+}
+
+// *********************  ЗВЕЗДОЧКИ-2 (Штора) ******************
+
+#define STARS2_FADE_STEP 10   // шаг уменьшения яркости
+#define BACK_BRIGHTNESS 20
+#define STAR_BRIGHTNESS 36
+
+int8_t  *starState;    // 0 - яркость не меняется 1 - яркость увеличивается -1 - яркость уменьшается
+uint8_t *starBright;   // Текущая яркость звезды
+
+uint8_t  numStarsWidth;
+uint8_t  numStarsHeight;
+uint16_t numStars;
+
+void stars2Routine() {
+
+  drawRays = getEffectScaleParamValue2(thisMode);
+  uint8_t contrast = getEffectContrastValue(thisMode);
+  uint8_t delta2 = 0;
+
+  uint8_t delta = 255 - globalBrightness;  
+  if (drawRays < 2) {
+    if (delta > 200) delta2 = delta / 3; else
+    if (delta > 150) delta2 = delta / 4; else
+    if (delta > 100) delta2 = delta / 5; else
+    if (delta > 50 ) delta2 = delta / 6; else
+                     delta2 = delta / 7;
+  } else {
+    if (delta > 200) delta2 = delta / 4; else
+    if (delta > 150) delta2 = delta / 5; else
+    if (delta > 100) delta2 = delta / 6; else
+    if (delta > 50 ) delta2 = delta / 7; else
+                     delta2 = delta / 8;
+  }
+ 
+  uint8_t backBrightness = BACK_BRIGHTNESS + delta2;
+  uint8_t starBrightness = constrain(STAR_BRIGHTNESS + delta2, STAR_BRIGHTNESS, 255);
+  uint8_t maxEffectBrightness = constrain(contrast, 2 * starBrightness, 255);
+  uint8_t maxFadeBrightness = maxEffectBrightness / 4 * 3;  
+
+  if (loadingFlag) {
+    // modeCode = MC_STARS2;
+    loadingFlag = false;
+
+    numStarsWidth = pWIDTH / 4;
+    numStarsHeight = pHEIGHT / 4;
+    numStars = numStarsWidth * numStarsHeight;
+    hue = 0;
+
+    if (starState  == NULL) { starState  = new int8_t  [numStars]; }
+    if (starBright == NULL) { starBright = new uint8_t [numStars]; }
+
+    // Заполнить массив начальной яркости звезд 
+    FOR_i(0, numStars) {
+      starState[i] = 0;
+      starBright[i] = starBrightness;
+    }
+    FastLED.clear();  // очистить
+  }
+
+  // На каждый 5 (или менее в зависимости от размера матрицы) шаг "зажигаем" следующую звезду
+  loopCounter++;
+  if (loopCounter == 5 - numStars / 256) {
+    loopCounter = 0;
+    idx = random16(0, numStars);
+    if (starState[idx] == 0) {
+      starState[idx] = 1;
+      // Некоторые звезды зажигаются не плавно, а вспышкой и плавно угасает
+      if (random8(0, 100) % 4 == 0) {
+        starBright[idx] = maxEffectBrightness - STARS2_FADE_STEP;
+      }
+    }
+  }
+
+  // В режимах без фона крайние положения двиджка "вариант" включают режим прокрутки по радуге
+  uint8_t color = getEffectScaleParamValue(thisMode);
+  if (drawRays >= 2 && (color < 2 || color > 253)) {
+    color = hue;
+    loopCounter2++;
+    if (loopCounter2 == 10) {
+      loopCounter2 = 0;
+      hue += 1;
+    }
+  }
+
+  // Заливка поля цветом фона для режима с фоном или черным для режима без фона
+  CHSV back_color = CHSV(color, 255, drawRays < 2 ? backBrightness : 0) ;     
+  fillAll(back_color);
+
+  FOR_x(0, numStarsWidth) {
+    FOR_y(0, numStarsHeight) {
+
+     // Корректировка яркости (угасание/зажигания) звезды
+     idx = x + numStarsWidth * y;
+     uint16_t br = starBright[idx];
+     br += starState[idx] * STARS2_FADE_STEP;
+     if (br >= maxEffectBrightness) {
+       // При достижении максимальной яркости - переключить на "угасание"
+       starState[idx] = -1;
+       br = maxEffectBrightness;
+     } else if (br <= starBrightness) {
+       // При достижении минимальной яркости - переключить на "ожидание"
+       starState[idx] = 0;
+       br = starBrightness;
+     }
+     starBright[idx] = br;
+
+     // Отрисовать звезду      
+     uint8_t xp = x * 4 + 1;
+     uint8_t yp = y * 4 + x % 2 + 1;
+     uint8_t effectBrightness = constrain(starBright[x + y * numStarsWidth], starBrightness, maxEffectBrightness);
+
+      // Центр
+      idx = getPixelNumber(xp, yp); 
+      CHSV star_color = CHSV(color, 255, effectBrightness);  
+
+      if (idx >= 0) leds[idx] = star_color;
+            
+      if (drawRays == 1 || drawRays == 3) {
+        // Стороны лучей
+        uint8_t fadeBrightness = effectBrightness / 4 * 3;
+        if (fadeBrightness > maxFadeBrightness) fadeBrightness = maxFadeBrightness;
+        if (fadeBrightness < backBrightness) fadeBrightness = backBrightness;
+        star_color = CHSV(color, 255, fadeBrightness);
+        idx = getPixelNumber(xp+1, yp); 
+        if (idx >= 0) leds[idx] = star_color;
+        idx = getPixelNumber(xp-1, yp); 
+        if (idx >= 0) leds[idx] = star_color;
+        idx = getPixelNumber(xp, yp+1); 
+        if (idx >= 0) leds[idx] = star_color;
+        idx = getPixelNumber(xp, yp-1); 
+        if (idx >= 0) leds[idx] = star_color;      
+      }            
+    }    
+  }  
+}
+
+void stars2RoutineRelease() {
+  if (starState == NULL) { delete [] starState; starState = NULL; }
+  if (starBright == NULL) { delete [] starBright; starBright = NULL; }  
 }

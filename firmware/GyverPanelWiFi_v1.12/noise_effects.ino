@@ -8,18 +8,12 @@ uint16_t speed = 20; // speed is set dynamically once we've started up
 uint16_t scale = 30; // scale is set dynamically once we've started up
 uint8_t **noise;
 
-CRGBPalette16 currentPalette( PartyColors_p );
-uint8_t colorLoop = 1;
+
 uint8_t ihue = 0;
 
 void madnessNoise() {
-  if (loadingFlag) {
-    // modeCode = MC_NOISE_MADNESS;
-    loadingFlag = false;
-    createNoise();
-  }
   uint8_t effectBrightness = getBrightnessCalculated(globalBrightness, getEffectContrastValue(thisMode));
-  scale = map8(getEffectScaleParamValue(MC_NOISE_MADNESS),0,100);
+  scale = map8(getEffectScaleParamValue(MC_NOISE_EFFECTS),0,100);
   fillnoise8();
   for (uint8_t i = 0; i < pWIDTH; i++) {
     for (uint8_t j = 0; j < pHEIGHT; j++) {
@@ -31,104 +25,63 @@ void madnessNoise() {
 }
 
 void rainbowNoise() {
-  if (loadingFlag) {
-    loadingFlag = false;
-    // modeCode = MC_NOISE_RAINBOW;
-    createNoise();
-    currentPalette = RainbowColors_p;
-    colorLoop = 1;
-  }
-  scale = map8(getEffectScaleParamValue(MC_NOISE_RAINBOW),0,100); 
+  currentPalette = RainbowColors_p;
+  colorLoop = 1;
+  scale = map8(getEffectScaleParamValue(MC_NOISE_EFFECTS),0,100); 
   fillNoiseLED();
 }
 
 void rainbowStripeNoise() {
-  if (loadingFlag) {
-    loadingFlag = false;
-    // modeCode = MC_NOISE_RAINBOW_STRIP;
-    createNoise();
-    currentPalette = RainbowStripeColors_p;
-    colorLoop = 1;
-  }
-  scale = map8(getEffectScaleParamValue(MC_NOISE_RAINBOW_STRIP),0,100); 
+  currentPalette = RainbowStripeColors_p;
+  colorLoop = 1;
+  scale = map8(getEffectScaleParamValue(MC_NOISE_EFFECTS),0,100); 
   fillNoiseLED();
 }
 
 void zebraNoise() {
-  if (loadingFlag) {
-    loadingFlag = false;
-    // modeCode = MC_NOISE_ZEBRA;
-    // 'black out' all 16 palette entries...
-    createNoise();
-    fill_solid( currentPalette, 16, CRGB::Black);
-    // and set every fourth one to white.
-    currentPalette[0] = CRGB::White;
-    currentPalette[4] = CRGB::White;
-    currentPalette[8] = CRGB::White;
-    currentPalette[12] = CRGB::White;
-    colorLoop = 1;
-  }
-  scale = map8(getEffectScaleParamValue(MC_NOISE_ZEBRA),0,100); 
+  fill_solid( currentPalette, 16, CRGB::Black);
+  // and set every fourth one to white.
+  currentPalette[0] = CRGB::White;
+  currentPalette[4] = CRGB::White;
+  currentPalette[8] = CRGB::White;
+  currentPalette[12] = CRGB::White;
+  colorLoop = 1;
+  scale = map8(getEffectScaleParamValue(MC_NOISE_EFFECTS),0,100); 
   fillNoiseLED();
 }
 
 void forestNoise() {
-  if (loadingFlag) {
-    loadingFlag = false;
-    // modeCode = MC_NOISE_FOREST;
-    createNoise();
-    currentPalette = ForestColors_p;
-    colorLoop = 0;
-  }
-  scale = map8(getEffectScaleParamValue(MC_NOISE_FOREST),0,100); 
+  currentPalette = ForestColors_p;
+  colorLoop = 0;
+  scale = map8(getEffectScaleParamValue(MC_NOISE_EFFECTS),0,100); 
   fillNoiseLED();
 }
 
 void oceanNoise() {
-  if (loadingFlag) {
-    loadingFlag = false;
-    // modeCode = MC_NOISE_OCEAN;
-    createNoise();
-    currentPalette = OceanColors_p;
-    colorLoop = 0;
-  }
-  scale = map8(getEffectScaleParamValue(MC_NOISE_OCEAN),0,100); 
+  currentPalette = OceanColors_p;
+  colorLoop = 0;
+  scale = map8(getEffectScaleParamValue(MC_NOISE_EFFECTS),0,100); 
   fillNoiseLED();
 }
 
 void plasmaNoise() {
-  if (loadingFlag) {
-    loadingFlag = false;
-    // modeCode = MC_NOISE_PLASMA;
-    createNoise();
-    currentPalette = PartyColors_p;
-    colorLoop = 1;
-  }
-  scale = map8(getEffectScaleParamValue(MC_NOISE_PLASMA),0,100); 
+  currentPalette = PartyColors_p;
+  colorLoop = 1;
+  scale = map8(getEffectScaleParamValue(MC_NOISE_EFFECTS),0,100); 
   fillNoiseLED();
 }
 
 void cloudNoise() {
-  if (loadingFlag) {
-    loadingFlag = false;
-    // modeCode = MC_NOISE_CLOUD;
-    createNoise();
-    currentPalette = CloudColors_p;
-    colorLoop = 0;
-  }
-  scale = map8(getEffectScaleParamValue(MC_NOISE_CLOUD),0,100); 
+  currentPalette = CloudColors_p;
+  colorLoop = 0;
+  scale = map8(getEffectScaleParamValue(MC_NOISE_EFFECTS),0,100); 
   fillNoiseLED();
 }
 
 void lavaNoise() {
-  if (loadingFlag) {
-    loadingFlag = false;
-    // modeCode = MC_NOISE_LAVA;
-    createNoise();
-    currentPalette = LavaColors_p;
-    colorLoop = 0;
-  }
-  scale = map8(getEffectScaleParamValue(MC_NOISE_LAVA),0,100); 
+  currentPalette = LavaColors_p;
+  colorLoop = 0;
+  scale = map8(getEffectScaleParamValue(MC_NOISE_EFFECTS),0,100); 
   fillNoiseLED();
 }
 
