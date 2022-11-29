@@ -2913,7 +2913,7 @@ void DNARoutine()
       direct = random8(2);
     }
    // if (deltaHue)
-   if (direct == 1)
+   if (direct == 0)
       hue = 101U - hue;
     hue = 255U - map( 51U - hue, 1U, 50U, 0, 255U);
   }
@@ -2922,7 +2922,7 @@ void DNARoutine()
   fadeToBlackBy(leds, NUM_LEDS, step);
   uint16_t ms = millis();
 //if (deltaHue)
-if (direct == 1)
+if (direct == 0)
   for (uint8_t i = 0; i < pWIDTH; i++)
   {
     uint32_t x = beatsin16(step, 0, (pHEIGHT - 1) * 256, 0, i * freq);
@@ -6685,7 +6685,7 @@ const uint8_t  level = 160;
 const uint8_t  low_level = 110;
 const uint8_t *ptr  = anim;                     // Current pointer into animation data
 const uint8_t  wdth    = 7;                        // image width
-const uint8_t  hght    = 15;                       // image height было 15
+const uint8_t  hght    = 13;                       // image height было 15
 uint8_t        img[wdth * hght];                      // Buffer for rendering image
 uint8_t        last_brightness;
 
