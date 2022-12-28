@@ -140,9 +140,7 @@ void loadSettings() {
 
   // Инициализировано ли EEPROM
   bool isInitialized = EEPROMread(0) == EEPROM_OK;  
-  
   if (isInitialized) {    
-
     sWIDTH            = getMatrixSegmentWidth();
     sHEIGHT           = getMatrixSegmentHeight();
     sMATRIX_TYPE      = getMatrixSegmentType();
@@ -383,6 +381,7 @@ void saveDefaults() {
   putEffectUsage(MC_CLOCK, false);
   putClockScrollSpeed(250);  
   putEffectTextOverlayUsage(MC_CLOCK, false); 
+  putEffectTextOverlayUsage(MC_CLOCKS, false); 
   putEffectTextOverlayUsage(MC_MAZE, false);
   putEffectTextOverlayUsage(MC_SNAKE, false);
   putEffectTextOverlayUsage(MC_TETRIS, false);
@@ -392,6 +391,7 @@ void saveDefaults() {
   putEffectTextOverlayUsage(MC_WEATHER, false);
   putEffectTextOverlayUsage(MC_LIFE, false);
   putEffectClockOverlayUsage(MC_CLOCK, false);
+  putEffectClockOverlayUsage(MC_CLOCKS, false);
   putEffectClockOverlayUsage(MC_MAZE, false);
   putEffectClockOverlayUsage(MC_SNAKE, false);
   putEffectClockOverlayUsage(MC_TETRIS, false);
@@ -402,8 +402,8 @@ void saveDefaults() {
   putEffectClockOverlayUsage(MC_LIFE, false);
 
   #ifdef MC_IMAGE
-  putEffectTextOverlayUsage(MC_IMAGE, false);
-  putEffectClockOverlayUsage(MC_IMAGE, false);
+    putEffectTextOverlayUsage(MC_IMAGE, false);
+    putEffectClockOverlayUsage(MC_IMAGE, false);
   #endif
 
   putClockScrollSpeed(250);
@@ -413,8 +413,7 @@ void saveDefaults() {
   putScaleForEffect2(MC_PAINTBALL, 1);      // Использовать сегменты для эффекта Пэйнтбол на широких матрицах
   putScaleForEffect2(MC_SWIRL, 1);          // Использовать сегменты для эффекта Водоворот на широких матрицах
   putScaleForEffect2(MC_RAINBOW, 0);        // Использовать рандомный выбор эффекта радуга 0 - random; 1 - диагональная; 2 - горизонтальная; 3 - вертикальная; 4 - вращающаяся  
-  putScaleForEffect2(MC_PRIZMATA, 0);       // Использовать рандомный выбор эффекта Синусы 0 - random; 1 Вариант; 2 Вариант
-  putScaleForEffect2(MC_SINUSOID3, 0);       // Использовать рандомный выбор эффекта Синусы 0 - random; 1 Вариант; 2 Вариант; 3 Вариант; 4 Вариант; 5 Вариант; 6 Вариант
+  
   uint8_t ball_size = 2;
   putScaleForEffect(MC_BALL, ball_size);    // Размер кубика по умолчанию
 
@@ -493,9 +492,9 @@ void saveDefaults() {
 #if (INITIALIZE_TEXTS == 1)
   textLines[0]   = "##";
   textLines[1]   = "Всё будет хорошо!";
-  textLines[2]   = "До {C#00D0FF}Нового года {C#FFFFFF}осталось {C#10FF00}{R01.01.2022#4}{E21}";
+  textLines[2]   = "До {C#00D0FF}Нового года {C#FFFFFF}осталось {C#10FF00}{R01.01.***+}{S01.12.****#31.12.**** 23:59:59}{E21}";
   textLines[3]   = "До {C#0019FF}Нового года{C#FFFFFF} {P01.01.****#4}";
-  textLines[4]   = "-С {C#00D0FF}Новым {C#0BFF00}{D:yyyy} {C#FFFFFF}годом!{E21}";
+  textLines[4]   = "С {C#00D0FF}Новым {C#0BFF00}{D:yyyy} {C#FFFFFF}годом!{S01.01.****#31.01.**** 23:59:59}{E21}";
   textLines[5]   = "В {C#10FF00}Красноярске {C#FFFFFF}{WS} {WT}°C";
   textLines[6]   = "Show must go on!{C#000002}";
   textLines[7]   = "{C#FF000F}Крибле! {C#000001}Крабле!! {C#00FF00}Бумс!!!{E24}";

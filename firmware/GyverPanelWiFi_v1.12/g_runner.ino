@@ -40,8 +40,8 @@ void runnerRoutine() {
 
   if (runnerTimer.isReady()) {
     if (obstTimer.isReady()) {
-      for (byte i = 0; i < WIDTH - 1; i++) {
-        for (byte j = 0; j < HEIGHT; j++) {
+      for (byte i = 0; i < pWIDTH - 1; i++) {
+        for (byte j = 0; j < pHEIGHT; j++) {
           leds[getPixelNumber(i, j)] = getPixColorXY(i + 1, j);
         }
       }
@@ -52,10 +52,10 @@ void runnerRoutine() {
         runnerScore++;
         byte thisHeight = random(1, OBST_HEIGHT + 1);
         for (byte i = 0; i < thisHeight; i++)
-          drawPixelXY(WIDTH - 1, i, GLOBAL_COLOR_1);
+          drawPixelXY(pWIDTH - 1, i, GLOBAL_COLOR_1);
       } else {
-        for (byte i = 0; i < HEIGHT; i++)
-          drawPixelXY(WIDTH - 1, i, 0);
+        for (byte i = 0; i < pHEIGHT; i++)
+          drawPixelXY(pWIDTH - 1, i, 0);
       }
     }
 

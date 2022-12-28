@@ -968,6 +968,7 @@ void parsing() {
       case 5:
         if (thisMode != MC_DRAW) {
           set_thisMode(MC_DRAW);
+          FastLED.clear();
           setManualModeTo(true);
         }      
         if (intData[1] == 0) {
@@ -1180,8 +1181,8 @@ void parsing() {
               
               if (thisMode != MC_LOADIMAGE) {
                 setManualModeTo(true);
-                set_thisMode(MC_LOADIMAGE);
                 FastLED.clear();
+                set_thisMode(MC_LOADIMAGE);
                 FastLEDshow();
                 delay(50);
               }
@@ -1488,10 +1489,24 @@ void parsing() {
               // При получении параметра эффекта "NEXUS" (кол-во червячков) - надо переинициализировать эффект
               loadingFlag = true;
             } else 
+            if (thisMode == tmp_eff && tmp_eff == MC_POPCORN) {
+              // При получении параметра эффекта "Popcorn" (кол-во попкорнин) - надо переинициализировать эффект
+              loadingFlag = true;
+            } else 
+            if (thisMode == tmp_eff && tmp_eff == MC_BALLS_BOUNCE) {
+              // При получении параметра эффекта "Мячики" (кол-во мячиков) - надо переинициализировать эффект
+              loadingFlag = true;
+            } else 
+            if (thisMode == tmp_eff && tmp_eff == MC_RUBICK) {
+              // При получении параметра эффекта "RUBICK" (размер плиток) - надо переинициализировать эффект
+              loadingFlag = true;
+            } else 
             if (thisMode == tmp_eff && tmp_eff == MC_SINWAVES) {
               // При получении параметра эффекта "Синусоиды" (кол-во синусоид) - надо переинициализировать эффект
+              FastLED.clear();
               loadingFlag = true;              
             }
+            
           }
         } else 
         
@@ -1531,6 +1546,11 @@ void parsing() {
             // Если установлен вариант - "случайный" - продолжаем показывать тот что был
             loadingFlag = effectScaleParam2[tmp_eff] != 0;
           } else
+          if (thisMode == tmp_eff && tmp_eff == MC_PICASSO) {
+            // При получении параметра 2 эффекта "Волны" (вариант эффекта) - надо переинициализировать эффект
+            // Если установлен вариант - "случайный" - продолжаем показывать тот что был
+            loadingFlag = effectScaleParam2[tmp_eff] != 0;
+          } else
           if (thisMode == tmp_eff && tmp_eff == MC_SMOKE) {
             // При получении параметра 2 эффекта "Дым" (вариант эффекта) - надо переинициализировать эффект
             // Если установлен вариант - "случайный" - продолжаем показывать тот что был
@@ -1555,7 +1575,7 @@ void parsing() {
             // При получении параметра 2 эффекта "Кометы" (вариант эффекта) - надо переинициализировать эффект
             // Если установлен вариант - "случайный" - продолжаем показывать тот что был
             loadingFlag = effectScaleParam2[tmp_eff] != 0;
-          } else
+          } else    
           if (thisMode == tmp_eff && tmp_eff == MC_ARROWS) {
             // При получении параметра 2 эффекта "Стрелки" -  вид - надо переинициализировать эффект
             // Если установлен тип - "случайный" - продолжаем показывать тот что был
@@ -1578,6 +1598,36 @@ void parsing() {
             // Если установлен узор - "случайный" - продолжаем показывать тот что был
             loadingFlag = effectScaleParam2[tmp_eff] != 0;
           } 
+          if (thisMode == tmp_eff && tmp_eff == MC_NEXUS) {
+            // При получении параметра 2 эффекта "Nexus" -  вид - надо переинициализировать эффект
+            // Если установлен вариант - "случайный" - продолжаем показывать тот что был
+            loadingFlag = effectScaleParam2[tmp_eff] != 0;
+          } 
+          if (thisMode == tmp_eff && tmp_eff == MC_CLOCKS) {
+            // При получении параметра 2 эффекта "Часы с циферблатом" -  вид - надо переинициализировать эффект
+            // Если установлен вариант - "случайный" - продолжаем показывать тот что был
+            loadingFlag = effectScaleParam2[tmp_eff] != 0;
+          } 
+          if (thisMode == tmp_eff && tmp_eff == MC_FIREWORKS) {
+            // При получении параметра 2 эффекта "Салют" -  вид - надо переинициализировать эффект
+            // Если установлен вариант - "случайный" - продолжаем показывать тот что был
+            loadingFlag = effectScaleParam2[tmp_eff] != 0;
+          }
+          if (thisMode == tmp_eff && tmp_eff == MC_PAINT) {
+            // При получении параметра 2 эффекта "Краски" -  вид - надо переинициализировать эффект
+            // Если установлен вариант - "случайный" - продолжаем показывать тот что был
+            loadingFlag = effectScaleParam2[tmp_eff] != 0;
+          }
+          if (thisMode == tmp_eff && tmp_eff == MC_STARS) {
+            // При получении параметра 2 эффекта "Звездочки" -  вид - надо переинициализировать эффект
+            // Если установлен вариант - "случайный" - продолжаем показывать тот что был
+            loadingFlag = effectScaleParam2[tmp_eff] != 0;
+          }
+          if (thisMode == tmp_eff && tmp_eff == MC_NOISE_EFFECTS) {
+            // При получении параметра 2 эффекта "Переливы" -  вид - надо переинициализировать эффект
+            // Если установлен вариант - "случайный" - продолжаем показывать тот что был
+            loadingFlag = effectScaleParam2[tmp_eff] != 0;
+          }
           #ifndef NO_ANIMATION
           else
           if (thisMode == tmp_eff && tmp_eff == MC_IMAGE) {
@@ -2634,7 +2684,7 @@ void sendPageParams(uint8_t page, eSources src) {
       str = getStateString("UP|FM|W|H|BR|CL|SD|FS");
       break;
     case 12:  // Игры
-      str = getStateString("UP|FM|W|H|BR|SE|SD");
+      str = getStateString("UP|FM|W|H|BR|SE");
       break;
     case 91:  // Запрос текста бегущей строки для редактирования указанной ячейки или замены строки текста в списке ячейки
       str = getStateString("TS|TY");
@@ -3074,14 +3124,23 @@ String getStateValue(String &key, int8_t effect, JsonVariant* value = nullptr) {
   // Оверлей бегущей строки
   if (key == "UT") {
     if (value) {
-      if (effect == MC_MAZE || effect == MC_SNAKE || effect == MC_TETRIS || effect == MC_ARKANOID || effect == MC_FLAPPY || effect == MC_RUNNER || effect == MC_CLOCK) {
+      if (effect == MC_MAZE || effect == MC_SNAKE || effect == MC_TETRIS || effect == MC_ARKANOID || 
+          effect == MC_FLAPPY || effect == MC_RUNNER || effect == MC_CLOCK || effect == MC_CLOCKS
+          #ifdef MC_IMAGE
+            || effect == MC_IMAGE
+          #endif
+          ) {
         value->set("X");
         return "X";
       }
       value->set(getEffectTextOverlayUsage(effect));
       return String(getEffectTextOverlayUsage(effect));
     }
-    return str + "UT:" +  (effect == MC_MAZE || effect == MC_SNAKE || effect == MC_TETRIS || effect == MC_ARKANOID || effect == MC_FLAPPY || effect == MC_RUNNER || effect == MC_CLOCK
+    return str + "UT:" +  (effect == MC_MAZE || effect == MC_SNAKE || effect == MC_TETRIS || effect == MC_ARKANOID || 
+                           effect == MC_FLAPPY || effect == MC_RUNNER || effect == MC_CLOCK || effect == MC_CLOCKS
+                           #ifdef MC_IMAGE
+                             || effect == MC_IMAGE
+                           #endif
          ? "X":
          String(getEffectTextOverlayUsage(effect)));
   }
@@ -3089,14 +3148,23 @@ String getStateValue(String &key, int8_t effect, JsonVariant* value = nullptr) {
   // Оверлей часов   
   if (key == "UC") {
     if (value) {
-       if (effect == MC_MAZE || effect == MC_SNAKE || effect == MC_TETRIS || effect == MC_ARKANOID || effect == MC_FLAPPY || effect == MC_RUNNER || effect == MC_CLOCK) {
+       if (effect == MC_MAZE || effect == MC_SNAKE || effect == MC_TETRIS || effect == MC_ARKANOID ||
+           effect == MC_FLAPPY || effect == MC_RUNNER || effect == MC_CLOCK || effect == MC_CLOCKS
+           #ifdef MC_IMAGE
+             ||effect == MC_IMAGE
+           #endif
+           ) {
          value->set("X");
          return "X"; 
        }
        value->set(getEffectClockOverlayUsage(effect));
        return String(getEffectClockOverlayUsage(effect));
     }
-    return str + "UC:" +  (effect == MC_MAZE || effect == MC_SNAKE || effect == MC_TETRIS || effect == MC_ARKANOID || effect == MC_FLAPPY || effect == MC_RUNNER || effect == MC_CLOCK
+    return str + "UC:" +  (effect == MC_MAZE || effect == MC_SNAKE || effect == MC_TETRIS || effect == MC_ARKANOID || 
+                           effect == MC_FLAPPY || effect == MC_RUNNER || effect == MC_CLOCK || effect == MC_CLOCKS
+                           #ifdef MC_IMAGE
+                             || effect == MC_IMAGE
+                           #endif
          ? "X" 
          : (String(getEffectClockOverlayUsage(effect))));
   }
@@ -3104,7 +3172,7 @@ String getStateValue(String &key, int8_t effect, JsonVariant* value = nullptr) {
   // Настройка скорости
   if (key == "SE") {
     if (value) {
-      if (effect == MC_PACIFICA || effect == MC_SHADOWS || effect == MC_CLOCK || effect == MC_FIRE2 
+      if (effect == MC_PACIFICA || effect == MC_SHADOWS || effect == MC_CLOCK || effect == MC_CLOCKS
         #ifdef MC_IMAGE     
         || effect == MC_IMAGE 
         #endif
@@ -3115,7 +3183,7 @@ String getStateValue(String &key, int8_t effect, JsonVariant* value = nullptr) {
       value->set(255 - constrain(map(getEffectSpeed(effect), D_EFFECT_SPEED_MIN,D_EFFECT_SPEED_MAX, 0,255), 0,255));
       return String(255 - constrain(map(getEffectSpeed(effect), D_EFFECT_SPEED_MIN,D_EFFECT_SPEED_MAX, 0,255), 0,255));
     }
-    return str + "SE:" +  (effect == MC_PACIFICA || effect == MC_SHADOWS || effect == MC_CLOCK || effect == MC_FIRE2
+    return str + "SE:" +  (effect == MC_PACIFICA || effect == MC_SHADOWS || effect == MC_CLOCK || effect == MC_CLOCKS
        #ifdef MC_IMAGE     
        || effect == MC_IMAGE 
        #endif
@@ -3126,14 +3194,39 @@ String getStateValue(String &key, int8_t effect, JsonVariant* value = nullptr) {
   // Контраст
   if (key == "BE") {
     if (value) {
-      if (effect == MC_PACIFICA || effect == MC_DAWN_ALARM || effect == MC_MAZE || effect == MC_SNAKE || effect == MC_TETRIS || effect == MC_ARKANOID || effect == MC_FLAPPY || effect == MC_RUNNER || effect == MC_CLOCK || effect == MC_SDCARD) {
+      if (effect == MC_PACIFICA || effect == MC_DAWN_ALARM || effect == MC_MAZE || effect == MC_SNAKE || effect == MC_TETRIS || 
+          effect == MC_ARKANOID || effect == MC_FLAPPY || effect == MC_RUNNER || effect == MC_CLOCK || effect == MC_POPCORN || 
+          effect == MC_DNA || effect == MC_BALLS_BOUNCE || effect == MC_SPIRO || effect == MC_SMOKEBALLS || effect == MC_NEXUS || 
+          effect == MC_SINUSOID3 || effect == MC_RINGS || effect == MC_CUBE2D || effect == MC_ATTRACT || effect == MC_FAIRY || 
+          effect == MC_DROPS || effect == MC_OSCILLATING || effect == MC_LLAND || effect == MC_SAND || effect == MC_WAVES || 
+          effect == MC_METABALLS || effect == MC_PICASSO || effect == MC_LUMENJER || effect == MC_SPHERES || effect == MC_POOL || 
+          effect == MC_SMOKE || effect == MC_PULSE || effect == MC_WATERFALL || effect == MC_WHIRL || effect == MC_COMET || 
+          effect == MC_RAINBOWSNAKE || effect == MC_PLASMALAMP || effect == MC_FOUNTAIN || effect == MC_AURORA || effect == MC_CLOCKS || 
+          effect == MC_FIREWORKS || effect == MC_TRACKS || effect == MC_PAINT || effect == MC_CANDLE || effect == MC_RUBICK || 
+          effect == MC_FRIZZLE || effect == MC_LOTUS || effect == MC_TREE || effect == MC_WEBTOOLS || effect == MC_CONTACTS 
+          #if (USE_SD == 1) 
+            || effect == MC_SDCARD
+          #endif
+          ) {
         value->set("X");
         return "X";
       }  
       value->set(getEffectContrast(effect));
       return String(getEffectContrast(effect));
     }
-    return str + "BE:" +  (effect == MC_PACIFICA || effect == MC_DAWN_ALARM || effect == MC_MAZE || effect == MC_SNAKE || effect == MC_TETRIS || effect == MC_ARKANOID || effect == MC_FLAPPY || effect == MC_RUNNER || effect == MC_CLOCK || effect == MC_SDCARD
+    return str + "BE:" +  (effect == MC_PACIFICA || effect == MC_DAWN_ALARM || effect == MC_MAZE || effect == MC_SNAKE || effect == MC_TETRIS || 
+                           effect == MC_ARKANOID || effect == MC_FLAPPY || effect == MC_RUNNER || effect == MC_CLOCK || effect == MC_POPCORN || 
+                           effect == MC_DNA || effect == MC_BALLS_BOUNCE || effect == MC_SPIRO || effect == MC_SMOKEBALLS || effect == MC_NEXUS || 
+                           effect == MC_SINUSOID3 || effect == MC_RINGS || effect == MC_CUBE2D || effect == MC_ATTRACT || effect == MC_FAIRY || 
+                           effect == MC_DROPS || effect == MC_OSCILLATING || effect == MC_LLAND || effect == MC_SAND || effect == MC_WAVES || 
+                           effect == MC_METABALLS || effect == MC_PICASSO || effect == MC_LUMENJER || effect == MC_SPHERES || effect == MC_POOL || 
+                           effect == MC_SMOKE || effect == MC_PULSE || effect == MC_WATERFALL || effect == MC_WHIRL || effect == MC_COMET || 
+                           effect == MC_RAINBOWSNAKE || effect == MC_PLASMALAMP || effect == MC_FOUNTAIN || effect == MC_AURORA || effect == MC_CLOCKS || 
+                           effect == MC_FIREWORKS || effect == MC_TRACKS || effect == MC_PAINT || effect == MC_CANDLE || effect == MC_RUBICK || 
+                           effect == MC_FRIZZLE || effect == MC_LOTUS || effect == MC_TREE || effect == MC_WEBTOOLS || effect == MC_CONTACTS 
+                           #if (USE_SD == 1)
+                             || effect == MC_SDCARD
+                           #endif
          ? "X" 
          : String(getEffectContrast(effect)));
   }
@@ -4122,9 +4215,7 @@ String getParamForMode(uint8_t mode) {
    case MC_WEATHER:
    case MC_LIFE:
    case MC_FIRE2:
-   case MC_POPCORN:
    case MC_DNA:
-   case MC_BALLS_BOUNCE:
    case MC_SPIRO:
    case MC_SMOKEBALLS:
    case MC_SINUSOID3:
@@ -4149,9 +4240,21 @@ String getParamForMode(uint8_t mode) {
    case MC_COMET:
    case MC_RAINBOWSNAKE:
    case MC_PLASMALAMP:
+   case MC_FOUNTAIN:
+   case MC_AURORA:
+   case MC_CLOCKS:
+   case MC_FIREWORKS:
+   case MC_TRACKS:
+   case MC_PAINT:
+   case MC_CANDLE:
+   case MC_FRIZZLE:
+   case MC_LOTUS:
+   case MC_TREE:
+   case MC_WEBTOOLS:
+   case MC_CONTACTS:
    case MC_SDCARD:
    #ifdef MC_IMAGE     
-   case MC_IMAGE:
+     case MC_IMAGE:
    #endif
      str = "X";
      break;
@@ -4178,6 +4281,7 @@ String getParam2ForMode(uint8_t mode) {
      //           Маркер типа - список выбора         0-4                     0               1                   2                     3                   4
      str = String(F("L>")) + String(effectScaleParam2[thisMode]) + String(F(">Случайный выбор,Вертикальная радуга,Горизонтальная радуга,Диагональная радуга,Вращающаяся радуга"));
      break;
+
    case MC_BALLS_BOUNCE:
      // Эффект "Прыжки" имеет несколько вариантов - список выбора варианта отображения
      // Дополнительный параметр представлен в приложении списком выбора
@@ -4193,26 +4297,32 @@ String getParam2ForMode(uint8_t mode) {
    case MC_SINUSOID3:
      // Эффект "Синусоид" имеет несколько вариантов - список выбора варианта отображения
      // Дополнительный параметр представлен в приложении списком выбора
-     //           Маркер типа - список выбора         0-7                     0               1         2          3          4          5          6          7   
-     str = String(F("L>")) + String(effectScaleParam2[thisMode]) + String(F(">Случайный выбор,Вариант 1,Вариант 2, Вариант 3, Вариант 4, Вариант 5, Вариант 6, Вариант 7"));
+     //           Маркер типа - список выбора         0-8                     0               1         2          3          4          5          6          7          8
+     str = String(F("L>")) + String(effectScaleParam2[thisMode]) + String(F(">Случайный выбор,Вариант 1,Вариант 2, Вариант 3, Вариант 4, Вариант 5, Вариант 6, Вариант 7, Вариант 8"));
      break;
    case MC_WAVES:
      // Эффект "Волны" имеет несколько вариантов - список выбора варианта отображения
      // Дополнительный параметр представлен в приложении списком выбора
-     //           Маркер типа - список выбора         0-4                     0               1         2          3          4               
-     str = String(F("L>")) + String(effectScaleParam2[thisMode]) + String(F(">Случайный выбор,Вариант 1,Вариант 2, Вариант 3, Вариант 4,Вариант 5"));
+     //           Маркер типа - список выбора         0-4                     0               1         2          3          4                 
+     str = String(F("L>")) + String(effectScaleParam2[thisMode]) + String(F(">Случайный выбор,Вариант 1,Вариант 2, Вариант 3, Вариант 4"));
+     break;
+     case MC_PICASSO:
+     // Эффект "Пикассо" имеет несколько вариантов - список выбора варианта отображения
+     // Дополнительный параметр представлен в приложении списком выбора
+     //           Маркер типа - список выбора         0-4                     0               1         2          3                       
+     str = String(F("L>")) + String(effectScaleParam2[thisMode]) + String(F(">Случайный выбор,Вариант 1,Вариант 2, Вариант 3"));
      break;
    case MC_SMOKE:
      // Эффект "Дым" имеет несколько вариантов - список выбора варианта отображения
      // Дополнительный параметр представлен в приложении списком выбора
-     //           Маркер типа - список выбора         0-2                     0               1   2      
-     str = String(F("L>")) + String(effectScaleParam2[thisMode]) + String(F(">Случайный выбор,Дым,Разноцветный дым"));
+     //           Маркер типа - список выбора         0-2                     0               1                2      
+     str = String(F("L>")) + String(effectScaleParam2[thisMode]) + String(F(">Случайный выбор,Разноцветный дым,Дым"));
      break;
    case MC_PULSE:
      // Эффект "Пульс" имеет несколько вариантов - список выбора варианта отображения
      // Дополнительный параметр представлен в приложении списком выбора
-     //           Маркер типа - список выбора         0-3                     0               1     2              3
-     str = String(F("L>")) + String(effectScaleParam2[thisMode]) + String(F(">Случайный выбор,Пульс,Радужный пульс,Белый пульс"));
+     //           Маркер типа - список выбора         0-8                     0               1         2         3         4         5         6         7         8
+     str = String(F("L>")) + String(effectScaleParam2[thisMode]) + String(F(">Случайный выбор,Вариант 1,Вариант 2,Вариант 3,Вариант 4,Вариант 5,Вариант 6,Вариант 7,Вариант 8"));
      break; 
    case MC_WATERFALL:
      // Эффект "Водопад" имеет несколько вариантов - список выбора варианта отображения
@@ -4229,22 +4339,59 @@ String getParam2ForMode(uint8_t mode) {
    case MC_COMET:
      // Эффект "Кометы" имеет несколько вариантов - список выбора варианта отображения
      // Дополнительный параметр представлен в приложении списком выбора
-     //           Маркер типа - список выбора         0-4                     0               1       2                 3          4     
-     str = String(F("L>")) + String(effectScaleParam2[thisMode]) + String(F(">Случайный выбор,Комета,Одноцветная комета,Две кометы,Три кометы"));
-     break;    
+     //           Маркер типа - список выбора         0-5                     0               1       2                 3          4          5
+     str = String(F("L>")) + String(effectScaleParam2[thisMode]) + String(F(">Случайный выбор,Комета,Одноцветная комета,Две кометы,Три кометы,Разноцветные кометы"));
+     break;  
    case MC_ARROWS:
      // Эффект "Стрелки" имеет несколько вариантов - список выбора варианта отображения
      // Дополнительный параметр представлен в приложении списком выбора
-     //           Маркер типа - список выбора         0-4                     0               1       2       3       4          5
+     //           Маркер типа - список выбора         0-5               0               1       2       3       4          5
      str = String(F("L>")) + String(effectScaleParam2[thisMode]) + String(F(">Случайный выбор,1-центр,2-центр,4-центр,2-смещение,4-смещение"));
      break;
    case MC_PATTERNS:
      // Эффект "Узоры" имеет несколько вариантов - список выбора варианта отображения
      // Дополнительный параметр представлен в приложении списком выбора
-     //           Маркер типа - список выбора         0-32                    0               1      2    3    4      5    6      7       8      9      10    11    12       13       14       15         16     17    18    19     20     21     22     23     24     25     26     27     28      29      30      31      32
-     str = String(F("L>")) + String(effectScaleParam2[thisMode]) + String(F(">Случайный выбор,Зигзаг,Ноты,Ромб,Сердце,Елка,Клетка,Смайлик,Зигзаг,Полосы,Волны,Чешуя,Портьера,Плетенка,Снежинка,Квадратики,Греция,Круги,Рулет,Узор 1,Узор 2,Узор 3,Узор 4,Узор 5,Узор 6,Узор 7,Узор 8,Узор 9,Узор 10,Узор 11,Узор 12,Узор 13,Узор 14"));
+     //           Маркер типа - список выбора         0-33                    0               1      2    3    4      5    6      7       8      9      10    11    12       13       14       15         16     17    18    19                20     21     22     23     24     25     26     27     28     29      30      31      32      33
+     str = String(F("L>")) + String(effectScaleParam2[thisMode]) + String(F(">Случайный выбор,Зигзаг,Ноты,Ромб,Сердце,Елка,Клетка,Смайлик,Зигзаг,Полосы,Волны,Чешуя,Портьера,Плетенка,Снежинка,Квадратики,Греция,Круги,Рулет,Гвардейская лента,Узор 1,Узор 2,Узор 3,Узор 4,Узор 5,Узор 6,Узор 7,Узор 8,Узор 9,Узор 10,Узор 11,Узор 12,Узор 13,Узор 14"));
      break;
-   
+   case MC_NEXUS:
+     // Эффект "Nexus" имеет несколько вариантов - список выбора варианта отображения
+     // Дополнительный параметр представлен в приложении списком выбора
+     //           Маркер типа - список выбора         0-2                     0               1       2    
+     str = String(F("L>")) + String(effectScaleParam2[thisMode]) + String(F(">Случайный выбор,Полоски,Змейки"));
+     break;   
+   case MC_CLOCKS:
+     // Эффект "Часы с циферблатом" имеет несколько вариантов - список выбора варианта отображения
+     // Дополнительный параметр представлен в приложении списком выбора
+     //           Маркер типа - список выбора         0-2                     0               1                        2    
+     str = String(F("L>")) + String(effectScaleParam2[thisMode]) + String(F(">Случайный выбор,Часы с циферблатом белые,Часы с циферблатом цветные"));
+     break;
+   case MC_FIREWORKS:
+     // Эффект "Салют" имеет несколько вариантов - список выбора варианта отображения
+     // Дополнительный параметр представлен в приложении списком выбора
+     //           Маркер типа - список выбора         0-2                     0               1         2    
+     str = String(F("L>")) + String(effectScaleParam2[thisMode]) + String(F(">Случайный выбор,Вариант 1,Вариант 2"));
+     break;  
+   case MC_STARS:
+     //           Маркер типа - список выбора         0-4                     0               1         2        3        4
+     str = String(F("L>")) + String(effectScaleParam2[thisMode]) + String(F(">Случайный выбор,Без лучей,Лучи '+',Лучи 'X',Лучи '+' и 'X'"));
+     break;
+   case MC_STARS2:
+     // Дополнительный параметр представлен в приложении списком выбора
+     //           Маркер типа - список выбора         0-3                     0         1         2         3
+     str = String(F("L>")) + String(effectScaleParam2[thisMode]) + String(F(">Вариант 1,Вариант 2,Вариант 3,Вариант 4"));
+     break;
+   case MC_PAINT:
+     // Эффект "Краски" имеет несколько вариантов - список выбора варианта отображения
+     // Дополнительный параметр представлен в приложении списком выбора
+     //           Маркер типа - список выбора         0-3                   0                 1         2          3 
+     str = String(F("L>")) + String(effectScaleParam2[thisMode]) + String(F(">Случайный выбор,Вариант 1,Вариант 2, Вариант 3"));
+     break;  
+   case MC_NOISE_EFFECTS:
+     // Дополнительный параметр представлен в приложении списком выбора
+     //           Маркер типа - список выбора         0-9                     0               1           2      3    4      5                 6      7     8           9
+     str = String(F("L>")) + String(effectScaleParam2[thisMode]) + String(F(">Случайный выбор,Цветной шум,Облака,Лава,Плазма,Радужные переливы,Павлин,Зебра,Шумящий лес,Морской прибой"));
+     break;
    #if (USE_SD == 1)     
    case MC_SDCARD:
      // Эффект "SD-card" имеет несколько вариантов - список выбора файла эффекта
@@ -4302,7 +4449,7 @@ void sendAcknowledge(eSources src) {
 }
 
 void setSpecialMode(int8_t spc_mode) {
-        
+       
   loadingFlag = true;
   set_isTurnedOff(false);   // setter
   set_isNightClock(false);  // setter

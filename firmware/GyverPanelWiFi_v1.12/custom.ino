@@ -393,15 +393,7 @@ void processEffect(uint8_t aMode) {
     }
   #endif 
   switch (aMode) {
-    case MC_NOISE_MADNESS:       madnessNoise(); break;
-    case MC_NOISE_CLOUD:         cloudNoise(); break;
-    case MC_NOISE_LAVA:          lavaNoise(); break;
-    case MC_NOISE_PLASMA:        plasmaNoise(); break;
-    case MC_NOISE_RAINBOW:       rainbowNoise(); break;
-    case MC_NOISE_RAINBOW_STRIP: rainbowStripeNoise(); break;
-    case MC_NOISE_ZEBRA:         zebraNoise(); break;
-    case MC_NOISE_FOREST:        forestNoise(); break;
-    case MC_NOISE_OCEAN:         oceanNoise(); break;
+    case MC_NOISE_EFFECTS:       noiseEffectsRoutine(); break;
     case MC_PAINTBALL:           lightBallsRoutine(); break;
     case MC_SNOW:                snowRoutine(); break;
     case MC_SPARKLES:            sparklesRoutine(); break;
@@ -467,7 +459,23 @@ void processEffect(uint8_t aMode) {
     case MC_COMET:               comet(); break; 
     case MC_RAINBOWSNAKE:        MultipleStream8(); break; 
     case MC_PLASMALAMP:          spiderRoutine(); break; 
-    #ifdef MC_IMAGE 
+    case MC_FOUNTAIN:            fountainsRoutine(); break; 
+    case MC_AURORA:              auroraRoutine(); break; 
+    case MC_CLOCKS:              clocks(); break;
+    case MC_FIREWORKS:           salute(); break;
+    case MC_TRACKS:              Swirl(); break;         
+    case MC_PAINT:               paint(); break; 
+    case MC_CANDLE:              FeatherCandleRoutine(); break; 
+    case MC_RUBICK:              rubikRoutine(); break; 
+    case MC_FRIZZLE:             ColorFrizzles(); break; 
+    case MC_LOTUS:               LotusFlower(); break; 
+    case MC_TREE:                ChristmasTree(); break; 
+    case MC_WEBTOOLS:            WebTools(); break; 
+    case MC_CONTACTS:            Contacts(); break;
+    case MC_STARS:               starsRoutine(); break;
+    case MC_STARS2:              stars2Routine(); break;
+    
+    #ifdef MC_IMAGE
     case MC_IMAGE:               animationRoutine(); break;
     #endif  
 
@@ -508,15 +516,7 @@ void releaseEffectResources(uint8_t aMode) {
   #endif
   
   switch (aMode) {
-    case MC_NOISE_MADNESS:       releaseNoise(); break;
-    case MC_NOISE_CLOUD:         releaseNoise(); break;
-    case MC_NOISE_LAVA:          releaseNoise(); break;
-    case MC_NOISE_PLASMA:        releaseNoise(); break;
-    case MC_NOISE_RAINBOW:       releaseNoise(); break;
-    case MC_NOISE_RAINBOW_STRIP: releaseNoise(); break;
-    case MC_NOISE_ZEBRA:         releaseNoise(); break;
-    case MC_NOISE_FOREST:        releaseNoise(); break;
-    case MC_NOISE_OCEAN:         releaseNoise(); break;
+    case MC_NOISE_EFFECTS:       releaseNoise(); break;
     case MC_PAINTBALL:           break;
     case MC_SNOW:                break;
     case MC_SPARKLES:            break;
@@ -532,7 +532,7 @@ void releaseEffectResources(uint8_t aMode) {
     case MC_FIRE:                fireRoutineRelease(); break;
     case MC_FILL_COLOR:          break;
     case MC_COLORS:              break;
-    case MC_LIGHTERS:            break;
+    case MC_LIGHTERS:            lighters2RoutineRelease(); break;
     case MC_SWIRL:               break;
     case MC_MAZE:                mazeRoutineRelease(); break;
     case MC_SNAKE:               break;
@@ -582,6 +582,22 @@ void releaseEffectResources(uint8_t aMode) {
     case MC_COMET:               break; 
     case MC_RAINBOWSNAKE:        break; 
     case MC_PLASMALAMP:          break; 
+    case MC_FOUNTAIN:            break; 
+    case MC_AURORA:              break; 
+    case MC_CLOCKS:              break;
+    case MC_FIREWORKS:           break;
+    case MC_TRACKS:              break;         
+    case MC_PAINT:               break;
+    case MC_CANDLE:              break; 
+    case MC_RUBICK:              rubikRoutineRelease(); break; 
+    case MC_FRIZZLE:             break; 
+    case MC_LOTUS:               break; 
+    case MC_TREE:                break; 
+    case MC_WEBTOOLS:            break; 
+    case MC_CONTACTS:            break; 
+    case MC_STARS:               break;
+    case MC_STARS2:              stars2RoutineRelease(); break;
+    
     #ifdef MC_IMAGE
     case MC_IMAGE:               break;
     #endif  
@@ -761,8 +777,8 @@ void setTimersForMode(uint8_t aMode) {
     if (efSpeed == 0) efSpeed = 1;
     // Эти режимы смотрятся (работают) только на максимальной скорости;
     if (aMode == MC_PAINTBALL || aMode == MC_SWIRL || aMode == MC_FLICKER || aMode == MC_PACIFICA || aMode == MC_LIFE ||
-        aMode == MC_SHADOWS || aMode == MC_PRIZMATA || aMode == MC_FIRE2 || aMode == MC_WEATHER || aMode == MC_ARKANOID ||
-        aMode == MC_TETRIS || aMode == MC_FLAPPY || aMode == MC_RUNNER || aMode == MC_PATTERNS
+        aMode == MC_SHADOWS || aMode == MC_PRIZMATA || aMode == MC_WEATHER || aMode == MC_ARKANOID ||
+        aMode == MC_TETRIS || aMode == MC_FLAPPY || aMode == MC_RUNNER || aMode == MC_PATTERNS || aMode == MC_STARS || aMode == MC_STARS2
         #ifdef MC_IMAGE
          || aMode == MC_IMAGE
         #endif  
@@ -771,6 +787,9 @@ void setTimersForMode(uint8_t aMode) {
          uint8_t variant = map8(getEffectScaleParamValue(MC_PATTERNS),0,4);
          if (variant == 0) effectTimer.setInterval(50);
          else effectTimer.setInterval(efSpeed);
+      } else
+      if (aMode == MC_STARS2) {
+        effectTimer.setInterval(map8(efSpeed,1,50));
       } else
       if (aMode == MC_TETRIS) {
         effectTimer.setInterval(50);
@@ -875,6 +894,45 @@ void setTimersForMode(uint8_t aMode) {
       if (aMode == MC_PLASMALAMP) {
         effectTimer.setInterval(efSpeed);
       } else  
+      if (aMode == MC_FOUNTAIN) {
+        effectTimer.setInterval(efSpeed);
+      } else  
+      if (aMode == MC_AURORA) {
+        effectTimer.setInterval(efSpeed);
+      } else 
+      if (aMode == MC_CLOCKS) {
+        effectTimer.setInterval(efSpeed);
+      } else 
+      if (aMode == MC_FIREWORKS) {
+        effectTimer.setInterval(efSpeed);
+      } else 
+      if (aMode == MC_TRACKS) {
+        effectTimer.setInterval(efSpeed);
+      } else 
+      if (aMode == MC_PAINT) {
+        effectTimer.setInterval(efSpeed);
+      } else 
+      if (aMode == MC_FIRE2) {
+        effectTimer.setInterval(efSpeed);
+      } else 
+      if (aMode == MC_RUBICK) {
+        effectTimer.setInterval(efSpeed);
+      } else
+      if (aMode == MC_FRIZZLE) {
+        effectTimer.setInterval(efSpeed);
+      } else
+      if (aMode == MC_LOTUS) {
+        effectTimer.setInterval(efSpeed);
+      } else 
+      if (aMode == MC_TREE) {
+        effectTimer.setInterval(efSpeed);
+      } else 
+      if (aMode == MC_WEBTOOLS) {
+        effectTimer.setInterval(efSpeed);
+      } else 
+      if (aMode == MC_CONTACTS) {
+        effectTimer.setInterval(efSpeed);
+      } else 
       {
         effectTimer.setInterval(10);
       }
@@ -898,7 +956,6 @@ void setTimersForMode(uint8_t aMode) {
   } else {
     clockTimer.setInterval(clockScrollSpeed);
   }
-
   if (!e131_wait_command) {
     set_textScrollSpeed(getTextScrollSpeed());
     if (textScrollSpeed < D_TEXT_SPEED_MIN) set_textScrollSpeed(D_TEXT_SPEED_MIN); // Если textScrollSpeed == 0 - бегущая строка начинает дергаться.

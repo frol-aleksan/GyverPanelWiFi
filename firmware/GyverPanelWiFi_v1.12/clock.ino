@@ -955,15 +955,10 @@ void setOverlayColors() {
   if (COLOR_MODE == 0 && !(thisMode == MC_CLOCK || thisMode == MC_TEXT || thisMode == MC_FILL_COLOR || thisMode == MC_COLORS)) {
     switch (thisMode) {
       case MC_SNOW:
-      case MC_NOISE_ZEBRA: 
-      case MC_NOISE_MADNESS:
-      case MC_NOISE_CLOUD:
-      case MC_NOISE_FOREST:
-      case MC_NOISE_OCEAN: 
+      case MC_NOISE_EFFECTS:
       case MC_RAIN:      
         contrastClockA(); // оранжевые
         break;
-      case MC_NOISE_LAVA:
         contrastClockB(); // зеленые
         break;
       case MC_DAWN_ALARM:
