@@ -216,8 +216,10 @@
 
 Варианты схем с различным набором компонент, для микроконтроллеров **ESP8266** - NodeMCU, Wemos d1 mini, **ESP32** представлены [здесь](https://github.com/vvip-68/GyverPanelWiFi/wiki/%D0%92%D0%B0%D1%80%D0%B8%D0%B0%D0%BD%D1%82%D1%8B-%D1%83%D1%81%D1%82%D1%80%D0%BE%D0%B9%D1%81%D1%82%D0%B2.-%D0%A1%D1%85%D0%B5%D0%BC%D1%8B.).
 
-![SCHEME](https://github.com/vvip-68/GyverPanelWiFi/blob/master/schemes/schemes.png)
+![SCHEME](https://github.com/frol-aleksan/GyverPanelWiFi/blob/master/schemes/matrix%20scheme.jpg)
 
+Схема сборно-разборной матрицы на разъемах
+![SCHEME](https://github.com/vvip-68/GyverPanelWiFi/blob/master/schemes/schemes.png)
 Вариант релизации от [Дмитрия (7918514)](https://github.com/7918514) - схемы, фотографии сборки и готового изделия, печатные платы - все материалы доступны по [ссылке](https://disk.yandex.ru/d/fIo2UEuKpR54hg) в папке "Монстр".
 
 <a id="chapter-3"></a>
