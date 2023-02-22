@@ -8582,3 +8582,472 @@ void stars2RoutineRelease() {
   if (starState == NULL) { delete [] starState; starState = NULL; }
   if (starBright == NULL) { delete [] starBright; starBright = NULL; }  
 }
+
+// ============= Hourglass ==============
+//             © SlingMaster
+//             EFF_HOURGLASS
+//             Песочные часы
+//---------------------------------------
+
+void Hourglass() {
+  const float SIZE = 0.4;
+  const uint8_t h = floor(SIZE * pHEIGHT);
+  uint8_t posX = 0;
+  const uint8_t topPos  = pHEIGHT - h;
+  const uint8_t route = pHEIGHT - h - 1;
+  const uint8_t STEP = 18U;
+  if (loadingFlag) {
+    loadingFlag = false;
+    pcnt = 0;
+    deltaHue2 = 0;
+    hue2 = 0;
+    FastLED.clear();
+    hue = modes[currentMode].Scale * 2.55;
+    for (uint8_t x = 0U; x < ((pWIDTH / 2)); x++) {
+      for (uint8_t y = 0U; y < h; y++) {
+        drawPixelXY(round(pWIDTH/2) - x, pHEIGHT - y - 1, CHSV(hue, 255, 255 - x * STEP));
+        drawPixelXY(round(pWIDTH/2) + x, pHEIGHT - y - 1, CHSV(hue, 255, 255 - x * STEP));
+      }
+    }
+  }
+  if (hue2 == 0) {
+    posX = floor(pcnt / 2);
+    uint8_t posY = pHEIGHT - h - pcnt;
+    if ((posY < (pHEIGHT - h - 2)) && (posY > deltaHue2)) {
+      drawPixelXY(round(pWIDTH/2), posY, CHSV(hue, 255, 255));
+      drawPixelXY(round(pWIDTH/2), posY - 2, CHSV(hue, 255, 255));
+      drawPixelXY(round(pWIDTH/2), posY - 4, CHSV(hue, 255, 255));
+      if (posY < (pHEIGHT - h - 3)) {
+        drawPixelXY(round(pWIDTH/2), posY + 1, CHSV(hue, 255, 0 ));
+      }
+    }
+    // draw body hourglass 
+    if (pcnt % 2 == 0) {
+      drawPixelXY(round(pWIDTH/2) - posX, pHEIGHT - deltaHue2 - 1, CHSV(hue, 255, 0));
+      drawPixelXY(round(pWIDTH/2) - posX, deltaHue2, CHSV(hue, 255, 255 - posX * STEP));
+    } else {
+      drawPixelXY(round(pWIDTH/2) + posX, pHEIGHT - deltaHue2 - 1, CHSV(hue, 255, 0));
+      drawPixelXY(round(pWIDTH/2) + posX, deltaHue2, CHSV(hue, 255, 255 - posX * STEP));
+    }
+    if (pcnt > pWIDTH - 1) {
+      deltaHue2++;
+      pcnt = 0;
+      if (modes[currentMode].Scale > 95) {
+        hue += 4U;
+      }
+    }
+    pcnt++;
+    if (deltaHue2 > h) {
+      deltaHue2 = 0;
+      hue2 = 1;
+    }
+  }
+  // имитация переворота песочных часов
+  if (hue2 > 0) {
+    for (uint8_t x = 0U; x < pWIDTH; x++) {
+      for (uint8_t y = pHEIGHT; y > 0U; y--) {
+        drawPixelXY(x, y, getPixColorXY(x, y - 1U));
+        drawPixelXY(x, y - 1, 0x000000);
+      }
+    }
+    hue2++;
+    hue++;
+    if (hue2 > route) {
+      hue2 = 0;
+    }
+  }
+}
+  
+// ============== ByEffect ==============
+//             © SlingMaster
+//             EFF_BY_EFFECT
+//            Побочный Эффект
+// --------------------------------------
+void ByEffect() {
+  uint8_t saturation;
+  uint8_t delta;
+  if (loadingFlag) {
+    loadingFlag = false;
+    deltaValue = 0;
+    step = deltaValue;
+    FastLED.clear();
+  }
+  hue = floor(step / 32) * 32U;
+  dimAll(180);
+  // ------
+  saturation = 255U;
+  delta = 0;
+  for (uint8_t x = 0U; x < pWIDTH + 1 ; x++) {
+    if (x % 8 == 0) {
+      gradientVertical( x - deltaValue, floor(pHEIGHT * 0.75), x + 1U - deltaValue, pHEIGHT,  hue, hue + 2, 250U, 0U, 255U);
+      if (modes[currentMode].Scale > 50) {
+        delta = random8(200U);
+      }
+      drawPixelXY(x - 2 - deltaValue, floor(pHEIGHT * 0.7), CHSV(step, saturation - delta, 128 + random8(128)));
+      drawPixelXY(x + 2 - deltaValue, floor(pHEIGHT * 0.7), CHSV(step, saturation, 128 + random8(128)));
+      drawPixelXY(x - deltaValue, floor(pHEIGHT * 0.6), CHSV(hue, 255U, 190 + random8(65)));
+      if (modes[currentMode].Scale > 50) {
+        delta = random8(200U);
+      }
+      drawPixelXY(x - 1 - deltaValue, CENTER_Y_MINOR, CHSV(step, saturation, 128 + random8(128)));
+      drawPixelXY(x + 1 - deltaValue, CENTER_Y_MINOR, CHSV(step, saturation - delta, 128 + random8(128)));
+      drawPixelXY(x - deltaValue, floor(pHEIGHT * 0.4), CHSV(hue, 255U, 200U));
+      if (modes[currentMode].Scale > 50) {
+        delta = random8(200U);
+      }
+      drawPixelXY(x - 2 - deltaValue, floor(pHEIGHT * 0.3), CHSV(step, saturation - delta, 96 + random8(128)));
+      drawPixelXY(x + 2 - deltaValue, floor(pHEIGHT * 0.3), CHSV(step, saturation, 96 + random8(128)));
+      gradientVertical( x - deltaValue, 0U, x + 1U - deltaValue, floor(pHEIGHT * 0.25),  hue + 2, hue, 0U, 250U, 255U);
+      if (modes[currentMode].Scale > 50) {
+        drawPixelXY(x + 3 - deltaValue, pHEIGHT - 3U, CHSV(step, 255U, 255U));
+        drawPixelXY(x - 3 - deltaValue, CENTER_Y_MINOR, CHSV(step, 255U, 255U));
+        drawPixelXY(x + 3 - deltaValue, 2U, CHSV(step, 255U, 255U));
+      }
+    }
+  }
+  // ------
+  deltaValue++;
+  if (deltaValue >= 8) {
+    deltaValue = 0;
+  }
+  step++;
+}
+
+// =====================================
+//                Stars
+//     © SottNick and  © Stepko
+//      Adaptation © SlingMaster
+//                Звезды
+// =====================================
+void drawStar(float xlocl, float ylocl, float biggy, float little, int16_t points, float dangle, uint8_t koler) { // random multipoint star
+  float radius2 = 255.0 / points;
+  for (int i = 0; i < points; i++) {
+    DrawLine(xlocl + ((little * (sin8(i * radius2 + radius2 / 2 - dangle) - 128.0)) / 128), ylocl + ((little * (cos8(i * radius2 + radius2 / 2 - dangle) - 128.0)) / 128), xlocl + ((biggy * (sin8(i * radius2 - dangle) - 128.0)) / 128), ylocl + ((biggy * (cos8(i * radius2 - dangle) - 128.0)) / 128), ColorFromPalette(*curPalette, koler));
+    DrawLine(xlocl + ((little * (sin8(i * radius2 - radius2 / 2 - dangle) - 128.0)) / 128), ylocl + ((little * (cos8(i * radius2 - radius2 / 2 - dangle) - 128.0)) / 128), xlocl + ((biggy * (sin8(i * radius2 - dangle) - 128.0)) / 128), ylocl + ((biggy * (cos8(i * radius2 - dangle) - 128.0)) / 128), ColorFromPalette(*curPalette, koler));
+  }
+}
+
+// --------------------------------------
+void EffectStars() {
+#define STARS_NUM (8U)
+#define STAR_BLENDER (255U)
+#define CENTER_DRIFT_SPEED (6U)
+  static uint8_t spd;
+  static uint8_t points[STARS_NUM];
+  static float color[STARS_NUM] ;
+  static int delay_arr[STARS_NUM];
+  static float counter;
+  static float driftx;
+  static float  drifty;
+  static float cangle;
+  static float  sangle;
+  static uint8_t stars_count;
+  static uint8_t blur;
+  uint8_t anglecount;
+  if (loadingFlag) {
+    loadingFlag = false;
+    anglecount = map8(getEffectScaleParamValue(MC_EFFECTSTARS),3,9);   //количество углов у звезды, которое можно задавать от 3 до 9 через ползунок варианта. 9 - рандом от 3 до 8
+    counter = 0.0;
+    // стартуем с центра
+    driftx = (float)pWIDTH / 2.0;
+    drifty = (float)pHEIGHT / 2.0;
+    cangle = (float)(sin8(random8(25, 220)) - 128.0f) / 128.0f; //angle of movement for the center of animation gives a float value between -1 and 1
+    sangle = (float)(sin8(random8(25, 220)) - 128.0f) / 128.0f; //angle of moveme for the center of animation in the y direction gives a float value between -1 and 1
+    spd = modes[currentMode].Speed;
+    blur = modes[currentMode].Scale / 2;
+    stars_count = pWIDTH / 2U;
+    if (stars_count > STARS_NUM) stars_count = STARS_NUM;
+    for (uint8_t num = 0; num < stars_count; num++) {                         
+      if (anglecount == 9)                  // количество углов в звезде
+          points[num] = random8(3, 8); 
+      else 
+          points[num] = anglecount;
+      delay_arr[num] = spd / 5 + (num << 2) + 2U;               // задержка следующего пуска звезды
+      color[num] = random8();
+    }
+  }
+  fadeToBlackBy(leds, NUM_LEDS, 165);
+  float speedFactor = ((float)spd / 380.0 + 0.05);
+  counter += speedFactor;                                                   // определяет то, с какой скоростью будет приближаться звезда
+  if (driftx > (pWIDTH - spirocenterX / 2U)) cangle = 0 - fabs(cangle);      //change directin of drift if you get near the right 1/4 of the screen
+  if (driftx < spirocenterX / 2U) cangle = fabs(cangle);                    //change directin of drift if you get near the right 1/4 of the screen
+  if ((uint16_t)counter % CENTER_DRIFT_SPEED == 0) driftx = driftx + (cangle * speedFactor); //move the x center every so often
+  if (drifty > ( pHEIGHT - spirocenterY / 2U)) sangle = 0 - fabs(sangle);    // if y gets too big, reverse
+  if (drifty < spirocenterY / 2U) sangle = fabs(sangle);                    // if y gets too small reverse
+  if ((uint16_t)counter % CENTER_DRIFT_SPEED == 0) drifty = drifty + (sangle * speedFactor); //move the y center every so often
+  for (uint8_t num = 0; num < stars_count; num++) {
+    if (counter >= delay_arr[num]) {              //(counter >= ringdelay)
+      if (counter - delay_arr[num] <= pWIDTH + 5) {
+        drawStar(driftx, drifty, 2 * (counter - delay_arr[num]), (counter - delay_arr[num]), points[num], STAR_BLENDER + color[num], color[num]);
+        color[num] += speedFactor;                // в зависимости от знака - направление вращения
+      } else {
+        delay_arr[num] = counter + (stars_count << 1) + 1U; // задержка следующего пуска звезды
+      }
+    }
+  }
+  blur2d(leds, pWIDTH, pHEIGHT, blur);
+}
+
+// ----------------------------- Жидкая лампа ---------------------
+// ----------- Эффект "Лавовая лампа" (c) obliterator
+// https://github.com/DmytroKorniienko/FireLamp_JeeUI/commit/9bad25adc2c917fbf3dfa97f4c498769aaf76ebe
+// с генератором палитр by SottNick
+
+float mapcurve(const float x, const float in_min, const float in_max, const float out_min, const float out_max, float (*curve)(float, float, float, float)) {
+  if (x <= in_min) return out_min;
+  if (x >= in_max) return out_max;
+  return curve((x - in_min), out_min, (out_max - out_min), (in_max - in_min));
+}
+float InQuad(float t, float b, float c, float d) {
+  t /= d;
+  return c * t * t + b;
+}
+float OutQuart(float t, float b, float c, float d) {
+  t = t / d - 1;
+  return -c * (t * t * t * t - 1) + b;
+}
+float InOutQuad(float t, float b, float c, float d) {
+  t /= d / 2;
+  if (t < 1) return c / 2 * t * t + b;
+  --t;
+  return -c / 2 * (t * (t - 2) - 1) + b;
+}
+
+unsigned MASS_MIN = 10;
+unsigned MASS_MAX = 50;
+
+void LiquidLampPosition() {
+  //bool physic_on = modes[currentMode].Speed & 0x01;
+  for (uint8_t i = 0; i < enlargedObjectNUM; i++) {
+    liquidLampHot[i] += mapcurve(trackingObjectPosY[i], 0, pHEIGHT - 1, 5, -5, InOutQuad) * speedfactor;
+
+    float heat = (liquidLampHot[i] / trackingObjectState[i]) - 1;
+    if (heat > 0 && trackingObjectPosY[i] < pHEIGHT - 1) {
+      trackingObjectSpeedY[i] += heat * liquidLampSpf[i];
+    }
+    if (trackingObjectPosY[i] > 0) {
+      trackingObjectSpeedY[i] -= 0.07;
+    }
+    if (trackingObjectSpeedY[i]) trackingObjectSpeedY[i] *= 0.85;
+    trackingObjectPosY[i] += trackingObjectSpeedY[i] * speedfactor;
+
+    //if (physic_on) {
+    if (trackingObjectSpeedX[i]) trackingObjectSpeedX[i] *= 0.7;
+    trackingObjectPosX[i] += trackingObjectSpeedX[i] * speedfactor;
+    //}
+    if (trackingObjectPosX[i] > pWIDTH - 1) trackingObjectPosX[i] -= pWIDTH - 1;
+    if (trackingObjectPosX[i] < 0) trackingObjectPosX[i] += pWIDTH - 1;
+    if (trackingObjectPosY[i] > pHEIGHT - 1) trackingObjectPosY[i] = pHEIGHT - 1;
+    if (trackingObjectPosY[i] < 0) trackingObjectPosY[i] = 0;
+  };
+}
+
+void LiquidLampPhysic() {
+  for (uint8_t i = 0; i < enlargedObjectNUM; i++) {
+    // отключаем физику на границах, чтобы не слипались шары
+    if (trackingObjectPosY[i] < 3 || trackingObjectPosY[i] > pHEIGHT - 1) continue;
+    for (uint8_t j = 0; j < enlargedObjectNUM; j++) {
+      if (trackingObjectPosY[j] < 3 || trackingObjectPosY[j] > pHEIGHT - 1) continue;
+      float radius = 3;//(trackingObjectShift[i] + trackingObjectShift[j]);
+      if (trackingObjectPosX[i] + radius > trackingObjectPosX[j]
+          && trackingObjectPosX[i] < radius + trackingObjectPosX[j]
+          && trackingObjectPosY[i] + radius > trackingObjectPosY[j]
+          && trackingObjectPosY[i] < radius + trackingObjectPosY[j]
+         ) {
+        float dx =  min((float)fabs(trackingObjectPosX[i] - trackingObjectPosX[j]), (float)pWIDTH + trackingObjectPosX[i] - trackingObjectPosX[j]); //по идее бесшовный икс
+        float dy =  fabs(trackingObjectPosY[i] - trackingObjectPosY[j]);
+        float dist = SQRT_VARIANT((dx * dx) + (dy * dy));
+
+        if (dist <= radius) {
+          float nx = (trackingObjectPosX[j] - trackingObjectPosX[i]) / dist;
+          float ny = (trackingObjectPosY[j] - trackingObjectPosY[i]) / dist;
+          float p = 2 * (trackingObjectSpeedX[i] * nx + trackingObjectSpeedY[i] * ny - trackingObjectSpeedX[j] * nx - trackingObjectSpeedY[j] * ny) / (trackingObjectState[i] + trackingObjectState[j]);
+          float pnx = p * nx, pny = p * ny;
+          trackingObjectSpeedX[i] = trackingObjectSpeedX[i] - pnx * trackingObjectState[i];
+          trackingObjectSpeedY[i] = trackingObjectSpeedY[i] - pny * trackingObjectState[i];
+          trackingObjectSpeedX[j] = trackingObjectSpeedX[j] + pnx * trackingObjectState[j];
+          trackingObjectSpeedY[j] = trackingObjectSpeedY[j] + pny * trackingObjectState[j];
+        }
+      }
+    }
+  }
+}
+
+// генератор палитр для Жидкой лампы (c) SottNick
+static const uint8_t MBVioletColors_arr[5][4] PROGMEM = // та же палитра, но в формате CHSV
+{
+  {0  , 0  , 255, 255}, //  0, 255,   0,   0, // red
+  {1  , 155, 209, 255}, //  1,  46, 124, 255, // сделал поярче цвет воды
+  {80 , 170, 255, 140}, // 80,   0,   0, 139, // DarkBlue
+  {150, 213, 255, 128}, //150, 128,   0, 128, // purple
+  {255, 0  , 255, 255}  //255, 255,   0,   0  // red again
+};
+
+void fillMyPal16(uint8_t hue, bool isInvert = false) {
+  int8_t lastSlotUsed = -1;
+  uint8_t istart8, iend8;
+  CRGB rgbstart, rgbend;
+  // начинаем с нуля
+  if (isInvert)
+    hsv2rgb_spectrum(CHSV(256 + hue - pgm_read_byte(&MBVioletColors_arr[0][1]), pgm_read_byte(&MBVioletColors_arr[0][2]), pgm_read_byte(&MBVioletColors_arr[0][3])), rgbstart);
+  else
+    hsv2rgb_spectrum(CHSV(hue + pgm_read_byte(&MBVioletColors_arr[0][1]), pgm_read_byte(&MBVioletColors_arr[0][2]), pgm_read_byte(&MBVioletColors_arr[0][3])), rgbstart);
+  int indexstart = 0; // начальный индекс палитры
+  for (uint8_t i = 1U; i < 5U; i++) { // в палитре @obliterator всего 5 строчек
+    int indexend = pgm_read_byte(&MBVioletColors_arr[i][0]);
+    if (isInvert)
+      hsv2rgb_spectrum(CHSV(256 + hue - pgm_read_byte(&MBVioletColors_arr[i][1]), pgm_read_byte(&MBVioletColors_arr[i][2]), pgm_read_byte(&MBVioletColors_arr[i][3])), rgbend);
+    else
+      hsv2rgb_spectrum(CHSV(hue + pgm_read_byte(&MBVioletColors_arr[i][1]), pgm_read_byte(&MBVioletColors_arr[i][2]), pgm_read_byte(&MBVioletColors_arr[i][3])), rgbend);
+    istart8 = indexstart / 16;
+    iend8   = indexend   / 16;
+    if ((istart8 <= lastSlotUsed) && (lastSlotUsed < 15)) {
+      istart8 = lastSlotUsed + 1;
+      if (iend8 < istart8)
+        iend8 = istart8;
+    }
+    lastSlotUsed = iend8;
+    fill_gradient_RGB( myPal, istart8, rgbstart, iend8, rgbend);
+    indexstart = indexend;
+    rgbstart = rgbend;
+  }
+}
+
+void LiquidLampRoutine(bool isColored) {
+  if (loadingFlag)
+  {
+/*#if defined(USE_RANDOM_SETS_IN_APP) || defined(RANDOM_SETTINGS_IN_CYCLE_MODE)
+    if (selectedSettings) {
+      //1-9,31-38,46-48,93-99
+      //1-17,28-38,44-48,89-99
+      uint8_t tmp = random8(28U);
+      if (tmp > 9U) tmp += 21U;
+      if (tmp > 38U) tmp += 7U;
+      if (tmp > 48U) tmp += 44U;
+      setModeSettings(isColored ? tmp : 27U + random8(54U), 30U + random8(170U));
+    }
+#endif //#if defined(USE_RANDOM_SETS_IN_APP) || defined(RANDOM_SETTINGS_IN_CYCLE_MODE)*/
+
+    loadingFlag = false;
+    speedfactor = modes[currentMode].Speed / 64.0 + 0.1; // 127 БЫЛО
+    if (isColored) {
+      fillMyPal16((modes[currentMode].Scale - 1U) * 2.55, !(modes[currentMode].Scale & 0x01));
+      enlargedObjectNUM = enlargedOBJECT_MAX_COUNT / 2U - 2U; //14U;
+    }
+    else {
+      enlargedObjectNUM = (modes[currentMode].Scale - 1U) / 99.0 * (enlargedOBJECT_MAX_COUNT - 1U) + 1U;
+      hue = random8();
+      deltaHue = random8(2U);
+      fillMyPal16(hue, deltaHue);
+    }
+    if (enlargedObjectNUM > enlargedOBJECT_MAX_COUNT) enlargedObjectNUM = enlargedOBJECT_MAX_COUNT;
+    else if (enlargedObjectNUM < 2U) enlargedObjectNUM = 2U;
+    double minSpeed = 0.2, maxSpeed = 0.8;
+    for (uint8_t i = 0 ; i < enlargedObjectNUM ; i++) {
+      trackingObjectPosX[i] = random8(pWIDTH);
+      trackingObjectPosY[i] = 0; //random8(pHEIGHT);
+      trackingObjectState[i] = random(MASS_MIN, MASS_MAX);
+      liquidLampSpf[i] = fmap(trackingObjectState[i], MASS_MIN, MASS_MAX, 0.0015, 0.0005);
+      trackingObjectShift[i] = fmap(trackingObjectState[i], MASS_MIN, MASS_MAX, 2, 3);
+      liquidLampMX[i] = map(trackingObjectState[i], MASS_MIN, MASS_MAX, 60, 80); // сила возмущения
+      liquidLampSC[i] = map(trackingObjectState[i], MASS_MIN, MASS_MAX, 6, 10); // радиус возмущения
+      liquidLampTR[i] = liquidLampSC[i]  * 2 / 3; // отсечка расчетов (оптимизация скорости)
+    }
+  }
+  LiquidLampPosition();
+  LiquidLampPhysic;
+  if (!isColored) {
+    hue2++;
+    if (hue2 % 0x10 == 0U) {
+      hue++;
+      fillMyPal16(hue, deltaHue);
+    }
+  }
+
+  for (uint8_t x = 0; x < pWIDTH; x++) {
+    for (uint8_t y = 0; y < pHEIGHT; y++) {
+      float sum = 0;
+      for (uint8_t i = 0; i < enlargedObjectNUM; i++) {
+        if (abs(x - trackingObjectPosX[i]) > liquidLampTR[i] || abs(y - trackingObjectPosY[i]) > liquidLampTR[i]) continue;
+        float dx =  min((float)fabs(trackingObjectPosX[i] - (float)x), (float)pWIDTH + trackingObjectPosX[i] - (float)x); //по идее бесшовный икс
+        float dy =  fabs(trackingObjectPosY[i] - (float)y);
+        float d = SQRT_VARIANT((dx * dx) + (dy * dy));
+        if (d < trackingObjectShift[i]) {
+          sum += mapcurve(d, 0, trackingObjectShift[i], 255, liquidLampMX[i], InQuad);
+        }
+        else if (d < liquidLampSC[i]) {
+          sum += mapcurve(d, trackingObjectShift[i], liquidLampSC[i], liquidLampMX[i], 0, OutQuart);
+        }
+        if (sum >= 255) {
+          sum = 255;
+          break;
+        }
+      }
+      if (sum < 16) sum = 16;// отрезаем смазанный кусок палитры из-за отсутствия параметра NOBLEND
+      CRGB color = ColorFromPalette(myPal, sum); // ,255, NOBLEND
+      drawPixelXY(x, y, color);
+    }
+  }
+}
+
+// ------------------------------ ЭФФЕКТ ЛАВОВАЯ ЛАМПА ----------------------
+// (c) SottNick
+void LavaLampGetspeed(uint8_t l) {
+  trackingObjectSpeedY[l] = (float)random8(5, 11) / (257U - modes[currentMode].Speed) / 4.0; // если скорость кадров фиксированная
+}
+void drawBlob(uint8_t l, CRGB color) { //раз круги нарисовать не получается, будем попиксельно вырисовывать 2 варианта пузырей
+  if (trackingObjectShift[l] == 2)
+  {
+    for (int8_t x = -2; x < 3; x++)
+      for (int8_t y = -2; y < 3; y++)
+        if (abs(x) + abs(y) < 4)
+          drawPixelXYF(fmod(trackingObjectPosX[l] + x + pWIDTH, pWIDTH), trackingObjectPosY[l] + y, color);
+  }
+  else
+  {
+    for (int8_t x = -1; x < 3; x++)
+      for (int8_t y = -1; y < 3; y++)
+        if (!(x == -1 && (y == -1 || y == 2) || x == 2 && (y == -1 || y == 2)))
+          drawPixelXYF(fmod(trackingObjectPosX[l] + x + pWIDTH, pWIDTH), trackingObjectPosY[l] + y, color);
+  }
+}
+
+void LavaLampRoutine() {
+  if (loadingFlag)
+  {
+    loadingFlag = false;
+    enlargedObjectNUM = (pWIDTH / 2) -  ((pWIDTH - 1) & 0x01);
+    uint8_t shift = random8(2);
+    for (uint8_t i = 0; i < enlargedObjectNUM; i++) {
+      trackingObjectPosY[i] = 0;//random8(pHEIGHT);
+      trackingObjectPosX[i] = i * 2U + shift;
+      LavaLampGetspeed(i);
+      trackingObjectShift[i] = random8(1, 3); // присваивается случайный целочисленный радиус пузырям от 1 до 2
+    }
+    if (modes[currentMode].Scale != 1U)
+      hue = modes[currentMode].Scale * 2.57;
+  }
+  hue++;
+  CRGB color = CHSV(hue, (modes[currentMode].Scale < 100U) ? 255U : 0U, 255U);
+  FastLED.clear();
+  for (uint8_t i = 0; i < enlargedObjectNUM; i++) { //двигаем по аналогии с https://jiwonk.im/lavalamp/
+    if (trackingObjectPosY[i] + trackingObjectShift[i] >= pHEIGHT - 1)
+      trackingObjectPosY[i] += (trackingObjectSpeedY[i] * ((pHEIGHT - 1 - trackingObjectPosY[i]) / trackingObjectShift[i] + 0.005));
+    else if (trackingObjectPosY[i] - trackingObjectShift[i] <= 0)
+      trackingObjectPosY[i] += (trackingObjectSpeedY[i] * (trackingObjectPosY[i] / trackingObjectShift[i] + 0.005));
+    else
+      trackingObjectPosY[i] += trackingObjectSpeedY[i];
+    // bounce off the floor and ceiling?
+    if (trackingObjectPosY[i] < 0.01) {                  // почему-то при нуле появляется мерцание (один кадр, еле заметно)
+      LavaLampGetspeed(i);
+      trackingObjectPosY[i] = 0.01;
+    }
+    else if (trackingObjectPosY[i] > pHEIGHT - 1.01) {    // тоже на всякий пожарный
+      LavaLampGetspeed(i);
+      trackingObjectSpeedY[i] = -trackingObjectSpeedY[i];
+      trackingObjectPosY[i] = pHEIGHT - 1.01;
+    }
+    drawBlob(i, color); // раз круги выглядят убого, рисуем попиксельно 2 размера пузырей
+  };
+  blurScreen(20);
+}

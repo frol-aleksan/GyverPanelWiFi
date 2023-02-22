@@ -1282,6 +1282,11 @@ String processDateMacrosInText(const String text) {
       sFmtProcess.replace("D", str);
       sFmtProcess.replace("d", str);
 
+      //  MMMМM - месяц прописью в именительном падеже (январь..декабрь)
+      str = getMonthNameString(amnth);
+      str = substitureDateMacros(str);
+      sFmtProcess.replace("MMMMM", str);
+      
       //  MMMМ - месяц прописью (января..декабря)
       str = getMonthString(amnth);
       str = substitureDateMacros(str);

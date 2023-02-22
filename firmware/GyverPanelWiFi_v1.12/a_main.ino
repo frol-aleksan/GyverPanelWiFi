@@ -1501,6 +1501,10 @@ void parsing() {
               // При получении параметра эффекта "RUBICK" (размер плиток) - надо переинициализировать эффект
               loadingFlag = true;
             } else 
+            if (thisMode == tmp_eff && tmp_eff == MC_EFFECTSTARS) {
+              // При получении параметра эффекта "Звездочки" (кол-во углов) - надо переинициализировать эффект
+              loadingFlag = true;
+            } else 
             if (thisMode == tmp_eff && tmp_eff == MC_SINWAVES) {
               // При получении параметра эффекта "Синусоиды" (кол-во синусоид) - надо переинициализировать эффект
               FastLED.clear();
@@ -3203,7 +3207,8 @@ String getStateValue(String &key, int8_t effect, JsonVariant* value = nullptr) {
           effect == MC_SMOKE || effect == MC_PULSE || effect == MC_WATERFALL || effect == MC_WHIRL || effect == MC_COMET || 
           effect == MC_RAINBOWSNAKE || effect == MC_PLASMALAMP || effect == MC_FOUNTAIN || effect == MC_AURORA || effect == MC_CLOCKS || 
           effect == MC_FIREWORKS || effect == MC_TRACKS || effect == MC_PAINT || effect == MC_CANDLE || effect == MC_RUBICK || 
-          effect == MC_FRIZZLE || effect == MC_LOTUS || effect == MC_TREE || effect == MC_WEBTOOLS || effect == MC_CONTACTS 
+          effect == MC_FRIZZLE || effect == MC_LOTUS || effect == MC_TREE || effect == MC_WEBTOOLS || effect == MC_CONTACTS ||
+          effect == MC_HOURGLASS || effect == MC_BYEFFECT || effect == MC_EFFECTSTARS || effect == MC_LIQUIDLAMP || effect == MC_LAVALAMP
           #if (USE_SD == 1) 
             || effect == MC_SDCARD
           #endif
@@ -3223,7 +3228,8 @@ String getStateValue(String &key, int8_t effect, JsonVariant* value = nullptr) {
                            effect == MC_SMOKE || effect == MC_PULSE || effect == MC_WATERFALL || effect == MC_WHIRL || effect == MC_COMET || 
                            effect == MC_RAINBOWSNAKE || effect == MC_PLASMALAMP || effect == MC_FOUNTAIN || effect == MC_AURORA || effect == MC_CLOCKS || 
                            effect == MC_FIREWORKS || effect == MC_TRACKS || effect == MC_PAINT || effect == MC_CANDLE || effect == MC_RUBICK || 
-                           effect == MC_FRIZZLE || effect == MC_LOTUS || effect == MC_TREE || effect == MC_WEBTOOLS || effect == MC_CONTACTS 
+                           effect == MC_FRIZZLE || effect == MC_LOTUS || effect == MC_TREE || effect == MC_WEBTOOLS || effect == MC_CONTACTS ||
+                           effect == MC_HOURGLASS || effect == MC_BYEFFECT || effect == MC_EFFECTSTARS || effect == MC_LIQUIDLAMP || effect == MC_LAVALAMP
                            #if (USE_SD == 1)
                              || effect == MC_SDCARD
                            #endif
@@ -4252,6 +4258,10 @@ String getParamForMode(uint8_t mode) {
    case MC_TREE:
    case MC_WEBTOOLS:
    case MC_CONTACTS:
+   case MC_HOURGLASS:
+   case MC_BYEFFECT:
+   case MC_LIQUIDLAMP:
+   case MC_LAVALAMP:
    case MC_SDCARD:
    #ifdef MC_IMAGE     
      case MC_IMAGE:
@@ -4384,7 +4394,7 @@ String getParam2ForMode(uint8_t mode) {
    case MC_PAINT:
      // Эффект "Краски" имеет несколько вариантов - список выбора варианта отображения
      // Дополнительный параметр представлен в приложении списком выбора
-     //           Маркер типа - список выбора         0-3                   0                 1         2          3 
+     //           Маркер типа - список выбора         0-3                     0               1         2          3 
      str = String(F("L>")) + String(effectScaleParam2[thisMode]) + String(F(">Случайный выбор,Вариант 1,Вариант 2, Вариант 3"));
      break;  
    case MC_NOISE_EFFECTS:

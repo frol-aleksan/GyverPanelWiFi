@@ -547,6 +547,25 @@ uint8_t getBrightnessCalculated(uint8_t brightness, uint8_t contrast) {
   return map8(contrast, 16, 255);
 }
 
+String getMonthNameString(uint8_t month) {
+  String sMnth = "";
+  switch (month) {
+    case  1: sMnth = F("январь");   break;
+    case  2: sMnth = F("февраль");  break;
+    case  3: sMnth = F("март");     break;
+    case  4: sMnth = F("апрель");   break;
+    case  5: sMnth = F("май");      break;
+    case  6: sMnth = F("июнь");     break;
+    case  7: sMnth = F("июль");     break;
+    case  8: sMnth = F("август");   break;
+    case  9: sMnth = F("сентябрь"); break;
+    case 10: sMnth = F("октябрь");  break;
+    case 11: sMnth = F("ноябрь");   break;
+    case 12: sMnth = F("декабрь");  break;
+  }  
+  return sMnth;
+}
+
 String getMonthString(uint8_t month) {
   String sMnth = "";
   switch (month) {

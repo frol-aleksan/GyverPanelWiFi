@@ -405,7 +405,7 @@ void processEffect(uint8_t aMode) {
     case MC_STARFALL:            starfallRoutine(); break;
     case MC_BALL:                ballRoutine(); break;
     case MC_BALLS:               ballsRoutine(); break;
-    case MC_RAINBOW:             rainbowRoutine(); break;      // rainbowHorizontal(); // rainbowVertical(); // rainbowDiagonal(); // rainbowRotate();
+    case MC_RAINBOW:             rainbowRoutine(); break;
     case MC_FIRE:                fireRoutine(); break;
     case MC_FILL_COLOR:          fillColorProcedure(); break;
     case MC_COLORS:              colorsRoutine(); break;
@@ -474,9 +474,14 @@ void processEffect(uint8_t aMode) {
     case MC_CONTACTS:            Contacts(); break;
     case MC_STARS:               starsRoutine(); break;
     case MC_STARS2:              stars2Routine(); break;
+    case MC_HOURGLASS:           Hourglass(); break;
+    case MC_BYEFFECT:            ByEffect(); break;
+    case MC_EFFECTSTARS:         EffectStars(); break;
+    case MC_LIQUIDLAMP:          LiquidLampRoutine(false); break;
+    case MC_LAVALAMP:            LavaLampRoutine(); break;
     
     #ifdef MC_IMAGE
-    case MC_IMAGE:               animationRoutine(); break;
+       case MC_IMAGE:               animationRoutine(); break;
     #endif  
 
     #if (USE_SD == 1)
@@ -597,7 +602,12 @@ void releaseEffectResources(uint8_t aMode) {
     case MC_CONTACTS:            break; 
     case MC_STARS:               break;
     case MC_STARS2:              stars2RoutineRelease(); break;
-    
+    case MC_HOURGLASS:           break;
+    case MC_BYEFFECT:            break;
+    case MC_EFFECTSTARS:         break;
+    case MC_LIQUIDLAMP:          break;
+    case MC_LAVALAMP:            break;
+
     #ifdef MC_IMAGE
     case MC_IMAGE:               break;
     #endif  
@@ -932,6 +942,21 @@ void setTimersForMode(uint8_t aMode) {
       } else 
       if (aMode == MC_CONTACTS) {
         effectTimer.setInterval(efSpeed);
+      } else 
+      if (aMode == MC_HOURGLASS) {
+        effectTimer.setInterval(efSpeed);
+      } else 
+      if (aMode == MC_BYEFFECT) {
+        effectTimer.setInterval(efSpeed);
+      } else 
+      if (aMode == MC_EFFECTSTARS) {
+        effectTimer.setInterval(efSpeed);
+      } else 
+      if (aMode == MC_LIQUIDLAMP) {
+        effectTimer.setInterval(efSpeed);
+      } else 
+      if (aMode == MC_LAVALAMP) {
+        effectTimer.setInterval(efSpeed*2); //разогнать эффект
       } else 
       {
         effectTimer.setInterval(10);
