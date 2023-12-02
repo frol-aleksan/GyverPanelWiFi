@@ -222,6 +222,7 @@ void set_thisMode(int8_t value) {
       case MC_TEXT:              effect_name = F("Бегущая строка"); break;
       case MC_DAWN_ALARM_SPIRAL: effect_name = F("Рассвет"); break;
       case MC_DAWN_ALARM_SQUARE: effect_name = F("Рассвет"); break;
+      case MC_TEST_ORDER:        effect_name = F("Проверка правильности порядка цветов"); break;
       default:                   effect_name = ""; break;
     }
   }

@@ -85,6 +85,384 @@ void lavaNoise() {
   fillNoiseLED();
 }
 
+void alcoholFireNoise() {
+  currentPalette = AlcoholFireColors_p;
+  colorLoop = 0;
+  scale = map8(getEffectScaleParamValue(MC_NOISE_EFFECTS),0,100); 
+  fillNoiseLED();
+}
+
+void heatColorsNoise() {
+  currentPalette = HeatColors_p;
+  colorLoop = 0;
+  scale = map8(getEffectScaleParamValue(MC_NOISE_EFFECTS),0,100); 
+  fillNoiseLED();
+}
+
+void waterfallColors4in1Noise() {
+  currentPalette = WaterfallColors4in1_p;
+  colorLoop = 0;
+  scale = map8(getEffectScaleParamValue(MC_NOISE_EFFECTS),0,100); 
+  fillNoiseLED();
+}
+
+void woodFireColorsNoise() {
+  currentPalette = WoodFireColors_p;
+  colorLoop = 0;
+  scale = map8(getEffectScaleParamValue(MC_NOISE_EFFECTS),0,100); 
+  fillNoiseLED();
+}
+
+void normalFireNoise() {
+  currentPalette = NormalFire_p;
+  colorLoop = 0;
+  scale = map8(getEffectScaleParamValue(MC_NOISE_EFFECTS),0,100); 
+  fillNoiseLED();
+}
+
+void normalFire2Noise() {
+  currentPalette = NormalFire2_p;
+  colorLoop = 0;
+  scale = map8(getEffectScaleParamValue(MC_NOISE_EFFECTS),0,100); 
+  fillNoiseLED();
+}
+
+void lithiumFireColorsNoise() {
+  currentPalette = LithiumFireColors_p;
+  colorLoop = 0;
+  scale = map8(getEffectScaleParamValue(MC_NOISE_EFFECTS),0,100); 
+  fillNoiseLED();
+}
+
+void sodiumFireColorsNoise() {
+  currentPalette = SodiumFireColors_p;
+  colorLoop = 0;
+  scale = map8(getEffectScaleParamValue(MC_NOISE_EFFECTS),0,100); 
+  fillNoiseLED();
+}
+
+void copperFireColorsNoise() {
+  currentPalette = CopperFireColors_p;
+  colorLoop = 0;
+  scale = map8(getEffectScaleParamValue(MC_NOISE_EFFECTS),0,100); 
+  fillNoiseLED();
+}
+
+void rubidiumFireColorsNoise() {
+  currentPalette = RubidiumFireColors_p;
+  colorLoop = 0;
+  scale = map8(getEffectScaleParamValue(MC_NOISE_EFFECTS),0,100); 
+  fillNoiseLED();
+}
+
+void potassiumFireColorsNoise() {
+  currentPalette = PotassiumFireColors_p;
+  colorLoop = 0;
+  scale = map8(getEffectScaleParamValue(MC_NOISE_EFFECTS),0,100); 
+  fillNoiseLED();
+}
+
+void SunsetRealNoise() {
+  currentPalette = Sunset_Real_gp;
+  colorLoop = 0;
+  scale = map8(getEffectScaleParamValue(MC_NOISE_EFFECTS),0,100); 
+  fillNoiseLED();
+}
+
+void dkblueredNoise() {
+  currentPalette = dkbluered_gp;
+  colorLoop = 0;
+  scale = map8(getEffectScaleParamValue(MC_NOISE_EFFECTS),0,100); 
+  fillNoiseLED();
+}
+
+void OptimusPrimeNoise() {
+  currentPalette = Optimus_Prime_gp;
+  colorLoop = 0;
+  scale = map8(getEffectScaleParamValue(MC_NOISE_EFFECTS),0,100); 
+  fillNoiseLED();
+}
+
+void warmGradNoise() {
+  currentPalette = warmGrad_gp;
+  colorLoop = 0;
+  scale = map8(getEffectScaleParamValue(MC_NOISE_EFFECTS),0,100); 
+  fillNoiseLED();
+}
+
+void coldGradNoise() {
+  currentPalette = coldGrad_gp;
+  colorLoop = 0;
+  scale = map8(getEffectScaleParamValue(MC_NOISE_EFFECTS),0,100); 
+  fillNoiseLED();
+}
+
+void hotGradNoise() {
+  currentPalette = hotGrad_gp;
+  colorLoop = 0;
+  scale = map8(getEffectScaleParamValue(MC_NOISE_EFFECTS),0,100); 
+  fillNoiseLED();
+}
+
+void pinkGradNoise() {
+  currentPalette = pinkGrad_gp;
+  colorLoop = 0;
+  scale = map8(getEffectScaleParamValue(MC_NOISE_EFFECTS),0,100); 
+  fillNoiseLED();
+}
+
+void comfyNoise() {
+  currentPalette = comfy_gp;
+  colorLoop = 0;
+  scale = map8(getEffectScaleParamValue(MC_NOISE_EFFECTS),0,100); 
+  fillNoiseLED();
+}
+
+void cyperpunkNoise() {
+  currentPalette = cyperpunk_gp;
+  colorLoop = 0;
+  scale = map8(getEffectScaleParamValue(MC_NOISE_EFFECTS),0,100); 
+  fillNoiseLED();
+}
+
+void girlNoise() {
+  currentPalette = girl_gp;
+  colorLoop = 0;
+  scale = map8(getEffectScaleParamValue(MC_NOISE_EFFECTS),0,100); 
+  fillNoiseLED();
+}
+
+void xmasNoise() {
+  currentPalette = xmas_gp;
+  colorLoop = 0;
+  scale = map8(getEffectScaleParamValue(MC_NOISE_EFFECTS),0,100); 
+  fillNoiseLED();
+}
+
+void acidNoise() {
+  currentPalette = acid_gp;
+  colorLoop = 0;
+  scale = map8(getEffectScaleParamValue(MC_NOISE_EFFECTS),0,100); 
+  fillNoiseLED();
+}
+
+void blueSmokeNoise() {
+  currentPalette = blueSmoke_gp;
+  colorLoop = 0;
+  scale = map8(getEffectScaleParamValue(MC_NOISE_EFFECTS),0,100); 
+  fillNoiseLED();
+}
+
+void gummyNoise() {
+  currentPalette = gummy_gp;
+  colorLoop = 0;
+  scale = map8(getEffectScaleParamValue(MC_NOISE_EFFECTS),0,100); 
+  fillNoiseLED();
+}
+
+void leoNoise() {
+  currentPalette = leo_gp;
+  colorLoop = 0;
+  scale = map8(getEffectScaleParamValue(MC_NOISE_EFFECTS),0,100); 
+  fillNoiseLED();
+}
+
+void auroraNoise() {
+  currentPalette = aurora_gp;
+  colorLoop = 0;
+  scale = map8(getEffectScaleParamValue(MC_NOISE_EFFECTS),0,100); 
+  fillNoiseLED();
+}
+
+void rainCloudsNoise() {
+  currentPalette = rainClouds_p;
+  colorLoop = 0;
+  scale = map8(getEffectScaleParamValue(MC_NOISE_EFFECTS),0,100); 
+  fillNoiseLED();
+}
+
+void redwhiteNoise() {
+  currentPalette = redwhite_gp;
+  colorLoop = 0;
+  scale = map8(getEffectScaleParamValue(MC_NOISE_EFFECTS),0,100); 
+  fillNoiseLED();
+}
+
+void ib_jul01Noise() {
+  currentPalette = ib_jul01_gp;
+  colorLoop = 0;
+  scale = map8(getEffectScaleParamValue(MC_NOISE_EFFECTS),0,100); 
+  fillNoiseLED();
+}
+
+void rgi_15Noise() {
+  currentPalette = rgi_15_gp;
+  colorLoop = 0;
+  scale = map8(getEffectScaleParamValue(MC_NOISE_EFFECTS),0,100); 
+  fillNoiseLED();
+}
+
+void retro2_16Noise() {
+  currentPalette = retro2_16_gp;
+  colorLoop = 0;
+  scale = map8(getEffectScaleParamValue(MC_NOISE_EFFECTS),0,100); 
+  fillNoiseLED();
+}
+
+void Analogous_1Noise() {
+  currentPalette = Analogous_1_gp;
+  colorLoop = 0;
+  scale = map8(getEffectScaleParamValue(MC_NOISE_EFFECTS),0,100); 
+  fillNoiseLED();
+}
+
+void pinksplash_08Noise() {
+  currentPalette = pinksplash_08_gp;
+  colorLoop = 0;
+  scale = map8(getEffectScaleParamValue(MC_NOISE_EFFECTS),0,100); 
+  fillNoiseLED();
+}
+
+void pinksplash_07Noise() {
+  currentPalette = pinksplash_07_gp;
+  colorLoop = 0;
+  scale = map8(getEffectScaleParamValue(MC_NOISE_EFFECTS),0,100); 
+  fillNoiseLED();
+}
+
+void Coral_reefNoise() {
+  currentPalette = Coral_reef_gp;
+  colorLoop = 0;
+  scale = map8(getEffectScaleParamValue(MC_NOISE_EFFECTS),0,100); 
+  fillNoiseLED();
+}
+
+void ocean_breezeNoise() {
+  currentPalette = ocean_breeze_gp;
+  colorLoop = 0;
+  scale = map8(getEffectScaleParamValue(MC_NOISE_EFFECTS),0,100); 
+  fillNoiseLED();
+}
+
+void landscape_64Noise() {
+  currentPalette = landscape_64_gp;
+  colorLoop = 0;
+  scale = map8(getEffectScaleParamValue(MC_NOISE_EFFECTS),0,100); 
+  fillNoiseLED();
+}
+
+void landscape_33Noise() {
+  currentPalette = landscape_33_gp;
+  colorLoop = 0;
+  scale = map8(getEffectScaleParamValue(MC_NOISE_EFFECTS),0,100); 
+  fillNoiseLED();
+}
+
+void rainbowsherbetNoise() {
+  currentPalette = rainbowsherbet_gp;
+  colorLoop = 0;
+  scale = map8(getEffectScaleParamValue(MC_NOISE_EFFECTS),0,100); 
+  fillNoiseLED();
+}
+
+void gr65_hultNoise() {
+  currentPalette = gr65_hult_gp;
+  colorLoop = 0;
+  scale = map8(getEffectScaleParamValue(MC_NOISE_EFFECTS),0,100); 
+  fillNoiseLED();
+}
+
+void GMT_drywetNoise() {
+  currentPalette = GMT_drywet_gp;
+  colorLoop = 0;
+  scale = map8(getEffectScaleParamValue(MC_NOISE_EFFECTS),0,100); 
+  fillNoiseLED();
+}
+
+void emerald_dragonNoise() {
+  currentPalette = emerald_dragon_gp;
+  colorLoop = 0;
+  scale = map8(getEffectScaleParamValue(MC_NOISE_EFFECTS),0,100); 
+  fillNoiseLED();
+}
+
+void ColorfullNoise() {
+  currentPalette = Colorfull_gp;
+  colorLoop = 0;
+  scale = map8(getEffectScaleParamValue(MC_NOISE_EFFECTS),0,100); 
+  fillNoiseLED();
+}
+
+void Pink_PurpleNoise() {
+  currentPalette = Pink_Purple_gp;
+  colorLoop = 0;
+  scale = map8(getEffectScaleParamValue(MC_NOISE_EFFECTS),0,100); 
+  fillNoiseLED();
+}
+
+void autumn_19Noise() {
+  currentPalette = autumn_19_gp;
+  colorLoop = 0;
+  scale = map8(getEffectScaleParamValue(MC_NOISE_EFFECTS),0,100); 
+  fillNoiseLED();
+}
+
+void daybreakNoise() {
+  currentPalette = daybreak_gp;
+  colorLoop = 0;
+  scale = map8(getEffectScaleParamValue(MC_NOISE_EFFECTS),0,100); 
+  fillNoiseLED();
+}
+
+void Blue_Cyan_YellowNoise() {
+  currentPalette = Blue_Cyan_Yellow_gp;
+  colorLoop = 0;
+  scale = map8(getEffectScaleParamValue(MC_NOISE_EFFECTS),0,100); 
+  fillNoiseLED();
+}
+
+void bhw1_28Noise() {
+  currentPalette = bhw1_28_gp;
+  colorLoop = 0;
+  scale = map8(getEffectScaleParamValue(MC_NOISE_EFFECTS),0,100); 
+  fillNoiseLED();
+}
+
+void rbwNoise() {
+  currentPalette = rbw_gp;
+  colorLoop = 0;
+  scale = map8(getEffectScaleParamValue(MC_NOISE_EFFECTS),0,100); 
+  fillNoiseLED();
+}
+/* функции рабочие, но в качестве вариантов для эффекта Переливы данные палитры выглядят не очень
+void pacifica1Noise() {
+  currentPalette = pacifica_palette_1;
+  colorLoop = 0;
+  scale = map8(getEffectScaleParamValue(MC_NOISE_EFFECTS),0,100); 
+  fillNoiseLED();
+}
+
+void pacifica2Noise() {
+  currentPalette = pacifica_palette_2;
+  colorLoop = 0;
+  scale = map8(getEffectScaleParamValue(MC_NOISE_EFFECTS),0,100); 
+  fillNoiseLED();
+}
+
+void pacifica3Noise() {
+  currentPalette = pacifica_palette_3;
+  colorLoop = 0;
+  scale = map8(getEffectScaleParamValue(MC_NOISE_EFFECTS),0,100); 
+  fillNoiseLED();
+}
+
+void WaterfallColorsNoise() {
+  currentPalette = WaterfallColors_p;
+  colorLoop = 0;
+  scale = map8(getEffectScaleParamValue(MC_NOISE_EFFECTS),0,100); 
+  fillNoiseLED();
+}*/
+
 // ******************* СЛУЖЕБНЫЕ *******************
 void fillNoiseLED() {
   uint8_t dataSmoothing = 0;

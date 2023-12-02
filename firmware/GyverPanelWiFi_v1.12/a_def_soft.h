@@ -62,8 +62,6 @@
 #define EEPROM_MAX    4096       // Максимальный размер EEPROM доступный для использования
 #define EFFECT_EEPROM  400       // начальная ячейка eeprom с параметрами эффектов, 5 байт на эффект
 #define TEXT_EEPROM   1000       // начальная ячейка eeprom с текстом бегущих строк
-
-#define COLOR_ORDER    GRB       // порядок цветов на ленте. Если цвет отображается некорректно - меняйте. Начать можно с RGB
 #define BRIGHTNESS      32       // стандартная максимальная яркость (0-255)
 
 // ******************* ОПРЕДЕЛЕНИЯ ПАРАМЕТРОВ ЭФФЕКТОВ *********************
@@ -79,38 +77,38 @@
 #define EFFECT_LIST F("Часы,Свет,Снег,Куб,Радуга,Пейнтбол,Огонь,Matrix,Шарики,Метеоры,Конфетти,Переливы," \
                       "Дизайн,Контакт,Звезды,Штора,Цвета,Светлячки,Палитра,Циклон,Хаос,Сияние,Тени," \
                       "Лабиринт,Змейка,Тетрис,Арканоид,Flappy,Runner,Одеяло,Спектр,Синус,Узор,Дождь,Камин," \
-                      "Стрелки,Погода,Жизнь,Узоры,Sinus,Попкорн,ДНК,Прыжки,Спирали,Ветер,Nexus,Синусоид,Замок,"\
+                      "Стрелки,Погода,Жизнь,Узоры,Sinus,Попкорн,ДНК,Прыжки,Спирали,Ветер,Nexus,Синусоид,Питон,"\
                       "Куб2D,Quantum,Фeя,Kaпли,Ocциллятop,Kипeниe,Дpaжe,Boлны,Круг,Пикacco,Люмeньep,Шapы,Море,"\
                       "Дым,Пульс,Вода,Вихри,Кометы,Змей,Паук,Фонтан,Аврора,Часы2,Салют,Треки,Краски,Свеча,"\
-                      "Рубик,Кудри,Лотос,Елка,Песок,Лента,Stars,Лампа,Пузыри,"\
+                      "Рубик,Кудри,Лотос,Елка,Песок,Лента,Stars,Лампа,Замок,"\
                       "Утро,SD")
 #else
 #define EFFECT_LIST F("Часы,Свет,Снег,Куб,Радуга,Пейнтбол,Огонь,Matrix,Шарики,Метеоры,Конфетти,Переливы," \
                       "Дизайн,Контакт,Звезды,Штора,Цвета,Светлячки,Палитра,Циклон,Хаос,Сияние,Тени," \
                       "Лабиринт,Змейка,Тетрис,Арканоид,Flappy,Runner,Одеяло,Спектр,Синус,Узор,Дождь,Камин," \
-                      "Стрелки,Погода,Жизнь,Узоры,Sinus,Попкорн,ДНК,Прыжки,Спирали,Ветер,Nexus,Синусоид,Замок,"\
+                      "Стрелки,Погода,Жизнь,Узоры,Sinus,Попкорн,ДНК,Прыжки,Спирали,Ветер,Nexus,Синусоид,Питон,"\
                       "Куб2D,Quantum,Фeя,Kaпли,Ocциллятop,Kипeниe,Дpaжe,Boлны,Круг,Пикacco,Люмeньep,Шapы,Море,"\
                       "Дым,Пульс,Вода,Вихри,Кометы,Змей,Паук,Фонтан,Аврора,Часы2,Салют,Треки,Краски,Свеча,"\
-                      "Рубик,Кудри,Лотос,Елка,Песок,Лента,Stars,Лампа,Пузыри,Утро")
+                      "Рубик,Кудри,Лотос,Елка,Песок,Лента,Stars,Лампа,Замок,Утро")
 #endif
 #else
 #if (USE_SD == 1)                      
 #define EFFECT_LIST F("Часы,Свет,Снег,Куб,Радуга,Пейнтбол,Огонь,Matrix,Шарики,Метеоры,Конфетти,Переливы," \
                       "Дизайн,Контакт,Звезды,Штора,Цвета,Светлячки,Палитра,Циклон,Хаос,Сияние,Тени," \
                       "Лабиринт,Змейка,Тетрис,Арканоид,Flappy,Runner,Одеяло,Спектр,Синус,Узор,Дождь,Камин," \
-                      "Стрелки,Погода,Жизнь,Узоры,Sinus,Попкорн,ДНК,Прыжки,Спирали,Ветер,Nexus,Синусоид,Замок,"\
+                      "Стрелки,Погода,Жизнь,Узоры,Sinus,Попкорн,ДНК,Прыжки,Спирали,Ветер,Nexus,Синусоид,Питон,"\
                       "Куб2D,Quantum,Фeя,Kaпли,Ocциллятop,Kипeниe,Дpaжe,Boлны,Круг,Пикacco,Люмeньep,Шapы,Море,"\
                       "Дым,Пульс,Вода,Вихри,Кометы,Змей,Паук,Фонтан,Аврора,Часы2,Салют,Треки,Краски,Свеча,"\
-                      "Рубик,Кудри,Лотос,Елка,Песок,Лента,Stars,Лампа,Пузыри,"\
+                      "Рубик,Кудри,Лотос,Елка,Песок,Лента,Stars,Лампа,Замок,"\
                       "Анимация,Утро,SD")
 #else
 #define EFFECT_LIST F("Часы,Свет,Снег,Куб,Радуга,Пейнтбол,Огонь,Matrix,Шарики,Метеоры,Конфетти,Переливы," \
                       "Дизайн,Контакт,Звезды,Штора,Цвета,Светлячки,Палитра,Циклон,Хаос,Сияние,Тени," \
                       "Лабиринт,Змейка,Тетрис,Арканоид,Flappy,Runner,Одеяло,Спектр,Синус,Узор,Дождь,Камин," \
-                      "Стрелки,Погода,Жизнь,Узоры,Sinus,Попкорн,ДНК,Прыжки,Спирали,Ветер,Nexus,Синусоид,Замок,"\
+                      "Стрелки,Погода,Жизнь,Узоры,Sinus,Попкорн,ДНК,Прыжки,Спирали,Ветер,Nexus,Синусоид,Питон,"\
                       "Куб2D,Quantum,Фeя,Kaпли,Ocциллятop,Kипeниe,Дpaжe,Boлны,Круг,Пикacco,Люмeньep,Шapы,Море,"\
                       "Дым,Пульс,Вода,Вихри,Кометы,Змей,Паук,Фонтан,Аврора,Часы2,Салют,Треки,Краски,Свеча,"\
-                      "Рубик,Кудри,Лотос,Елка,Песок,Лента,Stars,Лампа,Пузыри,"\
+                      "Рубик,Кудри,Лотос,Елка,Песок,Лента,Stars,Лампа,Замок,"\
                       "Анимация,Утро")                 
 #endif
 #endif
@@ -174,7 +172,7 @@
 #define MC_SMOKEBALLS           44         // Ветер
 #define MC_NEXUS                45         // Nexus
 #define MC_SINUSOID3            46         // Cинycoид
-#define MC_RINGS                47         // Koдoвый зaмoк
+#define MC_PYTHON               47         // Питон
 #define MC_CUBE2D               48         // Kyбик Pyбикa
 #define MC_ATTRACT              49         // Пpитяжeниe
 #define MC_FAIRY                50         // Фeя
@@ -210,7 +208,7 @@
 #define MC_BYEFFECT             80         // Лента
 #define MC_EFFECTSTARS          81         // Звездочки
 #define MC_LIQUIDLAMP           82         // Лаволампа
-#define MC_LAVALAMP             83         // Пузыри
+#define MC_RINGS                83         // Koдoвый зaмoк
 
 // Часы в фоторамке - размер 17x11 - для них нет картинки анимации - эффект анимация удален из прошивки
 #ifdef NO_ANIMATION
@@ -234,7 +232,7 @@
 #endif
 #endif
 
-#define MAX_SPEC_EFFECT         11         // количество эффектов быстрого доступа определенных в прошивке -> 0..10
+#define MAX_SPEC_EFFECT         12         // количество эффектов быстрого доступа определенных в прошивке -> 0..10  11
 #define MAX_IMAGE_NUM            4         // Количество картинок для эффекта "Анимация", определенных в программе (файлы bitmap1.h, .. ,bitmapN.h)
 
 // ---------------------------------
@@ -246,6 +244,7 @@
 #define MC_DAWN_ALARM_SPIRAL   126         // Специальный режим, вызывается из DEMO_DAWN_ALARM для ламп на круговой матрице - огонек по спирали
 #define MC_DAWN_ALARM_SQUARE   127         // Специальный режим, вызывается из DEMO_DAWN_ALARM для плоских матриц - огонек по спирали на плоскости матрицы
 // ---------------------------------
+#define MC_TEST_ORDER          122         // Тестовый эффект для проверки правильности порядка цветов
 
 // *************************************************************************
 
@@ -903,6 +902,7 @@ uint8_t    mHEIGHT = META_MATRIX_HEIGHT;         // количество сег�
 uint8_t    mTYPE = META_MATRIX_TYPE;             // соединение сегментов мета-матрицы: 0 - зигзаг, 1 - параллельная
 uint8_t    mANGLE = META_MATRIX_ANGLE;           // угол 1-го сегмента мета-матрицы: 0 - левый нижний, 1 - левый верхний, 2 - правый верхний, 3 - правый нижний
 uint8_t    mDIRECTION = META_MATRIX_DIRECTION;   // направление следующих сегментов мета-матрицы из угла: 0 - вправо, 1 - вверх, 2 - влево, 3 - вниз
+uint8_t    mCOLOR_ORDER = 0;                     // порядок цветов в гирлянде, 0 соответствует GRB
 
 uint8_t    pWIDTH = sWIDTH * mWIDTH;
 uint8_t    pHEIGHT = sHEIGHT * mHEIGHT;
@@ -911,38 +911,6 @@ uint32_t   NUM_LEDS = pWIDTH * pHEIGHT;
 uint8_t    maxDim   = max(pWIDTH, pHEIGHT);
 uint8_t    minDim   = min(pWIDTH, pHEIGHT);
 const uint8_t    numlayersmax = 2;
-
-
-uint8_t ***noise_3d;  //Трехмерный динамический массив, необходимый для работы ряда эффектов из прошивки Gunner47. Нормально объявляется только отсюда.
-
-//Переменные для эффекта Спирали. Нормально объявляются только отсюда, иначе они оказываются за пределами видимости и получают значения размеров матрицы из a_def_soft
-byte spirotheta1;
-byte spirotheta2;
-uint8_t spiroradiusx;
-uint8_t spiroradiusy;
-uint8_t spirocenterX;
-uint8_t spirocenterY;
-uint8_t spirominx;
-uint8_t spiromaxx;
-uint8_t spirominy;
-uint8_t spiromaxy;
-uint8_t spirocount;
-uint8_t spirooffset;
-boolean spiroincrement;
-boolean spirohandledChange;
-
-//Переменные для эффекта Волны
-byte waveThetaUpdate;
-byte waveThetaUpdateFrequency;
-byte waveTheta;
-byte hueUpdate;
-byte hueUpdateFrequency;
-byte waveRotation;
-uint8_t waveScale;
-uint8_t waveCount;
-
-//переменные для свечи
-uint8_t delta_X;
 
 #if (BIG_FONT == 0)
   // Шрифт размером 5x8
@@ -970,7 +938,8 @@ CRGB       *overlayLEDs;                            // буфер оверлея
 #define    POWER_OFF             LOW                // Для вЫключения питания матрицы (через MOSFET) подавать на пин POWER_PIN низкий уровень
 
 #define    TRUE_RANDOM
-#define    DEBUG_MEM 0                              // Вкл/выкл вывод отладочных сообщений об объеме свободной памяти при смене эффектов
+#define    DEBUG_MEM 0    
+// Вкл/выкл вывод отладочных сообщений об объеме свободной памяти при смене эффектов
 
 // *****************************************************************************
 // *****************************************************************************
@@ -1002,3 +971,359 @@ bool       mandatoryStopText = false;
 #define FOR_y(from, to) for(int y = (from); y < (to); y++)
 
 // ---------------------------------------------------------------
+// КЛАССЫ, МАССИВЫ, ПЕРЕМЕННЫЕ и КОНСТАНТЫ ДЛЯ ЭФФЕКТОВ
+
+uint8_t THIS_X(uint8_t x, uint8_t y) {
+    /*
+        CONNECTION_ANGLE; // угол подключения: 0 - левый нижний, 1 - левый верхний, 2 - правый верхний, 3 - правый нижний
+        STRIP_DIRECTION;  // направление ленты из угла: 0 - вправо, 1 - вверх, 2 - влево, 3 - вниз
+     */
+    if (sCONNECTION_ANGLE == 0 && sSTRIP_DIRECTION == 0) return x;
+    if (sCONNECTION_ANGLE == 0 && sSTRIP_DIRECTION == 1) return y;
+    if (sCONNECTION_ANGLE == 1 && sSTRIP_DIRECTION == 0) return x;
+    if (sCONNECTION_ANGLE == 1 && sSTRIP_DIRECTION == 3) return sHEIGHT - y - 1;
+    if (sCONNECTION_ANGLE == 2 && sSTRIP_DIRECTION == 2) return sWIDTH - x - 1;
+    if (sCONNECTION_ANGLE == 2 && sSTRIP_DIRECTION == 3) return sHEIGHT - y - 1;
+    if (sCONNECTION_ANGLE == 3 && sSTRIP_DIRECTION == 2) return sWIDTH - x - 1;
+    if (sCONNECTION_ANGLE == 3 && sSTRIP_DIRECTION == 1) return y;
+    return x;
+}
+
+uint8_t THIS_Y(uint8_t x, uint8_t y) {
+    /*
+        CONNECTION_ANGLE; // угол подключения: 0 - левый нижний, 1 - левый верхний, 2 - правый верхний, 3 - правый нижний
+        STRIP_DIRECTION;  // направление ленты из угла: 0 - вправо, 1 - вверх, 2 - влево, 3 - вниз
+     */
+    if (sCONNECTION_ANGLE == 0 && sSTRIP_DIRECTION == 0) return y;
+    if (sCONNECTION_ANGLE == 0 && sSTRIP_DIRECTION == 1) return x;
+    if (sCONNECTION_ANGLE == 1 && sSTRIP_DIRECTION == 0) return sHEIGHT - y - 1;
+    if (sCONNECTION_ANGLE == 1 && sSTRIP_DIRECTION == 3) return x;
+    if (sCONNECTION_ANGLE == 2 && sSTRIP_DIRECTION == 2) return sHEIGHT - y - 1;
+    if (sCONNECTION_ANGLE == 2 && sSTRIP_DIRECTION == 3) return sWIDTH - x - 1;
+    if (sCONNECTION_ANGLE == 3 && sSTRIP_DIRECTION == 2) return y;
+    if (sCONNECTION_ANGLE == 3 && sSTRIP_DIRECTION == 1) return sWIDTH - x - 1;
+    return y;
+}
+
+uint8_t THIS_W() {
+    /*
+        CONNECTION_ANGLE; // угол подключения: 0 - левый нижний, 1 - левый верхний, 2 - правый верхний, 3 - правый нижний
+        STRIP_DIRECTION;  // направление ленты из угла: 0 - вправо, 1 - вверх, 2 - влево, 3 - вниз
+     */
+    if (sCONNECTION_ANGLE == 0 && sSTRIP_DIRECTION == 0) return sWIDTH;
+    if (sCONNECTION_ANGLE == 0 && sSTRIP_DIRECTION == 1) return sHEIGHT;
+    if (sCONNECTION_ANGLE == 1 && sSTRIP_DIRECTION == 0) return sWIDTH;
+    if (sCONNECTION_ANGLE == 1 && sSTRIP_DIRECTION == 3) return sHEIGHT;
+    if (sCONNECTION_ANGLE == 2 && sSTRIP_DIRECTION == 2) return sWIDTH;
+    if (sCONNECTION_ANGLE == 2 && sSTRIP_DIRECTION == 3) return sHEIGHT;
+    if (sCONNECTION_ANGLE == 3 && sSTRIP_DIRECTION == 2) return sWIDTH;
+    if (sCONNECTION_ANGLE == 3 && sSTRIP_DIRECTION == 1) return sHEIGHT;
+    return sWIDTH;
+}
+
+uint8_t THIS_SX(uint8_t x, uint8_t y) {
+    /*
+        CONNECTION_ANGLE; // угол подключения: 0 - левый нижний, 1 - левый верхний, 2 - правый верхний, 3 - правый нижний
+        STRIP_DIRECTION;  // направление ленты из угла: 0 - вправо, 1 - вверх, 2 - влево, 3 - вниз
+     */
+    if (mANGLE == 0 && mDIRECTION == 0) return x;
+    if (mANGLE == 0 && mDIRECTION == 1) return y;
+    if (mANGLE == 1 && mDIRECTION == 0) return x;
+    if (mANGLE == 1 && mDIRECTION == 3) return mHEIGHT - y - 1;
+    if (mANGLE == 2 && mDIRECTION == 2) return mWIDTH - x - 1;
+    if (mANGLE == 2 && mDIRECTION == 3) return mHEIGHT - y - 1;
+    if (mANGLE == 3 && mDIRECTION == 2) return mWIDTH - x - 1;
+    if (mANGLE == 3 && mDIRECTION == 1) return y;
+    return x;
+}
+
+uint8_t THIS_SY(uint8_t x, uint8_t y) {
+    /*
+        CONNECTION_ANGLE; // угол подключения: 0 - левый нижний, 1 - левый верхний, 2 - правый верхний, 3 - правый нижний
+        STRIP_DIRECTION;  // направление ленты из угла: 0 - вправо, 1 - вверх, 2 - влево, 3 - вниз
+     */
+    if (mANGLE == 0 && mDIRECTION == 0) return y;
+    if (mANGLE == 0 && mDIRECTION == 1) return x;
+    if (mANGLE == 1 && mDIRECTION == 0) return mHEIGHT - y - 1;
+    if (mANGLE == 1 && mDIRECTION == 3) return x;
+    if (mANGLE == 2 && mDIRECTION == 2) return mHEIGHT - y - 1;
+    if (mANGLE == 2 && mDIRECTION == 3) return mWIDTH - x - 1;
+    if (mANGLE == 3 && mDIRECTION == 2) return y;
+    if (mANGLE == 3 && mDIRECTION == 1) return mWIDTH - x - 1;
+    return y;
+}
+
+uint8_t THIS_SW() {
+    /*
+        CONNECTION_ANGLE; // угол подключения: 0 - левый нижний, 1 - левый верхний, 2 - правый верхний, 3 - правый нижний
+        STRIP_DIRECTION;  // направление ленты из угла: 0 - вправо, 1 - вверх, 2 - влево, 3 - вниз
+     */
+    if (mANGLE == 0 && mDIRECTION == 0) return mWIDTH;
+    if (mANGLE == 0 && mDIRECTION == 1) return mHEIGHT;
+    if (mANGLE == 1 && mDIRECTION == 0) return mWIDTH;
+    if (mANGLE == 1 && mDIRECTION == 3) return mHEIGHT;
+    if (mANGLE == 2 && mDIRECTION == 2) return mWIDTH;
+    if (mANGLE == 2 && mDIRECTION == 3) return mHEIGHT;
+    if (mANGLE == 3 && mDIRECTION == 2) return mWIDTH;
+    if (mANGLE == 3 && mDIRECTION == 1) return mHEIGHT;
+    return mWIDTH;
+}
+
+// получить номер пикселя в ленте по координатам
+uint16_t getPixelNumber(int8_t x, int8_t y) {
+  uint8_t xx,yy,ww,sx,sy,mx,my,mw,snum,num;
+
+  // Матрица состоит из одного сегмента
+  if (mWIDTH == 1 && mHEIGHT == 1) {
+    xx = THIS_X(x, y);
+    yy = THIS_Y(x, y);
+    ww = THIS_W();
+  
+    return (yy % 2 == 0 || sMATRIX_TYPE == 1)
+        ? yy * ww + xx // если чётная строка
+        : yy * ww + ww - xx - 1; // если нечётная строка
+  }
+
+  // Матрица - сборная, состоит из нескольких сегменнтов
+  sx = x / sWIDTH;    // номер сегмента по ширине
+  sy = y / sHEIGHT;   // номер сегмента по высоте
+  x = x % sWIDTH;     // позиция x относительно сегмента
+  y = y % sHEIGHT;    // позиция y относительно сегмента
+
+  // Номер сегмента в последовательности сборной матрицы
+  mx = THIS_SX(sx, sy);
+  my = THIS_SY(sx, sy);
+  mw = THIS_SW();
+
+  snum = (my % 2 == 0 || mTYPE == 1)
+      ? my * mw + mx           // если чётная строка мета-матрицы
+      : my * mw + mw - mx - 1; // если нечётная строка мета-матрицы
+  
+  // Номер дода в сегменте
+  xx = THIS_X(x, y);
+  yy = THIS_Y(x, y);
+  ww = THIS_W();
+  
+  num = (yy % 2 == 0 || sMATRIX_TYPE == 1)
+      ? yy * ww + xx           // если чётная строка 
+      : yy * ww + ww - xx - 1; // если нечётная строка  
+
+  return snum * sWIDTH*sHEIGHT + num;
+}
+
+uint16_t XY(uint8_t x, uint8_t y) { //нужна много где
+  return getPixelNumber(x, y);
+}
+
+//Трехмерный динамический массив, необходимый для работы ряда эффектов из прошивки Gunner47
+uint8_t ***noise_3d;  
+
+//Переменные для эффекта Спирали
+byte spirotheta1;
+byte spirotheta2;
+uint8_t spiroradiusx;
+uint8_t spiroradiusy;
+uint8_t spirocenterX;
+uint8_t spirocenterY;
+uint8_t spirominx;
+uint8_t spiromaxx;
+uint8_t spirominy;
+uint8_t spiromaxy;
+uint8_t spirocount;
+uint8_t spirooffset;
+boolean spiroincrement;
+boolean spirohandledChange;
+
+//Переменные для эффекта Волны
+byte waveThetaUpdate;
+byte waveThetaUpdateFrequency;
+byte waveTheta;
+byte hueUpdate;
+byte hueUpdateFrequency;
+byte waveRotation;
+uint8_t waveScale;
+uint8_t waveCount;
+
+//переменная для эффекта Свеча
+uint8_t delta_X;
+
+//3 вариант фейерверка. 2/3 кода пришлось перетащить сюда
+#define SPARK 8U // максимальное количество снарядов  
+const saccum78 gGravity = 10;
+const fract8  gBounce = 127;
+const fract8  gDrag = 255;
+uint8_t model_border;  // как далеко за экран может вылетить снаряд, если снаряд вылетает за экран, то всышка белого света (не особо логично)
+uint8_t model_pWIDTH; // не трогать, - математика
+uint8_t model_pHEIGHT; // -//-
+uint8_t pixel_x_offset; // -//-
+uint8_t pixel_y_offset; // -//-
+uint8_t num_sparks; // количество разлетающихся петард (частей снаряда)
+typedef struct _DOTS_STORE {
+    accum88 gBurstx;
+    accum88 gBursty;
+    saccum78 gBurstxv;
+    saccum78 gBurstyv;
+    CRGB gBurstcolor;
+    bool gSkyburst = false;
+  } DOTS_STORE;
+  DOTS_STORE store[SPARK];
+CRGB overrun;
+CRGB& piXY(byte x, byte y) {
+  x -= pixel_x_offset;
+  //x = (x - pixel_x_offset) % pWIDTH; // зацикливаем поле по иксу
+  y -= pixel_y_offset;
+  if( x < pWIDTH && y < pHEIGHT) {
+    return leds[XY(x, y)];
+  } else
+    //return empty; // fixed //  CRGB empty = CRGB(0,0,0);
+    return overrun;//CRGB(0,0,0);
+}
+
+class Dot {    // класс для создания снарядов и петард
+  public:
+  byte    show;
+  byte    theType;
+  accum88 x;
+  accum88 y;
+  saccum78 xv;
+  saccum78 yv;
+  accum88 r;
+  CRGB color;
+
+  Dot() {
+    show = 0;
+    theType = 0;
+    x =  0;
+    y =  0;
+    xv = 0;
+    yv = 0;
+    r  = 0;
+    color.setRGB( 0, 0, 0);
+  }
+
+  void Draw()
+  {
+    if( !show) return;
+    byte ix, xe, xc;
+    byte iy, ye, yc;
+    screenscale( x, model_pWIDTH, ix, xe);
+    screenscale( y, model_pHEIGHT, iy, ye);
+    yc = 255 - ye;
+    xc = 255 - xe;
+    CRGB c00 = CRGB( dim8_video( scale8( scale8( color.r, yc), xc)),
+                     dim8_video( scale8( scale8( color.g, yc), xc)),
+                     dim8_video( scale8( scale8( color.b, yc), xc))
+                     );
+    CRGB c01 = CRGB( dim8_video( scale8( scale8( color.r, ye), xc)),
+                     dim8_video( scale8( scale8( color.g, ye), xc)),
+                     dim8_video( scale8( scale8( color.b, ye), xc))
+                     );
+    CRGB c10 = CRGB( dim8_video( scale8( scale8( color.r, yc), xe)),
+                     dim8_video( scale8( scale8( color.g, yc), xe)),
+                     dim8_video( scale8( scale8( color.b, yc), xe))
+                     );
+    CRGB c11 = CRGB( dim8_video( scale8( scale8( color.r, ye), xe)),
+                     dim8_video( scale8( scale8( color.g, ye), xe)),
+                     dim8_video( scale8( scale8( color.b, ye), xe))
+                     );
+
+    piXY(ix, iy) += c00;
+    piXY(ix, iy + 1) += c01;
+    piXY(ix + 1, iy) += c10;
+    piXY(ix + 1, iy + 1) += c11;
+  }
+
+  void Move(byte num, bool Flashing)  {
+    if( !show) return;
+    yv -= gGravity;
+    xv = scale15by8_local( xv, gDrag);
+    yv = scale15by8_local( yv, gDrag);
+    if( theType == 2) {
+      xv = scale15by8_local( xv, gDrag);
+      yv = scale15by8_local( yv, gDrag);
+      color.nscale8( 255);
+      if( !color) {
+        show = 0;
+      }
+    }
+    // if we'd hit the ground, bounce
+    if( yv < 0 && (y < (-yv)) ) {
+      if( theType == 2 ) {
+        show = 0;
+      } else {
+        yv = -yv;
+        yv = scale15by8_local( yv, gBounce);
+        if( yv < 500 ) {
+          show = 0;
+        }
+      }
+    }
+    if (yv < -300) { // && (!(oyv < 0)) ) {
+      // pinnacle
+      if( theType == 1 ) {
+        if( (y > (uint16_t)(0x8000)) && (random8() < 32) && Flashing) {
+          // boom
+          LEDS.showColor( CRGB::Gray);
+          LEDS.showColor( CRGB::Black);
+        }
+        show = 0;
+        store[num].gSkyburst = true;
+        store[num].gBurstx = x;
+        store[num].gBursty = y;
+        store[num].gBurstxv = xv;
+        store[num].gBurstyv = yv;
+        store[num].gBurstcolor = CRGB(random8(), random8(), random8());
+      }
+    }
+    if( theType == 2) {
+      if( ((xv >  0) && (x > xv)) || ((xv < 0 ) && (x < (0xFFFF + xv))) )  {
+        x += xv;
+      } else {
+        show = 0;
+      }
+    } else {
+      x += xv;
+    }
+    y += yv;
+  }
+
+  void GroundLaunch() {
+    yv = 600 + random16(400 + (25 * pHEIGHT));
+    if(yv > 1200) yv = 1200;
+    xv = (int16_t)random16(600) - (int16_t)300;
+    y = 0;
+    x = 0x8000;
+    color = CHSV(0, 0, 130); // цвет запускаемого снаряда
+    show = 1;
+  }
+
+  void Skyburst( accum88 basex, accum88 basey, saccum78 basedv, CRGB& basecolor, uint8_t dim) {
+    yv = (int16_t)0 + (int16_t)random16(1500) - (int16_t)500;
+    xv = basedv + (int16_t)random16(2000) - (int16_t)1000;
+    y = basey;
+    x = basex;
+    color = basecolor;
+    color *= dim; //50;
+    theType = 2;
+    show = 1;
+  }
+
+  int16_t scale15by8_local( int16_t i, fract8 _scale ) {
+    int16_t result;
+    result = (int32_t)((int32_t)i * _scale) / 256;
+    return result;
+  };
+
+  void screenscale(accum88 a, byte N, byte &screen, byte &screenerr) {
+    byte ia = a >> 8;
+    screen = scale8(ia, N);
+    byte m = screen * (256 / N);
+    screenerr = (ia - m) * scale8(255, N);
+    return;
+  };
+};
+Dot *gSparks;
+const uint8_t DOT_EXPLOSION = pHEIGHT * 0.95;
+const uint8_t HORIZONT = pHEIGHT * 0.25;
+const float stepH = pHEIGHT / 128.0;
+const uint8_t FPS_DELAY = 20U;

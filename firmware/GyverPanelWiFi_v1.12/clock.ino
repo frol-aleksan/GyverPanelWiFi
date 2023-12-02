@@ -956,6 +956,7 @@ void setOverlayColors() {
     switch (thisMode) {
       case MC_SNOW:
       case MC_NOISE_EFFECTS:
+      case MC_PYTHON:
       case MC_RAIN:      
         contrastClockA(); // оранжевые
         break;

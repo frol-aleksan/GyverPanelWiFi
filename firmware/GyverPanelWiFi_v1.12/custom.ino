@@ -25,7 +25,7 @@ void doEffectWithOverlay(uint8_t aMode) {
 
   // В прошлой итерации часы / текст были наложены с оверлеем?
   // Если да - восстановить пиксели эффекта сохраненные перед наложением часов / текста
-  if (overlayDelayed && thisMode != MC_DRAW && thisMode != MC_LOADIMAGE) {
+  if (overlayDelayed && thisMode != MC_DRAW && thisMode != MC_LOADIMAGE && thisMode != MC_TEST_ORDER) {
     overlayUnwrap();
     overlayDelayed = false;
   }  
@@ -63,8 +63,8 @@ void doEffectWithOverlay(uint8_t aMode) {
   }
 
   // Оверлей нужен для всех эффектов, иначе при малой скорости эффекта и большой скорости часов поверх эффекта буквы-цифры "смазываются"
-  bool textOvEn  = ((textOverlayEnabled && (getEffectTextOverlayUsage(aMode))) || ignoreTextOverlaySettingforEffect) && !isTurnedOff && !isNightClock && thisMode < MAX_EFFECT && thisMode != MC_CLOCK;
-  bool clockOvEn = clockOverlayEnabled && getEffectClockOverlayUsage(aMode) && thisMode != MC_CLOCK && thisMode != MC_DRAW && thisMode != MC_LOADIMAGE;
+  bool textOvEn  = ((textOverlayEnabled && (getEffectTextOverlayUsage(aMode))) || ignoreTextOverlaySettingforEffect) && !isTurnedOff && !isNightClock && thisMode < MAX_EFFECT && thisMode != MC_CLOCK && thisMode != MC_TEST_ORDER;
+  bool clockOvEn = clockOverlayEnabled && getEffectClockOverlayUsage(aMode) && thisMode != MC_CLOCK && thisMode != MC_DRAW && thisMode != MC_LOADIMAGE && thisMode != MC_TEST_ORDER;
   bool needStopText = false;
   String out;
 
@@ -281,7 +281,7 @@ void doEffectWithOverlay(uint8_t aMode) {
   checkCalendarState();
   
   // Если время инициализировали и пришло время его показать - нарисовать часы поверх эффекта
-  if (init_time && ((clockOvEn && !showTextNow && aMode != MC_TEXT && thisMode != MC_DRAW && thisMode != MC_LOADIMAGE) || aMode == MC_CLOCK)) {    
+  if (init_time && ((clockOvEn && !showTextNow && aMode != MC_TEXT && thisMode != MC_DRAW && thisMode != MC_LOADIMAGE && thisMode != MC_TEST_ORDER) || aMode == MC_CLOCK)) {    
     overlayDelayed = needOverlay;
     setOverlayColors();
     if (needOverlay) {
@@ -394,6 +394,7 @@ void processEffect(uint8_t aMode) {
   #endif 
   switch (aMode) {
     case MC_NOISE_EFFECTS:       noiseEffectsRoutine(); break;
+    case MC_PYTHON:              Colored_Python(); break;
     case MC_PAINTBALL:           lightBallsRoutine(); break;
     case MC_SNOW:                snowRoutine(); break;
     case MC_SPARKLES:            sparklesRoutine(); break;
@@ -477,8 +478,8 @@ void processEffect(uint8_t aMode) {
     case MC_HOURGLASS:           Hourglass(); break;
     case MC_BYEFFECT:            ByEffect(); break;
     case MC_EFFECTSTARS:         EffectStars(); break;
-    case MC_LIQUIDLAMP:          LiquidLampRoutine(false); break;
-    case MC_LAVALAMP:            LavaLampRoutine(); break;
+    case MC_LIQUIDLAMP:          LiquidLamp(); break;
+    case MC_TEST_ORDER:          testColorOrder(); break;
     
     #ifdef MC_IMAGE
        case MC_IMAGE:               animationRoutine(); break;
@@ -522,6 +523,7 @@ void releaseEffectResources(uint8_t aMode) {
   
   switch (aMode) {
     case MC_NOISE_EFFECTS:       releaseNoise(); break;
+    case MC_PYTHON:              break;
     case MC_PAINTBALL:           break;
     case MC_SNOW:                break;
     case MC_SPARKLES:            break;
@@ -606,7 +608,7 @@ void releaseEffectResources(uint8_t aMode) {
     case MC_BYEFFECT:            break;
     case MC_EFFECTSTARS:         break;
     case MC_LIQUIDLAMP:          break;
-    case MC_LAVALAMP:            break;
+    case MC_TEST_ORDER:          break;
 
     #ifdef MC_IMAGE
     case MC_IMAGE:               break;
@@ -913,6 +915,9 @@ void setTimersForMode(uint8_t aMode) {
       if (aMode == MC_CLOCKS) {
         effectTimer.setInterval(efSpeed);
       } else 
+      if (aMode == MC_TEST_ORDER) {
+        effectTimer.setInterval(efSpeed);
+      } else 
       if (aMode == MC_FIREWORKS) {
         effectTimer.setInterval(efSpeed);
       } else 
@@ -955,10 +960,9 @@ void setTimersForMode(uint8_t aMode) {
       if (aMode == MC_LIQUIDLAMP) {
         effectTimer.setInterval(efSpeed);
       } else 
-      if (aMode == MC_LAVALAMP) {
-        effectTimer.setInterval(efSpeed*2); //разогнать эффект
-      } else 
-      {
+      if (aMode == MC_PYTHON) {
+        effectTimer.setInterval(efSpeed);
+      } else {
         effectTimer.setInterval(10);
       }
     } else if (aMode == MC_MAZE) {

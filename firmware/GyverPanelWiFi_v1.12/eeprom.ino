@@ -152,6 +152,7 @@ void loadSettings() {
     mTYPE             = getMetaMatrixType();
     mANGLE            = getMetaMatrixAngle();
     mDIRECTION        = getMetaMatrixDirection();
+    mCOLOR_ORDER      = getColorOrder();
 
     pWIDTH            = sWIDTH * mWIDTH;
     pHEIGHT           = sHEIGHT * mHEIGHT;
@@ -337,6 +338,7 @@ void saveDefaults() {
   putMetaMatrixType(mTYPE);
   putMetaMatrixAngle(mANGLE);
   putMetaMatrixDirection(mDIRECTION);
+  putColorOrder(mCOLOR_ORDER);
 
   putMaxBrightness(globalBrightness);
 
@@ -390,6 +392,8 @@ void saveDefaults() {
   putEffectTextOverlayUsage(MC_RUNNER, false);
   putEffectTextOverlayUsage(MC_WEATHER, false);
   putEffectTextOverlayUsage(MC_LIFE, false);
+  putEffectTextOverlayUsage(MC_TEST_ORDER, false);
+  
   putEffectClockOverlayUsage(MC_CLOCK, false);
   putEffectClockOverlayUsage(MC_CLOCKS, false);
   putEffectClockOverlayUsage(MC_MAZE, false);
@@ -400,7 +404,8 @@ void saveDefaults() {
   putEffectClockOverlayUsage(MC_RUNNER, false);
   putEffectClockOverlayUsage(MC_WEATHER, false);
   putEffectClockOverlayUsage(MC_LIFE, false);
-
+  putEffectClockOverlayUsage(MC_TEST_ORDER, false);
+  
   #ifdef MC_IMAGE
     putEffectTextOverlayUsage(MC_IMAGE, false);
     putEffectClockOverlayUsage(MC_IMAGE, false);
@@ -666,6 +671,20 @@ uint8_t getMetaMatrixDirection() {
   if (value > 3) value = 0;
   return value;
 }
+
+void putColorOrder(uint8_t colorder) {
+  if (colorder > 5) colorder = 0;
+  if (colorder != getColorOrder()) {
+    EEPROMwrite(93, colorder);
+  }  
+}
+uint8_t getColorOrder() {
+  uint8_t value = EEPROMread(93);
+  if (value > 5) value = 0;
+  return value;
+}
+
+
 
 void putEffectParams(uint8_t effect, uint8_t spd, bool use, bool use_text_overlay, bool use_clock_overlay, uint8_t value1, uint8_t value2, uint8_t contrast) {
   uint8_t value = 0;

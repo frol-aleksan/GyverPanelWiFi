@@ -79,7 +79,6 @@ void drawPicture_XY(uint8_t iconIdx, uint8_t X, uint8_t Y, uint8_t W, uint8_t H)
   }
 
   uint8_t effectBrightness = getBrightnessCalculated(globalBrightness, getEffectContrastValue(thisMode));
-
   for (uint8_t x = 0; x < W; x++) {
     for (uint8_t y = 0; y < H; y++) {
       uint8_t in = (uint8_t)pgm_read_byte(&(patterns[iconIdx][y][x])); 
@@ -95,10 +94,10 @@ void drawPicture_XY(uint8_t iconIdx, uint8_t X, uint8_t Y, uint8_t W, uint8_t H)
 void patternRoutine() {
   if (loadingFlag) {
     loadingFlag = false;
-    patternIdx = (specialTextEffectParam >= 0) ? (specialTextEffectParam - 1) : (getEffectScaleParamValue2(MC_PATTERNS) - 1);
-    if (patternIdx < 0 || patternIdx > MAX_PATTERN) {
-      patternIdx = random8(0,MAX_PATTERN);
-    }
+    palette_number = getEffectScaleParamValue2(MC_PATTERNS);
+    if (palette_number == 0 || palette_number == MAX_PATTERN + 2) patternIdx = random8(0,MAX_PATTERN); //Если Случайный выбор или Авто, задать произвольный вариант (в Авто от него начинается отсчет)
+    else if (palette_number > 0 || palette_number < MAX_PATTERN + 2) patternIdx = palette_number - 1;  //Если что-то из вариантов 1-33, берем только это значение
+    
     lineIdx = 9;         // Картинка спускается сверху вниз - отрисовка с нижней строки паттерна (паттерн 10x10) dir='d'
  // lineIdx = 0;         // Картинка поднимается сверху вниз - отрисовка с верхней строки паттерна dir='u'
 
@@ -110,12 +109,19 @@ void patternRoutine() {
       colorMR[6] = CHSV(0,0,255);
       isWhite = true;
     }
-  }  
-
+  }
+  
+  if (palette_number == MAX_PATTERN + 2) {  //автоперебор вариантов, если выбран вариант Авто, дается 10 сек на эффект
+    if (millis()- color_timer > 10000) { 
+      color_timer = millis();
+      patternIdx++;
+      if (patternIdx > MAX_PATTERN) patternIdx = 0;
+    }
+  }
+  
   hue++;
   if (!isWhite) colorMR[6] = CHSV(hue, 255, 255);
   colorMR[7] = CHSV(hue + 80, 255, 255);
   colorMR[8] = CHSV(hue + 160, 255, 255);
-
   drawPattern(patternIdx, 10, 10);  
 }

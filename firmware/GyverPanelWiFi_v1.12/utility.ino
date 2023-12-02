@@ -283,7 +283,7 @@ void drawCircleF(float x0, float y0, float radius, CRGB color) {
     --y;
   }
 }
-
+/*
 // получить номер пикселя в ленте по координатам
 uint16_t getPixelNumber(int8_t x, int8_t y) {
   uint8_t xx,yy,ww,sx,sy,mx,my,mw,snum,num;
@@ -327,10 +327,10 @@ uint16_t getPixelNumber(int8_t x, int8_t y) {
 }
 
 uint8_t THIS_X(uint8_t x, uint8_t y) {
-    /*
-        CONNECTION_ANGLE; // угол подключения: 0 - левый нижний, 1 - левый верхний, 2 - правый верхний, 3 - правый нижний
-        STRIP_DIRECTION;  // направление ленты из угла: 0 - вправо, 1 - вверх, 2 - влево, 3 - вниз
-     */
+    
+    //    CONNECTION_ANGLE; // угол подключения: 0 - левый нижний, 1 - левый верхний, 2 - правый верхний, 3 - правый нижний
+    //    STRIP_DIRECTION;  // направление ленты из угла: 0 - вправо, 1 - вверх, 2 - влево, 3 - вниз
+     
     if (sCONNECTION_ANGLE == 0 && sSTRIP_DIRECTION == 0) return x;
     if (sCONNECTION_ANGLE == 0 && sSTRIP_DIRECTION == 1) return y;
     if (sCONNECTION_ANGLE == 1 && sSTRIP_DIRECTION == 0) return x;
@@ -343,10 +343,10 @@ uint8_t THIS_X(uint8_t x, uint8_t y) {
 }
 
 uint8_t THIS_Y(uint8_t x, uint8_t y) {
-    /*
-        CONNECTION_ANGLE; // угол подключения: 0 - левый нижний, 1 - левый верхний, 2 - правый верхний, 3 - правый нижний
-        STRIP_DIRECTION;  // направление ленты из угла: 0 - вправо, 1 - вверх, 2 - влево, 3 - вниз
-     */
+    
+    //    CONNECTION_ANGLE; // угол подключения: 0 - левый нижний, 1 - левый верхний, 2 - правый верхний, 3 - правый нижний
+    //    STRIP_DIRECTION;  // направление ленты из угла: 0 - вправо, 1 - вверх, 2 - влево, 3 - вниз
+    
     if (sCONNECTION_ANGLE == 0 && sSTRIP_DIRECTION == 0) return y;
     if (sCONNECTION_ANGLE == 0 && sSTRIP_DIRECTION == 1) return x;
     if (sCONNECTION_ANGLE == 1 && sSTRIP_DIRECTION == 0) return sHEIGHT - y - 1;
@@ -359,10 +359,10 @@ uint8_t THIS_Y(uint8_t x, uint8_t y) {
 }
 
 uint8_t THIS_W() {
-    /*
-        CONNECTION_ANGLE; // угол подключения: 0 - левый нижний, 1 - левый верхний, 2 - правый верхний, 3 - правый нижний
-        STRIP_DIRECTION;  // направление ленты из угла: 0 - вправо, 1 - вверх, 2 - влево, 3 - вниз
-     */
+    
+    //    CONNECTION_ANGLE; // угол подключения: 0 - левый нижний, 1 - левый верхний, 2 - правый верхний, 3 - правый нижний
+    //    STRIP_DIRECTION;  // направление ленты из угла: 0 - вправо, 1 - вверх, 2 - влево, 3 - вниз
+     
     if (sCONNECTION_ANGLE == 0 && sSTRIP_DIRECTION == 0) return sWIDTH;
     if (sCONNECTION_ANGLE == 0 && sSTRIP_DIRECTION == 1) return sHEIGHT;
     if (sCONNECTION_ANGLE == 1 && sSTRIP_DIRECTION == 0) return sWIDTH;
@@ -375,10 +375,10 @@ uint8_t THIS_W() {
 }
 
 uint8_t THIS_SX(uint8_t x, uint8_t y) {
-    /*
-        CONNECTION_ANGLE; // угол подключения: 0 - левый нижний, 1 - левый верхний, 2 - правый верхний, 3 - правый нижний
-        STRIP_DIRECTION;  // направление ленты из угла: 0 - вправо, 1 - вверх, 2 - влево, 3 - вниз
-     */
+    
+    //    CONNECTION_ANGLE; // угол подключения: 0 - левый нижний, 1 - левый верхний, 2 - правый верхний, 3 - правый нижний
+    //   STRIP_DIRECTION;  // направление ленты из угла: 0 - вправо, 1 - вверх, 2 - влево, 3 - вниз
+     
     if (mANGLE == 0 && mDIRECTION == 0) return x;
     if (mANGLE == 0 && mDIRECTION == 1) return y;
     if (mANGLE == 1 && mDIRECTION == 0) return x;
@@ -391,10 +391,10 @@ uint8_t THIS_SX(uint8_t x, uint8_t y) {
 }
 
 uint8_t THIS_SY(uint8_t x, uint8_t y) {
-    /*
-        CONNECTION_ANGLE; // угол подключения: 0 - левый нижний, 1 - левый верхний, 2 - правый верхний, 3 - правый нижний
-        STRIP_DIRECTION;  // направление ленты из угла: 0 - вправо, 1 - вверх, 2 - влево, 3 - вниз
-     */
+    
+    //    CONNECTION_ANGLE; // угол подключения: 0 - левый нижний, 1 - левый верхний, 2 - правый верхний, 3 - правый нижний
+    //    STRIP_DIRECTION;  // направление ленты из угла: 0 - вправо, 1 - вверх, 2 - влево, 3 - вниз
+     
     if (mANGLE == 0 && mDIRECTION == 0) return y;
     if (mANGLE == 0 && mDIRECTION == 1) return x;
     if (mANGLE == 1 && mDIRECTION == 0) return mHEIGHT - y - 1;
@@ -407,10 +407,10 @@ uint8_t THIS_SY(uint8_t x, uint8_t y) {
 }
 
 uint8_t THIS_SW() {
-    /*
-        CONNECTION_ANGLE; // угол подключения: 0 - левый нижний, 1 - левый верхний, 2 - правый верхний, 3 - правый нижний
-        STRIP_DIRECTION;  // направление ленты из угла: 0 - вправо, 1 - вверх, 2 - влево, 3 - вниз
-     */
+    
+    //    CONNECTION_ANGLE; // угол подключения: 0 - левый нижний, 1 - левый верхний, 2 - правый верхний, 3 - правый нижний
+    //    STRIP_DIRECTION;  // направление ленты из угла: 0 - вправо, 1 - вверх, 2 - влево, 3 - вниз
+     
     if (mANGLE == 0 && mDIRECTION == 0) return mWIDTH;
     if (mANGLE == 0 && mDIRECTION == 1) return mHEIGHT;
     if (mANGLE == 1 && mDIRECTION == 0) return mWIDTH;
@@ -420,7 +420,7 @@ uint8_t THIS_SW() {
     if (mANGLE == 3 && mDIRECTION == 2) return mWIDTH;
     if (mANGLE == 3 && mDIRECTION == 1) return mHEIGHT;
     return mWIDTH;
-}
+}*/
 
 // функция плавного угасания цвета для всех пикселей
 void fader(uint8_t step) {
