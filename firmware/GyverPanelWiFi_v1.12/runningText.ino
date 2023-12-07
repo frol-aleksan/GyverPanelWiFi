@@ -1190,6 +1190,11 @@ String processDateMacrosInText(const String text) {
         sFormat = textLine.substring(idx+3, idx2);
       }
       sFmtProcess = sFormat;
+
+      //  YYY+ - следующий год в виде четырехзначного числа
+      str = String(ayear + 1);
+      sFmtProcess.replace("YYY+", str);
+      sFmtProcess.replace("yyy+", str);
       
       //  YYYY - год в виде четырехзначного числа
       str = String(ayear);
