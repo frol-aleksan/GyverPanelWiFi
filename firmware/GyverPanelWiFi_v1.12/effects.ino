@@ -7572,21 +7572,23 @@ void prizmataRoutine() {
 }
 
 void prizmata(CRGBPalette16 pal) {
-  delay(5);  // Если совсем задержки нет - матрица мерцает от постоянного обновления
+  // Если совсем задержки нет - матрица мерцает от постоянного обновления
+  delay(5);
   EVERY_N_MILLIS(33) {
-    hue++;
+     hue++;
   }
+  FastLED.clear();
   // Отрисовка режима происходит на максимальной скорости. Знеачение effectSpeed влияет на параметр BPM функции beatsin8
-  uint8_t spd = map8(255 - getEffectSpeedValue(MC_PRIZMATA), 12, 64);
+  uint8_t spd = map8(255-getEffectSpeedValue(MC_PRIZMATA), 12, 64);   
   uint8_t effectBrightness = getBrightnessCalculated(globalBrightness, getEffectContrastValue(thisMode));
   if (direct == 0) {
     for (uint8_t x = 0; x < pWIDTH; x++) {
-      uint8_t y = beatsin8(spd + x, 0, pHEIGHT - 1);
+      uint8_t y = beatsin8(spd + x, 0,pHEIGHT-1);
       drawPixelXY(x, y, ColorFromPalette(pal, x * 7 + hue, effectBrightness));
     }
   } else {
     for (uint8_t y = 0; y < pHEIGHT; y++) {
-      uint8_t x = beatsin8(spd + y, 0, pWIDTH - 1);
+      uint8_t x = beatsin8(spd + y, 0, pWIDTH-1);
       drawPixelXY(x, y, ColorFromPalette(pal, x * 7 + hue, effectBrightness));
     }
   }
