@@ -4744,6 +4744,9 @@ void setEffect(uint8_t eff) {
   else
     loadingFlag = true;
 
+  if (eff == MC_TEST_ORDER)
+    loadingFlag = true;
+
   set_thisMode(eff);
 
   setTimersForMode(thisMode);
