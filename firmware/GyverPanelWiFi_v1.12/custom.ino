@@ -479,10 +479,12 @@ void processEffect(uint8_t aMode) {
     case MC_BYEFFECT:            ByEffect(); break;
     case MC_EFFECTSTARS:         EffectStars(); break;
     case MC_LIQUIDLAMP:          LiquidLamp(); break;
+    case MC_SERPENTINE:          Serpentine(); break;
+    case MC_TIXY:                TixyLand(); break;
     case MC_TEST_ORDER:          testColorOrder(); break;
     
     #ifdef MC_IMAGE
-       case MC_IMAGE:               animationRoutine(); break;
+       case MC_IMAGE:            animationRoutine(); break;
     #endif  
 
     #if (USE_SD == 1)
@@ -608,6 +610,8 @@ void releaseEffectResources(uint8_t aMode) {
     case MC_BYEFFECT:            break;
     case MC_EFFECTSTARS:         break;
     case MC_LIQUIDLAMP:          break;
+    case MC_SERPENTINE:          break;
+    case MC_TIXY:                break;
     case MC_TEST_ORDER:          break;
 
     #ifdef MC_IMAGE
@@ -958,6 +962,12 @@ void setTimersForMode(uint8_t aMode) {
         effectTimer.setInterval(efSpeed);
       } else 
       if (aMode == MC_LIQUIDLAMP) {
+        effectTimer.setInterval(efSpeed);
+      } else 
+      if (aMode == MC_SERPENTINE) {
+        effectTimer.setInterval(efSpeed);
+      } else 
+      if (aMode == MC_TIXY) {
         effectTimer.setInterval(efSpeed);
       } else 
       if (aMode == MC_PYTHON) {

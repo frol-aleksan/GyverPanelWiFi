@@ -10727,8 +10727,13 @@ void Contacts() {
     if (contacts_type == 1)
       FPSdelay = 80U;
     else
-      hue = modes[currentMode].Scale / 10;
+      hue = random8(1,9);
   }
+  if (millis() - color_timer > 10000) {
+      color_timer = millis();
+      hue++;
+      if (hue > 8) hue = 1;
+    }
   switch (contacts_type) {
     case 1: ContactsRoutine(); break;
     case 2: PlasmaWavesRoutine(); break;
@@ -11034,7 +11039,6 @@ void ByEffect() {
   }
   hue = floor(step / 32) * 32U;
   dimAll(180);
-  // ------
   saturation = 255U;
   delta = 0;
   for (uint8_t x = 0U; x < pWIDTH + 1 ; x++) {
@@ -11065,7 +11069,6 @@ void ByEffect() {
       }
     }
   }
-  // ------
   deltaValue++;
   if (deltaValue >= 8) {
     deltaValue = 0;
@@ -11073,7 +11076,302 @@ void ByEffect() {
   step++;
 }
 
-//Здесь находится код вроде как работающих, но не задействованных в прошивке по тем или иным причинам эффектов
+// ============ Serpentine =============
+//             © SlingMaster
+//              Серпантин
+// =====================================
+void Serpentine() {
+  const byte PADDING = pHEIGHT * 0.25;
+  const byte BR_INTERWAL = 64 / pHEIGHT;
+  const byte DELTA = pWIDTH  * 0.25;
+  if (loadingFlag) {
+    loadingFlag = false;
+    deltaValue = 0;
+    hue = 0;
+    FastLED.clear();
+  }
+  byte step1 = map8(modes[currentMode].Speed, 10U, 60U);
+  uint16_t ms = millis();
+  double freq = 3000;
+  float mn = 255.0 / 13.8;
+  byte fade = 180 - abs(128 - step);
+  fadeToBlackBy(leds, NUM_LEDS, fade);
+  for (uint16_t y = 0; y < pHEIGHT; y++) {
+    uint32_t yy = y * 256;
+    uint32_t x1 = beatsin16(step1, pWIDTH, (pHEIGHT - 1) * 256, pWIDTH, y * freq + 32768) / 2;
+    // change color --------
+    CRGB col1 = CHSV(ms / 29 + y * 256 / (pHEIGHT - 1) + 128, 255, 255 - (pHEIGHT - y) * BR_INTERWAL);
+    CRGB col2 = CHSV(ms / 29 + y * 256 / (pHEIGHT - 1), 255, 255 - (pHEIGHT - y) * BR_INTERWAL);
+    wu_pixel( x1 + hue * DELTA, yy - PADDING * (255 - hue), &col1);
+    wu_pixel( abs((pWIDTH - 1) * 256 - (x1 + hue * DELTA)), yy - PADDING * hue, &col2);
+  }
+  step++;
+  if (step % 64) {
+    if (deltaValue == 0) {
+      hue++;
+      if (hue >= 255) {
+        deltaValue = 1;
+      }
+    } else {
+      hue--;
+      if (hue < 1) {
+        deltaValue = 0;
+      }
+    }
+  }
+}
+
+// ============= Tixy Land ==============
+//        © Martin Kleppe @aemkei
+//github.com/owenmcateer/tixy.land-display
+//      Create Script Change Effects
+//             © SlingMaster
+// ======================================
+//   набор мат. функций и примитивов для
+//            обсчета эффектов
+//       © Dmytro Korniienko (kDn)
+// ======================================
+
+#define M_PI_2  1.57079632679489661923
+static const PROGMEM float LUT[102] = {
+  0,           0.0099996664, 0.019997334, 0.029991005, 0.039978687,
+  0.049958397, 0.059928156,  0.069885999, 0.079829983, 0.089758173,
+  0.099668652, 0.10955953,   0.11942893,  0.12927501,  0.13909595,
+  0.14888994,  0.15865526,   0.16839015,  0.17809294,  0.18776195,
+  0.19739556,  0.20699219,   0.21655031,  0.22606839,  0.23554498,
+  0.24497867,  0.25436807,   0.26371184,  0.27300870,  0.28225741,
+  0.29145679,  0.30060568,   0.30970293,  0.31874755,  0.32773849,
+  0.33667481,  0.34555557,   0.35437992,  0.36314702,  0.37185606,
+  0.38050637,  0.38909724,   0.39762798,  0.40609807,  0.41450688,
+  0.42285392,  0.43113875,   0.43936089,  0.44751999,  0.45561564,
+  0.46364760,  0.47161558,   0.47951928,  0.48735857,  0.49513325,
+  0.50284320,  0.51048833,   0.51806855,  0.52558380,  0.53303409,
+  0.54041952,  0.54774004,   0.55499572,  0.56218672,  0.56931317,
+  0.57637525,  0.58337301,   0.59030676,  0.59717667,  0.60398299,
+  0.61072594,  0.61740589,   0.62402308,  0.63057774,  0.63707036,
+  0.64350110,  0.64987046,   0.65617871,  0.66242629,  0.66861355,
+  0.67474097,  0.68080884,   0.68681765,  0.69276786,  0.69865984,
+  0.70449406,  0.71027100,   0.71599114,  0.72165483,  0.72726268,
+  0.73281509,  0.73831260,   0.74375558,  0.74914461,  0.75448018,
+  0.75976276,  0.76499283,   0.77017093,  0.77529752,  0.78037310,
+  0.78539819,  0.79037325
+};
+
+// --------------------------------------
+float atan2_fast(float y, float x) {
+  //http://pubs.opengroup.org/onlinepubs/009695399/functions/atan2.html
+  //Volkan SALMA
+  const float ONEQTR_PI = PI / 4.0;
+  const float THRQTR_PI = 3.0 * PI / 4.0;
+  float r, angle;
+  float abs_y = fabs(y) + 1e-10f;      // kludge to prevent 0/0 condition
+  if ( x < 0.0f ) {
+    r = (x + abs_y) / (abs_y - x);
+    angle = THRQTR_PI;
+  } else {
+    r = (x - abs_y) / (x + abs_y);
+    angle = ONEQTR_PI;
+  }
+  angle += (0.1963f * r * r - 0.9817f) * r;
+  if ( y < 0.0f ) {
+    return ( -angle );    // negate if in quad III or IV
+  } else {
+    return ( angle );
+  }
+}
+
+// --------------------------------------
+float atan_fast(float x) {
+  /* A fast look-up method with enough accuracy */
+  if (x > 0) {
+    if (x <= 1) {
+      int index = round(x * 100);
+      return LUT[index];
+    } else {
+      float re_x = 1 / x;
+      int index = round(re_x * 100);
+      return (M_PI_2 - LUT[index]);
+    }
+  } else {
+    if (x >= -1) {
+      float abs_x = -x;
+      int index = round(abs_x * 100);
+      return -(LUT[index]);
+    } else {
+      float re_x = 1 / (-x);
+      int index = round(re_x * 100);
+      return (LUT[index] - M_PI_2);
+    }
+  }
+}
+
+float tan2pi_fast(float x) {
+  float y = (1 - x * x);
+  return x * (((-0.000221184 * y + 0.0024971104) * y - 0.02301937096) * y + 0.3182994604 + 1.2732402998 / y);
+}
+
+float code(double t, double i, double x, double y) {
+  switch (pcnt) {
+    case 1: /* Plasma */
+      hue = 96U; hue2 = 224U;
+      return (sin16((x + t) * 8192.0) * 0.5 + sin16((y + t) * 8192.0) * 0.5 + sin16((x + y + t) * 8192.0) * 0.3333333333333333) / 32767.0;
+      break;
+    case 2: /* Up&Down */
+      //return sin(cos(x) * y / 8 + t);
+      hue = 255U; hue2 = 160U;
+      return sin16((cos16(x * 8192.0) / 32767.0 * y / (pHEIGHT / 2.0) + t) * 8192.0) / 32767.0;
+      break;
+    case 3:
+      hue = 255U; hue2 = 96U;
+      return sin16((atan_fast(y / x) + t) * 8192.0) / 32767.0;
+      break;
+    case 4: /* Emitting rings */
+      hue = 255U; hue2 = 0U;
+      return sin16((t - sqrt3((x - (pWIDTH / 2)) * (x - (pWIDTH / 2)) + (y - (pHEIGHT / 2)) * (y - (pHEIGHT / 2)))) * 8192.0) / 32767.0;
+      break;
+    case 5: /* Rotation  */
+      hue = 136U; hue2 = 48U;
+      return sin16((PI * 2.5 * atan_fast((y - (pHEIGHT / 2)) / (x - (pWIDTH / 2))) + 5 * t) * 8192.0) / 32767.0;
+      break;
+    case 6: /* Vertical fade */
+      hue = 160U; hue2 = 0U;
+      return sin16((y / 8 + t) * 8192.0) / 32767.0;
+      break;
+    case 7: /* Waves */
+      //return sin(x / 2) - sin(x - t) - y + 6;
+      hue = 48U; hue2 = 160U;
+      return (sin16(x * 4096.0) - sin16((x - t) * 8192.0)) / 32767.0 - y + (pHEIGHT / 2);
+      break;
+    case 8: /* Drop */
+      hue = 136U; hue2 = 160U;
+      return fmod(8 * t, 13) - sqrt3((x - (pWIDTH / 2)) * (x - (pWIDTH / 2)) + (y - (pHEIGHT / 2)) * (y - (pHEIGHT / 2))); //hypot(x - (pWIDTH/2), y - (pHEIGHT/2));
+      break;
+    case 9: /* Ripples @thespite */
+      hue = 96U; hue2 = 224U;
+      return sin16((t - sqrt3(x * x + y * y)) * 8192.0) / 32767.0;
+      break;
+    case 10: /* Bloop bloop bloop @v21 */
+      hue = 136U; hue2 = 160U;
+      return (x - (pWIDTH / 2)) * (y - (pHEIGHT / 2)) - sin16(t * 4096.0) / 512.0;
+      break;
+    case 11: /* SN0WFAKER */
+      hue = 96U; hue2 = 160U;
+      return sin16((atan_fast((y - (pHEIGHT / 2)) / (x - (pWIDTH / 2))) + t) * 8192.0) / 32767.0;
+      break;
+    case 12: /* detunized */
+      hue = 136U; hue2 = 160U;
+      return sin16((y / (pHEIGHT / 2) + t * 0.5) * 8192.0) / 32767.0 + x / 16 - 0.5;
+      break;
+    case 13:
+      hue = 255U; hue2 = 0U;
+      return sin16((6 * atan2_fast(y - (pHEIGHT / 2), x) + t) * 8192.0) / 32767.0;
+      break;
+    case 14:
+      hue = 32U; hue2 = 160U;
+      return sin16((i / 5 + t) * 16384.0) / 32767.0;
+      break;
+    case 15: /* Burst */
+      hue = 136U; hue2 = 160U;
+      return -10. / ((x - (pWIDTH / 2)) * (x - (pWIDTH / 2)) + (y - (pHEIGHT / 2)) * (y - (pHEIGHT / 2)) - fmod(t * 0.3, 0.7) * 200);
+      break;
+    case 16: /* Rays */
+      hue = 255U; hue2 = 0U;
+      return sin16((atan2_fast(x, y) * 5 + t * 2) * 8192.0) / 32767.0;
+      break;
+    case 17: /* Starfield */
+      hue = 255U; hue2 = 160U;
+      return !((int)(x + t * 50 / (fmod(y * y, 5.9) + 1)) & 15) / (fmod(y * y, 5.9) + 1);
+      break;
+    case 18:
+      hue = 255U; hue2 = 0U;
+      return sin16((3.5 * atan2_fast(y - (pHEIGHT / 2) + sin16(t * 8192.0) * 0.00006, x - (pWIDTH / 2) + sin16(t * 8192.0) * 0.00006) + t * 1.5 + 5) * 8192.0) / 32767.0;
+      break;
+    case 19:
+      hue = 255U; hue2 = 224U;
+      return (y - 8) / 3 - tan2pi_fast((x / 6 + 1.87) / PI * 2) * sin16(t * 16834.0) / 32767.0;
+      break;
+    case 20:
+      hue = 136U; hue2 = 160U;
+      return (y - 8) / 3 - (sin16((x / 4 + t * 2) * 8192.0) / 32767.0);
+      break;
+    case 21:
+      hue = 72U; hue2 = 96U;
+      return cos(sin16(x * t * 819.2) / 32767.0 * PI) + cos16((sin16((y * t / 10 + (sqrt3(abs(cos16(x * t * 8192.0) / 32767.0)))) * 8192.0) / 32767.0 * PI) * 8192.0) / 32767.0;
+      break;
+    case 22: /* bambuk */
+      hue = 96U; hue2 = 80U;
+      return sin16(x / 3 * sin16(t * 2730.666666666667) / 2.0) / 32767.0 + cos16(y / 4 * sin16(t * 4096.0) / 2.0) / 32767.0;
+      break;
+    case 23:
+      hue = 0U; hue2 = 224U; {
+        float _x = x - fmod(t, pWIDTH);
+        float _y = y - fmod(t, pHEIGHT);
+        return -.4 / (sqrt3(_x * _x + _y * _y) - fmod(t, 2) * 9);
+      }
+      break;
+    case 24: /* honey */
+      hue = 255U; hue2 = 40U;
+      return sin16(y * t * 2048.0) / 32767.0 * cos16(x * t * 2048.0) / 32767.0;
+      break;
+    case 25:
+      hue = 96U; hue2 = 160U;
+      return atan_fast((x - (pWIDTH / 2)) * (y - (pHEIGHT / 2))) - 2.5 * sin16(t * 8192.0) / 32767.0;
+      break;
+    case 26: // !!!! paint
+      return 1. - fmod((x * x - (pHEIGHT - y) + t * (1 + fmod(x * x, 5)) * 3), pWIDTH) / pHEIGHT;
+      break;
+  }
+}
+
+void processFrame(double t, double x, double y) {
+  double i = (y * pWIDTH) + x;
+  double frame = constrain(code(t, i, x, y), -1, 1) * 255;
+  if (frame > 0) {
+    if ( hue == 255U) {
+      drawPixelXY(x, y, CRGB(frame, frame, frame));
+    } else {
+      drawPixelXY(x, y, CHSV(hue, frame, frame));
+    }
+  } else {
+    if (frame < 0) {
+      if (modes[currentMode].Scale < 5) deltaHue2 = 0;
+      drawPixelXY(x, y, CHSV(hue2 + deltaHue2, frame * -1, frame * -1));
+    } else {
+      drawPixelXY(x, y, CRGB::Black);
+    }
+  }
+}
+
+void TixyLand() {
+  if (loadingFlag) {
+    loadingFlag = false;
+    FastLED.clear();
+    deltaHue = 0;  
+    palette_number = getEffectScaleParamValue2(MC_TIXY);
+    if (palette_number == 0 || palette_number == 27) pcnt = random8(1, 27); //Если Случайный выбор или Авто, задать произвольный вариант (в Авто от него начинается отсчет)
+    else if (palette_number > 0 || palette_number < 27) pcnt = palette_number;  //Если что-то из вариантов 1-26, берем только это значение
+    FPSdelay = 1;
+    deltaHue2 = modes[currentMode].Scale * 2.55;
+    hue = 255U; hue2 = 0U;
+  }
+  unsigned long milli = millis();
+  double t = milli / 1000.0;
+  if (palette_number == 27) {  //автоперебор вариантов, если выбран вариант Авто, дается 10 сек на эффект
+    if (millis() - color_timer > 10000) {
+      color_timer = millis();
+      pcnt++;
+      if (pcnt > 26) pcnt = 1;
+    }
+  } else if (palette_number > 0)
+       pcnt = palette_number;
+  for ( double x = 0; x < pWIDTH; x++) {
+    for ( double y = 0; y < pHEIGHT; y++) {
+      processFrame(t, x, y);
+    }
+  }
+}
+
+//Здесь находится код вроде как работающих, но по тем или иным причинам не задействованных в прошивке эффектов
 //волшебный фонарь
 /*void MagicLantern() { //непонятный эффект, но что-то рисует
 
