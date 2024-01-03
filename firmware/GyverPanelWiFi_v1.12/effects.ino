@@ -10115,10 +10115,11 @@ void LiquidLamp() {
 
 // ============= водо/огне/лава/радуга/хренопад ===============
 // SPARKING: Чем больше значение, тем больше струй, задается через полузунок контраста
-// COOLING: Чем больше значение, тем короче длина струй, задается через ползунок 1 параметра
+// COOLING: Чем больше значение, тем короче длина струй, задается через ползунок 1 варианта
 void waterfallRoutine() {
   if (loadingFlag) {
     loadingFlag = false;
+    SPARKINGNEW = getEffectContrast(MC_WATERFALL);                      //чем больше, тем плотнее поток
     COOLINGNEW = map8(getEffectScaleParamValue(MC_WATERFALL), 8, 100);  //чем больше, тем короче струи
     palette_number = getEffectScaleParamValue2(MC_WATERFALL);
     if (palette_number == 0 || palette_number == 61) startnum = random8(1, 61); //Если Случайный выбор или Авто, задать произвольный вариант (в Авто от него начинается отсчет)
