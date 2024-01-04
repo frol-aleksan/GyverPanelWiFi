@@ -6312,8 +6312,13 @@ void VirtualSnow(byte snow_type) {
 
 //---------------------------------------
 void GreenTree(uint8_t tree_h, byte aday, byte amonth) {
+  uint8_t effWIDTH;
   hue = floor(step / 32) * 32U;
-  for (uint8_t x = 0U; x < pWIDTH + 1 ; x++) {
+  if (pWIDTH % 8 == 0)
+    effWIDTH = pWIDTH;
+  else 
+    effWIDTH = (trunc(pWIDTH / 8) * 8 + 8); //приводим ширину к значению, кратному 8 в большую сторону
+  for (uint8_t x = 0U; x < effWIDTH + 1; x++) {
     if (x % 8 == 0) {
       //рисуем елочки
       DrawLine(x - 1U - deltaValue, floor(tree_h * 0.70), x + 1U - deltaValue, floor(tree_h * 0.70), 0x002F00);
@@ -6338,11 +6343,10 @@ void GreenTree(uint8_t tree_h, byte aday, byte amonth) {
         drawPixelXY(x + 2 - deltaValue, 1U, CHSV(step, 255U, 200U));
         gradientVertical( x - deltaValue, floor(tree_h * 0.75), x - deltaValue, tree_h,  hue, hue, 250U, 0U, 128U);
       }
-    }
+    }    
   }
 }
 
-//---------------------------------------
 uint8_t treemove;
 uint8_t snowspeed;
 void ChristmasTree() {
@@ -6361,20 +6365,11 @@ void ChristmasTree() {
   }
   a_day = day();
   a_month = month();
-  if (pHEIGHT > 16) {
-    if (modes[currentMode].Scale < 60) {
-      gradientVertical(0, 0, pWIDTH, pHEIGHT, 160, 160, 64, 128, 255U);
-    } else {
-      FastLED.clear();
-    }
-  } else {
-    FastLED.clear();
-  }
+  FastLED.clear();
   GreenTree(tree_h, a_day, a_month);
-  if (treemove == 1)  deltaValue++;     //если чекбокс включен, елки будут двигаться
-  Serial.println(a_month);
   if ((a_month < 3) || (a_month > 11)) VirtualSnow(snowspeed); //снег идет с декабря по февраль
-  if (deltaValue >= 8) deltaValue = 0;
+  if (treemove == 1) deltaValue++;                             //если чекбокс включен, елки будут двигаться
+  if (deltaValue >= 8)  deltaValue = 0; 
   step++;
 }
 
@@ -11034,41 +11029,47 @@ void Hourglass() {
 //            Побочный Эффект
 // --------------------------------------
 void ByEffect() {
+  uint8_t effWIDTH;
   uint8_t saturation;
   uint8_t delta;
+  uint8_t effvar;
   if (loadingFlag) {
     loadingFlag = false;
     deltaValue = 0;
     step = deltaValue;
+    effvar = random8(1,3);
     FastLED.clear();
   }
   hue = floor(step / 32) * 32U;
   dimAll(180);
   saturation = 255U;
   delta = 0;
-  for (uint8_t x = 0U; x < pWIDTH + 1 ; x++) {
+  if (pWIDTH % 8 == 0)
+    effWIDTH = pWIDTH;
+  else 
+    effWIDTH = (trunc(pWIDTH / 8) * 8 + 8); //приводим ширину к значению, кратному 8 в большую сторону    
+  for (uint8_t x = 0U; x < effWIDTH + 1 ; x++) {
     if (x % 8 == 0) {
       gradientVertical( x - deltaValue, floor(pHEIGHT * 0.75), x + 1U - deltaValue, pHEIGHT,  hue, hue + 2, 250U, 0U, 255U);
-    //  Serial.println(modes[currentMode].Scale);
-      if (modes[currentMode].Scale > 50) {
+      if (effvar > 1) {
         delta = random8(200U);
       }
       drawPixelXY(x - 2 - deltaValue, floor(pHEIGHT * 0.7), CHSV(step, saturation - delta, 128 + random8(128)));
       drawPixelXY(x + 2 - deltaValue, floor(pHEIGHT * 0.7), CHSV(step, saturation, 128 + random8(128)));
       drawPixelXY(x - deltaValue, floor(pHEIGHT * 0.6), CHSV(hue, 255U, 190 + random8(65)));
-      if (modes[currentMode].Scale > 50) {
+      if (effvar > 1) {
         delta = random8(200U);
       }
       drawPixelXY(x - 1 - deltaValue, CENTER_Y_MINOR, CHSV(step, saturation, 128 + random8(128)));
       drawPixelXY(x + 1 - deltaValue, CENTER_Y_MINOR, CHSV(step, saturation - delta, 128 + random8(128)));
       drawPixelXY(x - deltaValue, floor(pHEIGHT * 0.4), CHSV(hue, 255U, 200U));
-      if (modes[currentMode].Scale > 50) {
+      if (effvar > 1) {
         delta = random8(200U);
       }
       drawPixelXY(x - 2 - deltaValue, floor(pHEIGHT * 0.3), CHSV(step, saturation - delta, 96 + random8(128)));
       drawPixelXY(x + 2 - deltaValue, floor(pHEIGHT * 0.3), CHSV(step, saturation, 96 + random8(128)));
       gradientVertical( x - deltaValue, 0U, x + 1U - deltaValue, floor(pHEIGHT * 0.25),  hue + 2, hue, 0U, 250U, 255U);
-      if (modes[currentMode].Scale > 50) {
+      if (effvar > 1) {
         drawPixelXY(x + 3 - deltaValue, pHEIGHT - 3U, CHSV(step, 255U, 255U));
         drawPixelXY(x - 3 - deltaValue, CENTER_Y_MINOR, CHSV(step, 255U, 255U));
         drawPixelXY(x + 3 - deltaValue, 2U, CHSV(step, 255U, 255U));
