@@ -6311,23 +6311,22 @@ void VirtualSnow(byte snow_type) {
 }
 
 //---------------------------------------
-void GreenTree(uint8_t tree_h) {
+void GreenTree(uint8_t tree_h, byte aday, byte amonth) {
   hue = floor(step / 32) * 32U;
   for (uint8_t x = 0U; x < pWIDTH + 1 ; x++) {
     if (x % 8 == 0) {
-      if (modes[currentMode].Scale < 60) {
-        // nature -----
-        DrawLine(x - 1U - deltaValue, floor(tree_h * 0.70), x + 1U - deltaValue, floor(tree_h * 0.70), 0x002F00);
-        DrawLine(x - 1U - deltaValue, floor(tree_h * 0.55), x + 1U - deltaValue, floor(tree_h * 0.55), 0x004F00);
-        DrawLine(x - 2U - deltaValue, floor(tree_h * 0.35), x + 2U - deltaValue, floor(tree_h * 0.35), 0x005F00);
-        DrawLine(x - 2U - deltaValue, floor(tree_h * 0.15), x + 2U - deltaValue, floor(tree_h * 0.15), 0x007F00);
-        drawPixelXY(x - 3U - deltaValue, floor(tree_h * 0.15), 0x001F00);
-        drawPixelXY(x + 3U - deltaValue, floor(tree_h * 0.15), 0x001F00);
-        if ((x - deltaValue ) >= 0) {
-          gradientVertical( x - deltaValue, 0U, x - deltaValue, tree_h, 90U, 90U, 190U, 64U, 255U);
-        }
-      } else {
-        // holiday -----
+      //рисуем елочки
+      DrawLine(x - 1U - deltaValue, floor(tree_h * 0.70), x + 1U - deltaValue, floor(tree_h * 0.70), 0x002F00);
+      DrawLine(x - 1U - deltaValue, floor(tree_h * 0.55), x + 1U - deltaValue, floor(tree_h * 0.55), 0x004F00);
+      DrawLine(x - 2U - deltaValue, floor(tree_h * 0.35), x + 2U - deltaValue, floor(tree_h * 0.35), 0x005F00);
+      DrawLine(x - 2U - deltaValue, floor(tree_h * 0.15), x + 2U - deltaValue, floor(tree_h * 0.15), 0x007F00);
+      drawPixelXY(x - 3U - deltaValue, floor(tree_h * 0.15), 0x001F00);
+      drawPixelXY(x + 3U - deltaValue, floor(tree_h * 0.15), 0x001F00);
+      if ((x - deltaValue ) >= 0) {
+        gradientVertical( x - deltaValue, 0U, x - deltaValue, tree_h, 90U, 90U, 190U, 64U, 255U);
+      }
+      //наряжем елочки на период с Католического Рождества (24 декабря) до Старого Нового Года (14 января)
+      if ((aday < 15 && amonth == 1) || (aday > 23 && amonth == 12)) {
         drawPixelXY(x - 1 - deltaValue, floor(tree_h * 0.6), CHSV(step, 255U, 128 + random8(128)));
         drawPixelXY(x + 1 - deltaValue, floor(tree_h * 0.6), CHSV(step, 255U, 128 + random8(128)));
         drawPixelXY(x - deltaValue, floor(tree_h * 0.4), CHSV(step, 255U, 200U));
@@ -6348,6 +6347,8 @@ uint8_t treemove;
 uint8_t snowspeed;
 void ChristmasTree() {
   static uint8_t tree_h = pHEIGHT;
+  byte a_day;
+  byte a_month;
   if (loadingFlag) {
     loadingFlag = false;
     treemove = getEffectScaleParamValue2(MC_TREE); //передаем значение чекбокса
@@ -6358,6 +6359,8 @@ void ChristmasTree() {
     FastLED.clear();
     if (pHEIGHT > 16) tree_h = 16;
   }
+  a_day = day();
+  a_month = month();
   if (pHEIGHT > 16) {
     if (modes[currentMode].Scale < 60) {
       gradientVertical(0, 0, pWIDTH, pHEIGHT, 160, 160, 64, 128, 255U);
@@ -6367,9 +6370,10 @@ void ChristmasTree() {
   } else {
     FastLED.clear();
   }
-  GreenTree(tree_h);
-  if (treemove == 1)  deltaValue++; //если чекбокс включен, елки будут двигаться
-  VirtualSnow(snowspeed);
+  GreenTree(tree_h, a_day, a_month);
+  if (treemove == 1)  deltaValue++;     //если чекбокс включен, елки будут двигаться
+  Serial.println(a_month);
+  if ((a_month < 3) || (a_month > 11)) VirtualSnow(snowspeed); //снег идет с декабря по февраль
   if (deltaValue >= 8) deltaValue = 0;
   step++;
 }
@@ -6500,7 +6504,7 @@ void Firework() {
     sizeH = (FPSdelay - 128U) * stepH;
     dimAll(200);
     if (STRIP_DIRECTION % 2 == 0) {
-      gradientDownTop( 0, CHSV(skyColor, 255U, floor(FPSdelay / 2.2)), sizeH, CHSV(skyColor, 255U, 2U));
+      gradientDownTop(0, CHSV(skyColor, 255U, floor(FPSdelay / 2.2)), sizeH, CHSV(skyColor, 255U, 2U));
     } else {
       gradientVertical(0, 0, pWIDTH, sizeH, skyColor, skyColor, floor(FPSdelay / 2.2), 2U, 255U);
     }
@@ -11045,6 +11049,7 @@ void ByEffect() {
   for (uint8_t x = 0U; x < pWIDTH + 1 ; x++) {
     if (x % 8 == 0) {
       gradientVertical( x - deltaValue, floor(pHEIGHT * 0.75), x + 1U - deltaValue, pHEIGHT,  hue, hue + 2, 250U, 0U, 255U);
+    //  Serial.println(modes[currentMode].Scale);
       if (modes[currentMode].Scale > 50) {
         delta = random8(200U);
       }
