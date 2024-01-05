@@ -9467,18 +9467,18 @@ void WaveRoutine() {
     case 3: waveRotationIII(n, currentPalette); break;
     case 4: waveRotationIV(n, currentPalette); break;
     case 5: {
-        if (millis() - wavetimer > 10000) { //каждые 10 секунд меняем вариант эффекта
-          wavetimer = millis();
-          wavenum++;
-          if (wavenum > 4) wavenum = 1;
-        }
-        switch (wavenum) {
-          case 1:  waveRotationI(n, currentPalette); break;
-          case 2:  waveRotationII(n, currentPalette); break;
-          case 3:  waveRotationIII(n, currentPalette); break;
-          case 4:  waveRotationIV(n, currentPalette); break;
-        }
-      } break;
+      if (millis() - wavetimer > 10000) { //каждые 10 секунд меняем вариант эффекта
+        wavetimer = millis();
+        wavenum++;
+        if (wavenum > 4) wavenum = 1;
+      }
+      switch (wavenum) {
+        case 1:  waveRotationI(n, currentPalette); break;
+        case 2:  waveRotationII(n, currentPalette); break;
+        case 3:  waveRotationIII(n, currentPalette); break;
+        case 4:  waveRotationIV(n, currentPalette); break;
+      }
+    }
   }
   if (waveThetaUpdate >= waveThetaUpdateFrequency) {
     waveThetaUpdate = 0;
@@ -11083,51 +11083,6 @@ void ByEffect() {
   step++;
 }
 
-// ============ Serpentine =============
-//             © SlingMaster
-//              Серпантин
-// =====================================
-void Serpentine() {
-  const byte PADDING = pHEIGHT * 0.25;
-  const byte BR_INTERWAL = 64 / pHEIGHT;
-  const byte DELTA = pWIDTH  * 0.25;
-  if (loadingFlag) {
-    loadingFlag = false;
-    deltaValue = 0;
-    hue = 0;
-    FastLED.clear();
-  }
-  byte step1 = map8(modes[currentMode].Speed, 10U, 60U);
-  uint16_t ms = millis();
-  double freq = 3000;
-  float mn = 255.0 / 13.8;
-  byte fade = 180 - abs(128 - step);
-  fadeToBlackBy(leds, NUM_LEDS, fade);
-  for (uint16_t y = 0; y < pHEIGHT; y++) {
-    uint32_t yy = y * 256;
-    uint32_t x1 = beatsin16(step1, pWIDTH, (pHEIGHT - 1) * 256, pWIDTH, y * freq + 32768) / 2;
-    // change color --------
-    CRGB col1 = CHSV(ms / 29 + y * 256 / (pHEIGHT - 1) + 128, 255, 255 - (pHEIGHT - y) * BR_INTERWAL);
-    CRGB col2 = CHSV(ms / 29 + y * 256 / (pHEIGHT - 1), 255, 255 - (pHEIGHT - y) * BR_INTERWAL);
-    wu_pixel( x1 + hue * DELTA, yy - PADDING * (255 - hue), &col1);
-    wu_pixel( abs((pWIDTH - 1) * 256 - (x1 + hue * DELTA)), yy - PADDING * hue, &col2);
-  }
-  step++;
-  if (step % 64) {
-    if (deltaValue == 0) {
-      hue++;
-      if (hue >= 255) {
-        deltaValue = 1;
-      }
-    } else {
-      hue--;
-      if (hue < 1) {
-        deltaValue = 0;
-      }
-    }
-  }
-}
-
 // ============= Tixy Land ==============
 //        © Martin Kleppe @aemkei
 //github.com/owenmcateer/tixy.land-display
@@ -11374,6 +11329,69 @@ void TixyLand() {
   for ( double x = 0; x < pWIDTH; x++) {
     for ( double y = 0; y < pHEIGHT; y++) {
       processFrame(t, x, y);
+    }
+  }
+}
+
+// ============ Serpentine =============
+//             © SlingMaster
+//              Серпантин
+// =====================================
+void Serpentine() {
+  const byte PADDING = pHEIGHT * 0.25;
+  const byte BR_INTERWAL = 64 / pHEIGHT;
+  const byte DELTA = pWIDTH  * 0.25;
+  if (loadingFlag) {
+    loadingFlag = false;
+    deltaValue = 0;
+    hue = 0;
+    if (pWIDTH > pHEIGHT)   //если матрица широкая - врубаем эффект горизонтально
+      direct = 0;
+    if (pWIDTH < pHEIGHT)   //если матрица высокая - врубаем эффект вертикально
+      direct = 1;
+    if (pWIDTH == pHEIGHT)  //если матрица квадратная - на все воля Великого Рандома, эффект может запуститься и так, и так
+      direct = random8(2);
+    FastLED.clear();
+  }
+  byte step1 = map8(modes[currentMode].Speed, 10U, 60U);
+  uint16_t ms = millis();
+  double freq = 3000;
+  float mn = 255.0 / 13.8;
+  byte fade = 180 - abs(128 - step);
+  fadeToBlackBy(leds, NUM_LEDS, fade);
+  if (direct == 0) {
+    for (uint16_t x = 0; x < pWIDTH; x++) {
+      uint32_t xx = x * 256;
+      uint32_t y1 = beatsin16(step1, pHEIGHT, (pWIDTH - 1) * 256, pHEIGHT, x * freq + 32768) / 2;
+      // change color --------
+      CRGB col1 = CHSV(ms / 29 + x * 256 / (pWIDTH - 1) + 128, 255, 255 - (pWIDTH - x) * BR_INTERWAL);
+      CRGB col2 = CHSV(ms / 29 + x * 256 / (pWIDTH - 1), 255, 255 - (pWIDTH - x) * BR_INTERWAL);
+      wu_pixel(xx - PADDING * (255 - hue), y1 + hue * DELTA, &col1);
+      wu_pixel(xx - PADDING * hue, abs((pHEIGHT - 1) * 256 - (y1 + hue * DELTA)), &col2);
+    }
+  } else {
+    for (uint16_t y = 0; y < pHEIGHT; y++) {
+      uint32_t yy = y * 256;
+      uint32_t x1 = beatsin16(step1, pWIDTH, (pHEIGHT - 1) * 256, pWIDTH, y * freq + 32768) / 2;
+      // change color --------
+      CRGB col1 = CHSV(ms / 29 + y * 256 / (pHEIGHT - 1) + 128, 255, 255 - (pHEIGHT - y) * BR_INTERWAL);
+      CRGB col2 = CHSV(ms / 29 + y * 256 / (pHEIGHT - 1), 255, 255 - (pHEIGHT - y) * BR_INTERWAL);
+      wu_pixel( x1 + hue * DELTA, yy - PADDING * (255 - hue), &col1);
+      wu_pixel( abs((pWIDTH - 1) * 256 - (x1 + hue * DELTA)), yy - PADDING * hue, &col2);
+    }
+  }
+  step++;
+  if (step % 64) {
+    if (deltaValue == 0) {
+      hue++;
+      if (hue >= 255) {
+        deltaValue = 1;
+      }
+    } else {
+      hue--;
+      if (hue < 1) {
+        deltaValue = 0;
+      }
     }
   }
 }
