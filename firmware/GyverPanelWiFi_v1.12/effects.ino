@@ -9473,12 +9473,12 @@ void WaveRoutine() {
         if (wavenum > 4) wavenum = 1;
       }
       switch (wavenum) {
-        case 1:  waveRotationI(n, currentPalette); break;
-        case 2:  waveRotationII(n, currentPalette); break;
-        case 3:  waveRotationIII(n, currentPalette); break;
-        case 4:  waveRotationIV(n, currentPalette); break;
+        case 1: waveRotationI(n, currentPalette); break;
+        case 2: waveRotationII(n, currentPalette); break;
+        case 3: waveRotationIII(n, currentPalette); break;
+        case 4: waveRotationIV(n, currentPalette); break;
       }
-    }
+    } break;
   }
   if (waveThetaUpdate >= waveThetaUpdateFrequency) {
     waveThetaUpdate = 0;
