@@ -930,13 +930,11 @@ String processMacrosInText(const String text) {
     }
 
     #if (USE_WEATHER == 1)     
-    
     // {WS} - отображать текущую погоду - "Ясно", "Облачно" и т.д
     idx = textLine.indexOf("{WS}");
     if (idx >= 0) {
       textLine.replace("{WS}", weather);
     }
-
     // {WT} - отображать текущую температуру в виде "+26" или "-26"
     // Если включено отображение температуры цветом - добавить макрос цвета перед температурой 
     idx = textLine.indexOf("{WT}");
@@ -944,14 +942,11 @@ String processMacrosInText(const String text) {
       // Подготовить строку текущего времени HH:mm и заменить все вхождения {D} на эту строку
       String s_temperature = (temperature == 0 ? "" : (temperature > 0 ? "+" : "")) + String(temperature);
       String s_color = "";
-
       if (useTemperatureColor) {
-        s_color = "{C" + getTemperatureColor(temperature) + "}";
+        s_color = "{C#" + IntToHex(getTemperatureColor(temperature)) + "}";
       }
-      
       textLine.replace("{WT}", s_color + s_temperature);
     }
-
     #endif
 
     // -------------------------------------------------------------

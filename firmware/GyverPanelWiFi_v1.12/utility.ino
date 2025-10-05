@@ -713,14 +713,14 @@ uint16_t getCrc16(uint8_t * data, uint16_t len)
  
     return crc.value;
 }
-
+/*
 uint8_t wrapX(int8_t x) {
   return (x + pWIDTH) % pWIDTH;
 }
 
 uint8_t wrapY(int8_t y) {
   return (y + pHEIGHT) % pHEIGHT;
-}
+}*/
 
 // Сдвиг всей матрицы вниз
 void shiftDown() {

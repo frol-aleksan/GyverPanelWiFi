@@ -457,7 +457,7 @@ void processEffect(uint8_t aMode) {
     case MC_PULSE:               pulseRoutine(); break;   
     case MC_WATERFALL:           waterfallRoutine(); break; 
     case MC_WHIRL:               whirl(); break; 
-    case MC_COMET:               comet(); break; 
+    case MC_FLOCK:               flockRoutine(); break; 
     case MC_RAINBOWSNAKE:        MultipleStream8(); break; 
     case MC_PLASMALAMP:          spiderRoutine(); break; 
     case MC_FOUNTAIN:            fountainsRoutine(); break; 
@@ -481,6 +481,7 @@ void processEffect(uint8_t aMode) {
     case MC_LIQUIDLAMP:          LiquidLamp(); break;
     case MC_SERPENTINE:          Serpentine(); break;
     case MC_TIXY:                TixyLand(); break;
+    case MC_SPIN:                Spin(); break;
     case MC_TEST_ORDER:          testColorOrder(); break;
     
     #ifdef MC_IMAGE
@@ -588,7 +589,7 @@ void releaseEffectResources(uint8_t aMode) {
     case MC_PULSE:               break; 
     case MC_WATERFALL:           break; 
     case MC_WHIRL:               break; 
-    case MC_COMET:               break; 
+    case MC_FLOCK:               break; 
     case MC_RAINBOWSNAKE:        break; 
     case MC_PLASMALAMP:          break; 
     case MC_FOUNTAIN:            break; 
@@ -612,6 +613,7 @@ void releaseEffectResources(uint8_t aMode) {
     case MC_LIQUIDLAMP:          break;
     case MC_SERPENTINE:          break;
     case MC_TIXY:                break;
+    case MC_SPIN:                break;
     case MC_TEST_ORDER:          break;
 
     #ifdef MC_IMAGE
@@ -800,9 +802,7 @@ void setTimersForMode(uint8_t aMode) {
         #endif  
         ) {      
       if (aMode == MC_PATTERNS) {
-         uint8_t variant = map8(getEffectScaleParamValue(MC_PATTERNS),0,4);
-         if (variant == 0) effectTimer.setInterval(50);
-         else effectTimer.setInterval(efSpeed);
+        effectTimer.setInterval(efSpeed);
       } else
       if (aMode == MC_STARS2) {
         effectTimer.setInterval(map8(efSpeed,1,50));
@@ -901,7 +901,7 @@ void setTimersForMode(uint8_t aMode) {
       if (aMode == MC_WHIRL) {
         effectTimer.setInterval(efSpeed);
       } else 
-      if (aMode == MC_COMET) {
+      if (aMode == MC_FLOCK) {
         effectTimer.setInterval(efSpeed);
       } else  
       if (aMode == MC_RAINBOWSNAKE) {
@@ -970,6 +970,9 @@ void setTimersForMode(uint8_t aMode) {
       if (aMode == MC_TIXY) {
         effectTimer.setInterval(efSpeed);
       } else 
+      if (aMode == MC_SPIN) {
+        effectTimer.setInterval(efSpeed);
+      } else 
       if (aMode == MC_PYTHON) {
         effectTimer.setInterval(efSpeed);
       } else {
@@ -983,7 +986,6 @@ void setTimersForMode(uint8_t aMode) {
   } else if (aMode == MC_CLOCK) {
       effectTimer.setInterval(250);
   }
-
   if (!e131_wait_command) {
     set_clockScrollSpeed(getClockScrollSpeed());
     if (clockScrollSpeed < D_CLOCK_SPEED_MIN) set_clockScrollSpeed(D_CLOCK_SPEED_MIN); // Если clockScrollSpeed == 0 - бегущая строка начинает дергаться.

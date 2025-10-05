@@ -257,10 +257,22 @@
 #if defined(ESP8266)
   #include <ESP8266WiFi.h>
   #include <ESP8266mDNS.h>
+  #if (USE_WEATHER == 1)
+    #include <ESP8266HTTPClient.h>
+  //#include <WiFiClientSecureBearSSL.h>
+  #endif
+  #if (USE_MQTT == 1 || USE_WEATHER == 1)
+    #include <WiFiClient.h>
+  #endif
 #endif
 
 #if defined(ESP32)
   #include <ESPmDNS.h>
+  #include <WiFi.h>
+  #if (USE_WEATHER == 1)
+    #include <HTTPClient.h>
+    #include <WiFiClientSecure.h>
+  #endif
 #endif
 
 #if (USE_MQTT == 1)
@@ -315,11 +327,13 @@
 // =======================================================
 
 #if (DEBUG_SERIAL == 1)
-#define DEBUGLN(x)   Serial.println(x)
-#define DEBUG(x)     Serial.print(x)
-#define DEBUGR(x, r) Serial.print(x, r)
+  #define DEBUGLN(x)   Serial.println(x)
+  #define DEBUG(x)     Serial.print(x)
+  #define DEBUGR(x, r) Serial.print(x, r)
+  #define DEBUGLOG(func, ...) Serial.func(__VA_ARGS__)
 #else
-#define DEBUGLN(x)
-#define DEBUG(x)
-#define DEBUGR(x ,r)
+  #define DEBUGLN(x)
+  #define DEBUG(x)
+  #define DEBUGR(x ,r)
+  #define DEBUGLOG(func, ...)
 #endif

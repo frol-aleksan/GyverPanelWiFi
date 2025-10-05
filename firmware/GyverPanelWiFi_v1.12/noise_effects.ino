@@ -4,8 +4,7 @@ static uint16_t x;
 static uint16_t y;
 static uint16_t z;
 
-uint16_t speed = 20; // speed is set dynamically once we've started up
-uint16_t scale = 30; // scale is set dynamically once we've started up
+
 uint8_t **noise;
 uint8_t ihue = 0;
 

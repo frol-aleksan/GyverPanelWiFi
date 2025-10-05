@@ -1,90 +1,187 @@
-
 #if (USE_WEATHER == 1)     
-
-bool getWeather() {
-  
-  // Yandex.ru:          https://yandex.ru/time/sync.json?geo=62
-  // OpenWeatherMap.com: https://openweathermap.org/data/2.5/weather?id=1502026&units=metric&lang=ru&appid=6a4ba421859c9f4166697758b68d889b
-
-  // Пока включена отладка позийионирования часов - запросы на температуру не выполнять
+bool getWeather() { 
+  // Пока включена отладка позиционирования часов - запросы на температуру не выполнять
   if (debug_hours >= 0 && debug_mins >= 0) return true;
-  
   if (!wifi_connected || useWeather == 0) return false;  
-  
   DEBUGLN();
   DEBUGLN(F("Запрос текущей погоды"));
-
-  if (useWeather == 1) {
-    if (!w_client.connect("yandex.com",443)) return false;                    // Устанавливаем соединение с указанным хостом (Порт 443 для https)
-    // Отправляем запрос
-    w_client.println(String(F("GET /time/sync.json?geo=")) + String(regionID) + String(F(" HTTP/1.1\r\nHost: yandex.com\r\n\r\n"))); 
-  } else if (useWeather == 2) {
-    if (!w_client.connect("api.openweathermap.org",80)) return false;         // Устанавливаем соединение с указанным хостом (Порт 80 для http)
-    // Отправляем запрос    
-    w_client.println(String(F("GET /data/2.5/weather?id=")) + String(regionID2) + String(F("&units=metric&lang=ru&appid=")) + String(WEATHER_API_KEY) + String(F(" HTTP/1.1\r\nHost: api.openweathermap.org\r\n\r\n")));     
-  }  
-
   #if (USE_MQTT == 1)
   DynamicJsonDocument doc(384);
   String out;
   doc["act"] = F("WEATHER");
   doc["region"] = useWeather == 1 ? regionID : regionID2;
   #endif
-  
-  // Проверяем статус запроса
-  char status[32] = {0};
-  w_client.readBytesUntil('\r', status, sizeof(status));
-  // It should be "HTTP/1.0 200 OK" or "HTTP/1.1 200 OK"
-  if (strcmp(status + 9, "200 OK") != 0) {
+  bool   error = false;
+  String payload;
+  String status(25);
+  String regId(useWeather == 1 ? regionID : regionID2);
+
+  #if defined(ESP32)
+    WiFiClientSecure *w_client = new WiFiClientSecure; 
+    // Ignore SSL certificate validation
+    w_client->setInsecure();
+  #else
+    //std::unique_ptr<BearSSL::WiFiClientSecure>w_client(new BearSSL::WiFiClientSecure());
+    //w_client->setInsecure();
+    WiFiClient *w_client = new WiFiClient;
+  #endif
+
+  if (w_client) 
+  {
+    {
+      HTTPClient https;
+      //String request = "https://yandex.com/time/sync.json?geo=62";
+      //String request = "https://api.openweathermap.org/data/2.5/weather?id=1502026&lang=ru&units=metric&appid=6a4ba421859c9f4166697758b68d889b";
+      //String request = "http://194.58.103.72/http2https.php?https://yandex.com/time/sync.json?geo=62&lang=ru";
+      //String request = "http://api.openweathermap.org/data/2.5/weather?id=1502026&lang=ru&units=metric&appid=6a4ba421859c9f4166697758b68d889b";
+      //String request = "http://api.weatherbit.io/v2.0/current?city_id=1502026&key=4b3b38ff98a14fbeb01b6dd5bc409c9b&lang=ru"
+      //String request = "http://api.open-meteo.com/v1/forecast?latitude=56.010563&longitude=92.852572&current=temperature_2m,weather_code&daily=sunrise,sunset&timeformat=unixtime&forecast_days=1"
+
+      /*
+        Скрипт шлюза http2https от Сотнег. Спасибо, добрый человек!
+        <?
+          $url = $_SERVER['QUERY_STRING'];
+          $url_check1 = 'https://api.weather.yandex.ru/'; // этот домен разрешён
+
+          if (strncasecmp($url, $url_check1, strlen($url_check1)) == 0)
+            {
+              $ch = curl_init($url);
+              curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
+              curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, false);
+              curl_setopt($ch, CURLOPT_HEADER, false);
+              $html = curl_exec($ch);
+              curl_close($ch);
+              echo $html;
+            }
+            else echo 'nope';
+        ?>
+      */
+      String request(150);
+      #if defined(ESP32)
+        // В ESP32 достаточно памяти, чтобы работал https протокол - используем его
+        if (useWeather == 1) {
+          request  = F("https://yandex.com/time/sync.json?geo="); request += String(regionID); 
+          request += F("&lang="); request += WTR_LANG_YA; 
+        } else if (useWeather == 2) {    
+          request  = F("https://api.openweathermap.org/data/2.5/weather?id="); request += String(regionID2); 
+          request += F("&units=metric&lang="); request += WTR_LANG_OWM;
+          request += F("&appid="); request += OWM_WEATHER_API_KEY;
+        }  
+        String protocol = F("HTTPS");
+      #else
+        // В ESP8266 недостаточно памяти, соединение по https протоколу завершается ошибкой подключения к серверу - используем получение погоды по http
+        if (useWeather == 1) {
+          // С 28.07.2024 Яндекс перестал отдавать погоду по HTTP, перенаправляет на HTTPS запрос, но мы его обработать не можем :(
+          // Добрый человек Сотнег поделился скриптом для шлюза http2https 
+          // Добрый человек Zordog, предоставил доступ к своему серверу, на который установил скрипит http2https от Сотнег
+          // Погода от Яндекс по http снова работает!
+          request  = F("http://194.58.103.72/http2https.php?https://yandex.com/time/sync.json?geo="); request += String(regionID); 
+          request += F("&lang="); request += WTR_LANG_YA; 
+        } else if (useWeather == 2) {    
+          request  = F("http://api.openweathermap.org/data/2.5/weather?id="); request += String(regionID2); 
+          request += F("&units=metric&lang="); request += WTR_LANG_OWM;
+          request += F("&appid="); request += OWM_WEATHER_API_KEY;
+        }  
+        String protocol = F("HTTP");
+      #endif
+
+      if (https.begin(*w_client, request.c_str())) {
+        DEBUGLOG(printf,"[%s] GET...\n", protocol.c_str());
+        // start connection and send HTTP header
+        int httpCode = https.GET();
+        // httpCode will be negative on error
+        if (httpCode > 0) {
+          // HTTP header has been send and Server response header has been handled
+          DEBUGLOG(printf, "[%s] GET... code: %d\n", protocol.c_str(), httpCode);
+          // file found at server
+          if (httpCode == HTTP_CODE_OK || httpCode == HTTP_CODE_MOVED_PERMANENTLY) {
+            payload = https.getString();
+            // DEBUGLN(payload);
+          } else {
+            error = true;
+            status = F("unexpected answer");    // http.errorToString(httpCode)
+            DEBUGLOG(printf, "[%s] GET... failed, error: %s\n", protocol.c_str(), https.errorToString(httpCode).c_str());
+          }
+        } else {
+          error = true;
+          status = F("connection error");
+          DEBUGLOG(printf, "[%s] Unable to connect, error: %s\n", protocol.c_str(), https.errorToString(httpCode).c_str());
+        }
+
+        https.end();
+      } else {
+        error = true;
+        status = F("connection error");
+        DEBUGLOG(printf, "[%s] Unable to connect", protocol.c_str());
+      }
+    }
+
+    w_client->stop();   
+    delete w_client;
+
+  } else {
+    status = F("connection error");
+    error = true;
+  }
+
+  if (error) {
     DEBUG(F("Ошибка сервера погоды: "));
     DEBUGLN(status);
     
     #if (USE_MQTT == 1)
-    doc["result"] = F("ERROR");
-    doc["status"] = status;
-    serializeJson(doc, out);      
-    SendMQTT(out, TOPIC_WTR);
+      doc["result"] = F("ERROR");
+      doc["status"] = status;
+      serializeJson(doc, out);      
+      SendMQTT(out, TOPIC_WTR);
     #endif    
 
     return false;
   } 
 
-    // Пропускаем заголовки                                                                
-  char endOfHeaders[] = "\r\n\r\n";                                       // Системные заголовки ответа сервера отделяются от остального содержимого двойным переводом строки
-  if (!w_client.find(endOfHeaders)) {                                       // Отбрасываем системные заголовки ответа сервера
-    DEBUGLN(F("Нераспознанный ответ сервера погоды"));             // Если ответ сервера не содержит системных заголовков, значит что-то пошло не так
+  // Нам не нужно доставать все данные из ответа. Задаем фильтр - это существенно уменьшит размер требуемой памяти 
+  DynamicJsonDocument jsn(512);
+  {
+  
+    StaticJsonDocument<200> filter;
 
-    #if (USE_MQTT == 1)
-    doc["result"] = F("ERROR");
-    doc["status"] = F("unexpected answer");
-    serializeJson(doc, out);      
-    SendMQTT(out, TOPIC_WTR);
-    #endif
+    if (useWeather == 1) {
+      // Yandex
+      filter["clocks"][regId]["weather"]["temp"] = true;  // Достаём температуру - Четвёртый уровень вложенности пары ключ/значение clocks -> значение RegionID -> weather -> temp
+      filter["clocks"][regId]["skyColor"] = true;         // Рекомендованный цвет фона
+      filter["clocks"][regId]["isNight"] = true;
+      filter["clocks"][regId]["weather"]["icon"] = true;  // Достаём иконку - Четвёртый уровень вложенности пары ключ/значение clocks -> значение RegionID -> weather -> icon
+      filter["clocks"][regId]["name"] = true;             // Город
+      filter["clocks"][regId]["sunrise"] = true;          // Время рассвета
+      filter["clocks"][regId]["sunset"] = true;           // Время заката
+    } else {
+      // OpenWeatherMap
+      filter["main"]["temp"] = true;                      // Температура -> main -> temp
+      filter["weather"][0]["icon"] = true;                // Достаём иконку -> weather[0] -> icon
+      filter["name"] = true;                              // Город
+      filter["weather"][0]["description"] = true;         // Строка погодных условий на языке, указаном в запросе
+      filter["weather"][0]["id"] = true;                  // Уточненный код погодных условий
+      filter["sys"]["sunrise"] = true;                    // Время рассвета
+      filter["sys"]["sunset"] = true;                     // Время заката    
+    }
+    
+    // Parse JSON object
+    DeserializationError jsn_error = deserializeJson(jsn, payload, DeserializationOption::Filter(filter));
 
-    return false;                                                         // и пора прекращать всё это дело
+    if (jsn_error) {
+      DEBUG(F("JSON не разобран: "));
+      DEBUGLN(jsn_error.c_str());
+
+      #if (USE_MQTT == 1)
+      doc["result"] = F("ERROR");
+      doc["status"] = F("json error");
+      serializeJson(jsn, out);      
+      SendMQTT(out, TOPIC_WTR);
+      #endif
+      
+      return false;
+    }
   }
 
-  // Parse JSON object
-  DynamicJsonDocument jsn(1500);
-  DeserializationError error = deserializeJson(jsn, w_client);
-
-  if (error) {
-    DEBUG(F("JSON не разобран: "));
-    DEBUGLN(error.c_str());
-    
-    #if (USE_MQTT == 1)
-    doc["result"] = F("ERROR");
-    doc["status"] = F("json error");
-    serializeJson(doc, out);      
-    SendMQTT(out, TOPIC_WTR);
-    #endif
-    
-    return false;
-  }
-
-  w_client.stop();
-
-  String regId = useWeather == 1 ? String(regionID) : String(regionID2);
   String town, sunrise, sunset;
   
   if (useWeather == 1) {
@@ -139,24 +236,27 @@ bool getWeather() {
 
     // Для срабатывания триггера на изменение значений
     set_temperature(temperature);
-  } else {
-  /*
-   OpenWeatherMap: {"coord":{"lon":92.79,"lat":56.01},
-                    "weather":[{"id":620,"main":"Snow","description":"light shower snow","icon":"13n"}],
-                    "base":"stations",
-                    "main":{"temp":1,"feels_like":-4.4,"temp_min":1,"temp_max":1,"pressure":1021,"humidity":97},
-                    "visibility":9000,
-                    "wind":{"speed":5,"deg":280},
-                    "clouds":{"all":75},
-                    "dt":1604335563,
-                    "sys":{"type":1,"id":8957,"country":"RU","sunrise":1604278683,"sunset":1604311599},
-                    "timezone":25200,
-                    "id":1502026,
-                    "name":"Krasnoyarsk",
-                    "cod":200
-                   }
-  */
-    temperature  = jsn["main"]["temp"].as<int8_t>();                      // Температура -> main -> temp
+  } else if (useWeather == 2) {
+    /*
+    OpenWeatherMap: 
+    { "coord":{"lon":92.8672,"lat":56.0184},
+      "weather":[{"id":804,"main":"Clouds","description":"пасмурно","icon":"04d"}],
+      "base":"stations",
+      "main":{"temp":1.9,"feels_like":-2.83,"temp_min":1.9,"temp_max":1.9,"pressure":1018,"humidity":64,"sea_level":1018,"grnd_level":1000},
+      "visibility":10000,
+      "wind":{"speed":5.56,"deg":267,"gust":8.55},
+      "clouds":{"all":100},
+      "dt":1728543379,
+      "sys":{"type":1,"id":8957,"country":"RU","sunrise":1728518969,"sunset":1728558074},
+      "timezone":25200,
+      "id":1502026,
+      "name":"Красноярск",
+      "cod":200    
+      }                   
+    */
+
+    float tmp    = jsn["main"]["temp"].as<float>();
+    temperature  = int(round(tmp));                                       // Температура -> main -> temp
     icon         = jsn["weather"][0]["icon"].as<String>();                // Достаём иконку -> weather[0] -> icon
     isNight      = icon.endsWith("n");                                    // Иконка вида "XXn" - ночная "XXd" - дневная
     town         = jsn["name"].as<String>();                              // Город
@@ -174,13 +274,16 @@ bool getWeather() {
     dusk_hour   = hour(dusk_time) + timeZoneOffset;
     dusk_minute = minute(dusk_time);
 
+    if (dawn_hour >= 24) dawn_hour -= 24;
+    if (dusk_hour >= 24) dusk_hour -= 24;
+    
     sunrise = padNum(dawn_hour,2) + ":" + padNum(dawn_minute,2);
     sunset = padNum(dusk_hour,2) + ":" + padNum(dusk_minute,2);
     
     // Для срабатывания триггера на изменение значений
     set_temperature(temperature);
     set_weather(weather);
-  }
+  } 
   
   if (!weather_ok) {
     DEBUG(F("JSON не содержит данных о погоде"));  
@@ -220,7 +323,6 @@ bool getWeather() {
     DEBUGLN(String(F("Цвет неба: '")) + skyColor + "'");
   else
     DEBUGLN(String(F("Код погоды: ")) + String(weather_code));
-  DEBUG(F("Сейчас: "));
   DEBUGLN(dayTime);
   DEBUG(F("Рассвет: "));
   DEBUGLN(sunrise);
@@ -281,10 +383,7 @@ void decodeWeather(){
   bool hasNight = icon.endsWith("-n");
   String ico = icon;
   
-  if (hasDay)
-    dayTime = F("Светлое время суток");  // Сейчас день
-  else if (hasNight)           
-    dayTime = F("Темное время суток");   // Сейчас ночь
+  dayTime = isNight ? F("Темное время суток") : F("Светлое время суток");
 
   if (hasDay || hasNight) {
     ico = icon.substring(0, icon.length() - 2);
@@ -310,16 +409,11 @@ void decodeWeather(){
   else if (ico == F("skc"))             set_weather(F("ясно"));  
 }
 
-void decodeWeather2(){  
-  bool hasDay   = icon.endsWith("d");
-  bool hasNight = icon.endsWith("n");
-  
-  if (hasDay)
-    dayTime = F("Светлое время суток");  // Сейчас день
-  else if (hasNight)           
-    dayTime = F("Темное время суток");   // Сейчас ночь
+void decodeWeather2() {  
 
-  // Расшифровка погоды при указании в запросe "&lang=ru" сразу возвращается на нужном языке и нет
+  dayTime = isNight ? F("Темное время суток") : F("Светлое время суток");
+
+  // Расшифровка погоды при указании в запросе "&lang=ru" сразу возвращается на нужном языке и нет
   // надобности расшифровывать код. Если почему-то расшифровка оказалась пуста - создать ее из кода погодных условия.
   if (weather.length() > 0) return;
   
@@ -383,28 +477,36 @@ void decodeWeather2(){
   }
 }
 
+void decodeWeather3() {  
+  /* Расшифровка кода погоды от OpenMeteo
+    Code        Description
+    0           Clear sky
+    1, 2, 3     Mainly clear, partly cloudy, and overcast
+    45, 48      Fog and depositing rime fog
+    51, 53, 55  Drizzle: Light, moderate, and dense intensity
+    56, 57      Freezing Drizzle: Light and dense intensity
+    61, 63, 65  Rain: Slight, moderate and heavy intensity
+    66, 67      Freezing Rain: Light and heavy intensity
+    71, 73, 75  Snow fall: Slight, moderate, and heavy intensity
+    77          Snow grains
+    80, 81, 82  Rain showers: Slight, moderate, and violent
+    85, 86      Snow showers slight and heavy
+    95          Thunderstorm: Slight or moderate
+    96, 99      Thunderstorm with slight and heavy hail  
+  */  
+}
+
 // Строка цвета, соответствующая температуре
-String getTemperatureColor(int8_t temp) {
-  String s_color;
-  if      (temp <= -30)
-    s_color = cold_less_30;
-  else if (temp <= -20)
-    s_color = cold_29_20;
-  else if (temp <= -10)
-    s_color = cold_19_10;
-  else if (temp <= -4)
-    s_color = cold_9_4;
-  else if (temp <=  3)
-    s_color = zero_3_3;
-  else if (temp <=  9)
-    s_color = hot_4_9;
-  else if (temp <= 19)
-    s_color = hot_10_19;
-  else if (temp <= 29)
-    s_color = hot_20_29;
-  else
-    s_color = hot_30_great;
-  return s_color;
+int getTemperatureColor(int8_t temp) {
+  if (temp <= -30) return cold_less_30;
+  if (temp <= -20) return cold_29_20;
+  if (temp <= -10) return cold_19_10;
+  if (temp <= -4)  return cold_9_4;
+  if (temp <=  3)  return zero_3_3;
+  if (temp <=  9)  return hot_4_9;
+  if (temp <= 19)  return hot_10_19;
+  if (temp <= 29)  return hot_20_29;
+  return hot_30_great;  
 }
 
 // Получить индекс иконки в массиве иконок погоды
@@ -539,7 +641,7 @@ void weatherRoutine() {
       if (edc_t == 1) temp_width -= 1;            // 1 занимает 2 колонки а не 3
     }
 
-    // Если температура 0 - нужно рисовать занк градуса или букву 'c'
+    // Если температура 0 - нужно рисовать знак градуса или букву 'c'
     // Если температура другая - для большого шрифта, если позволяет место - рисовать знак градуса. Если не позволяет - не рисовать.
     bool need_deg = (t == 0) || (big_font && t != 0);
     if (need_deg) temp_width += (big_font ? (t == 0 ? 0 : 4) : (t == 0 ? 3 : 0));    
@@ -557,7 +659,7 @@ void weatherRoutine() {
 
     // Координаты вывода изображения - центрировать
     image_desc.options = 1+2+4+16;             // Центрировать по вертикали/горизонтали, есть прозрачные пиксели, перед отрисовкой кадра - заливать цветом
-    image_desc.transparent_color = 0x000000;   // Ролзоачные пиксели - черные
+    image_desc.transparent_color = 0x000000;   // Прозрачные пиксели - черные
     image_desc.background_color = 0x000000;    // Заливка - черная (?)
     image_desc.draw_frame_interval = 2500;     // Интервал перехода к следующей картинке
     image_desc.draw_row_interval = 0;          // Рисовка - картинка целиком
@@ -679,7 +781,7 @@ void weatherRoutine() {
   if (useWeather > 0 && init_weather) {
     
     // Получить цвет отображения значения температуры
-    CRGB color = useTemperatureColor ? CRGB(HEXtoInt(getTemperatureColor(temperature))) : CRGB::White;
+    CRGB color = useTemperatureColor ? CRGB(getTemperatureColor(temperature)) : CRGB::White;
     int16_t temp_x = weather_text_x + temp_width;
     int16_t temp_y = weather_text_y;
     
@@ -729,12 +831,12 @@ void weatherRoutine() {
     // Нарисовать '+' или '-' если температура не 0
     // Горизонтальная черта - общая для '-' и '+'
     if (temperature != 0) {
-      bool dy = big_font ? 2 : 0;
+      uint8_t dy = big_font ? 2 : 0;
       temp_x -= 4;
       for(uint8_t i = 0; i < 3; i++) {
         drawPixelXY(getClockX(temp_x + i), temp_y + 2 + dy, color);      
       }      
-      // Для плюcа - вертикальная черта
+      // Для плюса - вертикальная черта
       if (temperature > 0) {
         drawPixelXY(getClockX(temp_x + 1), temp_y + 1 + dy, color);
         drawPixelXY(getClockX(temp_x + 1), temp_y + 3 + dy, color);
