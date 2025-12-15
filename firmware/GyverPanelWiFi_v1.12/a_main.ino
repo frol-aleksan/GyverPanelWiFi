@@ -1944,6 +1944,11 @@ void parsing() {
                         putEffectContrast(MC_FIREWORKS, intData[3]);
                         loadingFlag = true;
                       } else
+                      if (tmp_eff == MC_SPIRO) { //используем ползунок контраста не по назначению, а именно как второй изменяемый параметр для эффекта "Спирали"
+                        sNEW = intData[3];
+                        putEffectContrast(MC_SPIRO, intData[3]);
+                        loadingFlag = true;
+                      } else
                       set_EffectContrast(tmp_eff, intData[3]);
                     }
         // Для "0","2","4","5","6" - отправляются параметры, подтверждение отправлять не нужно. Для остальных - нужно
@@ -3498,7 +3503,7 @@ String getStateValue(String &key, int8_t effect, JsonVariant* value = nullptr) {
     if (value) {
       if (effect == MC_PACIFICA || effect == MC_DAWN_ALARM || effect == MC_MAZE || effect == MC_SNAKE || effect == MC_TETRIS ||
           effect == MC_ARKANOID || effect == MC_FLAPPY || effect == MC_RUNNER || effect == MC_CLOCK || effect == MC_FRIZZLE ||
-          effect == MC_DNA || effect == MC_SPIRO || effect == MC_NEXUS || effect == MC_WEBTOOLS || effect == MC_EFFECTSTARS || 
+          effect == MC_DNA || /*effect == MC_SPIRO ||*/ effect == MC_NEXUS || effect == MC_WEBTOOLS || effect == MC_EFFECTSTARS || 
           effect == MC_SINUSOID3 || effect == MC_RINGS || effect == MC_ATTRACT || effect == MC_FAIRY || effect == MC_TIXY || 
           effect == MC_OSCILLATING || effect == MC_LLAND || effect == MC_SAND || effect == MC_WAVES || effect == MC_SERPENTINE || 
           effect == MC_METABALLS || effect == MC_PICASSO || effect == MC_LUMENJER || effect == MC_BYEFFECT || effect == MC_LOTUS ||
@@ -3517,7 +3522,7 @@ String getStateValue(String &key, int8_t effect, JsonVariant* value = nullptr) {
     }
     return str + "BE:" +  (effect == MC_PACIFICA || effect == MC_DAWN_ALARM || effect == MC_MAZE || effect == MC_SNAKE || effect == MC_TETRIS ||
                            effect == MC_ARKANOID || effect == MC_FLAPPY || effect == MC_RUNNER || effect == MC_CLOCK || effect == MC_FRIZZLE ||
-                           effect == MC_DNA || effect == MC_SPIRO || effect == MC_NEXUS || effect == MC_WEBTOOLS || effect == MC_EFFECTSTARS || 
+                           effect == MC_DNA || /*effect == MC_SPIRO ||*/ effect == MC_NEXUS || effect == MC_WEBTOOLS || effect == MC_EFFECTSTARS || 
                            effect == MC_SINUSOID3 || effect == MC_RINGS || effect == MC_ATTRACT || effect == MC_FAIRY || effect == MC_TIXY || 
                            effect == MC_OSCILLATING || effect == MC_LLAND || effect == MC_SAND || effect == MC_WAVES || effect == MC_SERPENTINE || 
                            effect == MC_METABALLS || effect == MC_PICASSO || effect == MC_LUMENJER || effect == MC_BYEFFECT || effect == MC_LOTUS ||

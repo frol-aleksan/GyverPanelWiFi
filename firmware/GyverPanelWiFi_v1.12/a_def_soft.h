@@ -1126,22 +1126,6 @@ uint16_t XY(uint8_t x, uint8_t y) { //нужна много где
 //Трехмерный динамический массив, необходимый для работы ряда эффектов из прошивки Gunner47
 uint8_t ***noise_3d;  
 
-//Переменные для эффекта Спирали
-byte spirotheta1;
-byte spirotheta2;
-uint8_t spiroradiusx;
-uint8_t spiroradiusy;
-uint8_t spirocenterX;
-uint8_t spirocenterY;
-uint8_t spirominx;
-uint8_t spiromaxx;
-uint8_t spirominy;
-uint8_t spiromaxy;
-uint8_t spirocount;
-uint8_t spirooffset;
-boolean spiroincrement;
-boolean spirohandledChange;
-
 //Переменные для эффекта Волны
 byte waveThetaUpdate;
 byte waveThetaUpdateFrequency;

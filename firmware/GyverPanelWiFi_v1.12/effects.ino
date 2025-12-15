@@ -1136,7 +1136,7 @@ void lightBallsRoutine() {
     for (uint8_t ii = 0; ii < seg_num; ii++) {
       delay(0); // Для предотвращения ESP8266 Watchdog Timer
       uint8_t cx = dir_mx == 0 ? (seg_offset * (ii + 1) + seg_size * ii) : 0;
-      uint8_t cy = dir_mx == 0 ? 0 : (seg_offset * (ii + 1) + seg_size * ii);
+      uint8_t cy = dir_mx == 0 ? 0 : (seg_offset * (ii + 1) + seg_size * ii);      
       uint8_t color_shift = ii * 50;
       if (cnt <= 1) {
         idx = XY(i + cx, j + cy);
@@ -1230,7 +1230,7 @@ void swirlRoutine() {
   if (USE_SEGMENTS_SWIRL != 0) {
     // Use two out-of-sync sine waves
     uint8_t  i = beatsin8(m1, 0, seg_size - BorderWidth - 1);
-    uint8_t  j = beatsin8(m2, 0, seg_size - BorderWidth - 1);
+    uint8_t  j = beatsin8(m2, 0, seg_size - BorderWidth - 1);    
     // Also calculate some reflections
     uint8_t ni = (seg_size - 1) - i;
     uint8_t nj = (seg_size - 1) - j;
@@ -4037,66 +4037,6 @@ void newMatrixRoutine() {
   }
 }
 
-// ============= Эффект Цветные драже ===============
-// (c) SottNick
-//по мотивам визуала эффекта by Yaroslaw Turbin 14.12.2020
-//https://vk.com/ldirko программный код которого он запретил брать
-void sandRoutine() {
-  if (loadingFlag) {
-    loadingFlag = false;
-    pcnt = 0U;// = pHEIGHT;
-    FastLED.clear();
-  }
-  // если насыпалось уже достаточно, бахаем рандомные песчинки
-  uint8_t temp = map8(random8(), getEffectScaleParamValue(MC_SAND) * 2.55, 255U);
-  if (pcnt >= map8(temp, 2U, pHEIGHT - 3U)) {
-    temp = pHEIGHT + 1U - pcnt;
-    if (!random8(4U)) // иногда песка осыпается до половины разом
-      if (random8(2U))
-        temp = 2U;
-      else
-        temp = 3U;
-    for (uint8_t y = 0; y < pcnt; y++)
-      for (uint8_t x = 0; x < pWIDTH; x++)
-        if (!random8(temp))
-          leds[XY(x, y)] = 0;
-  }
-  pcnt = 0U;
-  // осыпаем всё, что есть на экране
-  for (uint8_t y = 1; y < pHEIGHT; y++)
-    for (uint8_t x = 0; x < pWIDTH; x++)
-      if (leds[XY(x, y)])                                                          // проверяем для каждой песчинки
-        if (!leds[XY(x, y - 1)]) {                                                 // если под нами пусто, просто падаем
-          leds[XY(x, y - 1)] = leds[XY(x, y)];
-          leds[XY(x, y)] = 0;
-        }
-        else if (x > 0U && !leds[XY(x - 1, y - 1)] && x < pWIDTH - 1 && !leds[XY(x + 1, y - 1)]) { // если под нами пик
-          if (random8(2U))
-            leds[XY(x - 1, y - 1)] = leds[XY(x, y)];
-          else
-            leds[XY(x - 1, y - 1)] = leds[XY(x, y)];
-          leds[XY(x, y)] = 0;
-          pcnt = y - 1;
-        }
-        else if (x > 0U && !leds[XY(x - 1, y - 1)]) {                              // если под нами склон налево
-          leds[XY(x - 1, y - 1)] = leds[XY(x, y)];
-          leds[XY(x, y)] = 0;
-          pcnt = y - 1;
-        }
-        else if (x < pWIDTH - 1 && !leds[XY(x + 1, y - 1)]) {                       // если под нами склон направо
-          leds[XY(x + 1, y - 1)] = leds[XY(x, y)];
-          leds[XY(x, y)] = 0;
-          pcnt = y - 1;
-        }
-        else                                                                       // если под нами плато
-          pcnt = y;
-  // эмиттер новых песчинок в оригинале тут было что-то непонятное, поэтому чтобы точно найти центр, тупо делим ширину пополам и округляем (округление нужно для матриц с нечетным числом колонок)
-  if (!leds[XY(round(pWIDTH / 2), pHEIGHT - 2)] && !leds[XY(round(pWIDTH / 2), pHEIGHT - 2)] && !random8(3)) {
-    temp = round(pWIDTH / 2);
-    leds[XY(temp, pHEIGHT - 1)] = CHSV(random8(), 255U, 255U);
-  }
-}
-
 // ------------------------------ ЭФФЕКТЫ ПИКАССО ----------------------
 // взято откуда-то by @obliterator или им написано
 // https://github.com/DmytroKorniienko/FireLamp_JeeUI/blob/templ/src/effects.cpp
@@ -5338,6 +5278,7 @@ void auroraRoutine() {
   void clocks() {
   if (loadingFlag) {
     loadingFlag = false;
+    
     clock_type = (specialTextEffectParam >= 0) ? specialTextEffectParam : getEffectScaleParamValue2(MC_CLOCKS);
     //теперь часы всегда занимают квадратную область с размерами, соответствующими короткой стороне матрицы
     //не то чтобы эффект до этого не работал, даже наоборот, выводился вполне корректно, но часы, растянутые на всю ширину прямоугольной матрицы, выглядели стремно и тупо
@@ -5527,213 +5468,6 @@ void Swirl() {
   }
   blurScreen(4U + random8(8));
   step++;
-}
-
-/*
-uint8_t swirltype = 0;
-//void Swirl() {
-void Swirl() {
-//  if (map8(getEffectScaleParamValue(MC_TRACKS),1,100) > 50) Spindle(map8(getEffectScaleParamValue(MC_SMOKE),1,100));
-//  else {
-{
-  uint8_t divide = 0;
-  uint8_t lastHue = 0;
-  static const uint32_t colors[5][6] PROGMEM = {
-    {CRGB::Blue, CRGB::DarkRed, CRGB::Aqua, CRGB::Magenta, CRGB::Gold, CRGB::Green },
-    {CRGB::Yellow, CRGB::LemonChiffon, CRGB::LightYellow, CRGB::Gold, CRGB::Chocolate, CRGB::Goldenrod},
-    {CRGB::Green, CRGB::DarkGreen, CRGB::LawnGreen, CRGB::SpringGreen, CRGB::Cyan, CRGB::Black },
-    {CRGB::Blue, CRGB::DarkBlue, CRGB::MidnightBlue, CRGB::MediumSeaGreen, CRGB::MediumBlue, CRGB:: DeepSkyBlue },
-    {CRGB::Magenta, CRGB::Red, CRGB::DarkMagenta, CRGB::IndianRed, CRGB::Gold, CRGB::MediumVioletRed }
-  };
-  uint32_t color;
-  if (loadingFlag) {
-    loadingFlag = false;
-    FastLED.clear();
-    deltaValue = 255U - getEffectContrast(MC_TRACKS) + 1U;
-    step = deltaValue;                      // чтообы при старте эффекта сразу покрасить лампу
-    deltaHue2 = 0U;                         // count для замедления смены цвета
-    deltaHue = 0U;                          // direction | 0 hue-- | 1 hue++ |
-    hue2 = 0U;                              // x
-  }
-  if (step >= deltaValue) {
-    step = 0U;
-  }
-  divide = floor((map8(getEffectScaleParamValue(MC_TRACKS),1,100) - 1) / 20); // маштаб задает смену палитры
-  // задаем цвет и рисуем завиток --------
-  color = colors[divide][hue];
-  drawPixelXY(hue2, deltaHue2, color);
-  hue2++;     
-  // два варианта custom_eff задается в сетапе лампы ----
-  if (swirltype == 1) {
-    deltaHue2++;              // y
-  } else {
-    if (hue2 % 2 == 0) {
-      deltaHue2++;            // y
-    }
-  }
-  if  (hue2 > pWIDTH) {
-    hue2 = 0U;
-  }
-  if (deltaHue2 >= pHEIGHT) {
-    deltaHue2 = 0U;
-    hue2 = random8(pWIDTH - 2);
-    hue = random8(6);
-    if (lastHue == hue) {
-      hue = hue + 1;
-      if (hue >= 6) {
-        hue = 0;
-      }
-    }
-    lastHue = hue;
-  }
-  blurScreen(4U + random8(8));
-  step++;
-  } 
-}
-*/
-
-// =========== FeatherCandle ============
-//         адаптация © SottNick
-//    github.com/mnemocron/FeatherCandle
-//      modify & design © SlingMaster
-//           EFF_FEATHER_CANDLE
-//                Свеча
-//---------------------------------------
-#include "data7x15flip.h"                       // FeatherCandle animation data
-const uint8_t  level = 160;
-const uint8_t  low_level = 110;
-const uint8_t *ptr  = anim;                     // Current pointer into animation data
-const uint8_t  wdth    = 7;                     // image width
-const uint8_t  hght    = 13;                    // image height было 15
-uint8_t        img[wdth * hght];                // Buffer for rendering image
-uint8_t        last_brightness;
-int            shift;                           //для сдвига свечи в сторону
-
-void FeatherCandleRoutine() {
-  if (loadingFlag) {
-    FastLED.clear();
-    hue = 0;
-    trackingObjectState[0] = low_level;
-    trackingObjectState[1] = low_level;
-    trackingObjectState[2] = low_level;
-    trackingObjectState[4] = floor((pWIDTH * 0.5)+shift);
-    loadingFlag = false;
-    shift = map(getEffectScaleParamValue(MC_CANDLE), 0, 255, 0 - ((pWIDTH - 10)/2), (pWIDTH - 10)/2); //определяем ширину свободных полей для сдвига
-  }  
-  uint8_t a = pgm_read_byte(ptr++);     // New frame X1/Y1
-  if (a >= 0x90) {                      // EOD marker? (valid X1 never exceeds 8)
-    ptr = anim;                         // Reset animation data pointer to start
-    a   = pgm_read_byte(ptr++);         // and take first value
-  }
-  uint8_t x1 = a >> 4;                  // X1 = high 4 bits
-  uint8_t y1 = a & 0x0F;                // Y1 = low 4 bits
-  a  = pgm_read_byte(ptr++);            // New frame X2/Y2
-  uint8_t x2 = a >> 4;                  // X2 = high 4 bits
-  uint8_t y2 = a & 0x0F;                // Y2 = low 4 bits
-  // Read rectangle of data from anim[] into portion of img[] buffer
-  for (uint8_t y = y1; y <= y2; y++)
-    for (uint8_t x = x1; x <= x2; x++) {
-      img[y * wdth + x] = pgm_read_byte(ptr++);
-    }
-  int i = 0;
-  uint8_t color = 40;  //красивое желто-оранжевое пламя с красными частицами, а не зеленое нечто
-
-  // рисуем статичное мерцающее пламя для маленьких матриц высотой менее 13 пикселей (если матрица крупнее, выводится анимированное пламя)
-  for (uint8_t y = 1; y < hght; y++) {
-    if (pHEIGHT < 13) {
-      // for small matrix -----
-      if (y % 3 == 0) {
-        //рисуем пламя по строкам снизу вверх
-        leds[XY(floor((pWIDTH * 0.5)+shift) - 1, 3)] = CHSV(color - 20U , 255U, 50  + random8(50));
-        leds[XY(floor((pWIDTH * 0.5)+shift) - 2, 4)] = CHSV(color - 20U , 255U, 50  + random8(50));
-        leds[XY(floor((pWIDTH * 0.5)+shift) - 1, 4)] = CHSV(color       , 255U, 180 + random8(70));
-        leds[XY(floor((pWIDTH * 0.5)+shift),     4)] = CHSV(color - 20U , 255U, 50  + random8(50));
-        leds[XY(floor((pWIDTH * 0.5)+shift) - 2, 5)] = CHSV(color - 20U , 255U, 205 + random8(50));
-        leds[XY(floor((pWIDTH * 0.5)+shift) - 1, 5)] = CHSV(color,        255U, 205 + random8(50));
-        leds[XY(floor((pWIDTH * 0.5)+shift)    , 5)] = CHSV(color - 20U , 255U, 205 + random8(50));
-        leds[XY(floor((pWIDTH * 0.5)+shift) - 2, 6)] = CHSV(color - 20U , 255U, 50  + random8(50));
-        leds[XY(floor((pWIDTH * 0.5)+shift) - 1, 6)] = CHSV(color,        255U, 155 + random8(100));
-        leds[XY(floor((pWIDTH * 0.5)+shift)    , 6)] = CHSV(color - 20U , 255U, 50  + random8(50));
-        leds[XY(floor((pWIDTH * 0.5)+shift) - 1, 7)] = CHSV(color,        255U, 55  + random8(200));
-      }
-    } else {
-      for (uint8_t x = 0; x < wdth; x++) {
-        uint8_t brightness = img[i];
-        leds[XY(delta_X + x + shift, y)] = CHSV(brightness > 240 ? color : color - 10U , 255U, brightness); //255
-        i++;
-      }
-    }
-    // draw body FeatherCandle ------
-    if (y <= 4) {
-      if (y % 2 == 0) {
-      }
-    }
-    //Рисуем свечу попиксельно слева направо и построчно сверху вниз
-    //Да, это сделано в лоб и топорно, но при оригинальном выводе в цикле у второго и последнего столбца получаются значения цветов, которые на малых яркостях не видны
-    //Если же сделать так, выглядит гораздо лучше, хотя используется меньшее количество цветов
-    for (uint8_t y = 0; y < 3; y++) {
-      leds[XY(floor((pWIDTH * 0.5)+shift) - 5, y)] = CHSV(48, 160U + abs(floor((pWIDTH * 0.5)+shift) - 5 - floor((pWIDTH * 0.5)+shift)) * 30, 255 - abs(floor((pWIDTH * 0.5)+shift) - 5 - floor((pWIDTH * 0.5)+shift)) * 60);
-      leds[XY(floor((pWIDTH * 0.5)+shift) - 4, y)] = CHSV(48, 160U + abs(floor((pWIDTH * 0.5)+shift) - 2 - floor((pWIDTH * 0.5)+shift)) * 30, 255 - abs(floor((pWIDTH * 0.5)+shift) - 2 - floor((pWIDTH * 0.5)+shift)) * 60);
-      leds[XY(floor((pWIDTH * 0.5)+shift) - 3, y)] = CHSV(48, 160U + abs(floor((pWIDTH * 0.5)+shift) - 3 - floor((pWIDTH * 0.5)+shift)) * 30, 255 - abs(floor((pWIDTH * 0.5)+shift) - 3 - floor((pWIDTH * 0.5)+shift)) * 60);
-      leds[XY(floor((pWIDTH * 0.5)+shift) - 2, y)] = CHSV(48, 160U + abs(floor((pWIDTH * 0.5)+shift) - 2 - floor((pWIDTH * 0.5)+shift)) * 30, 255 - abs(floor((pWIDTH * 0.5)+shift) - 2 - floor((pWIDTH * 0.5)+shift)) * 60);
-      leds[XY(floor((pWIDTH * 0.5)+shift) - 1, y)] = CHSV(48, 160U + abs(floor((pWIDTH * 0.5)+shift) - 1 - floor((pWIDTH * 0.5)+shift)) * 30, 255 - abs(floor((pWIDTH * 0.5)+shift) - 1 - floor((pWIDTH * 0.5)+shift)) * 60);
-      leds[XY(floor((pWIDTH * 0.5)+shift)    , y)] = CHSV(48, 160U + abs(floor((pWIDTH * 0.5)+shift)     - floor((pWIDTH * 0.5)+shift)) * 30, 255 - abs(floor((pWIDTH * 0.5)+shift)     - floor((pWIDTH * 0.5)+shift)) * 60);
-      leds[XY(floor((pWIDTH * 0.5)+shift) + 1, y)] = CHSV(48, 160U + abs(floor((pWIDTH * 0.5)+shift) + 1 - floor((pWIDTH * 0.5)+shift)) * 30, 255 - abs(floor((pWIDTH * 0.5)+shift) + 1 - floor((pWIDTH * 0.5)+shift)) * 60);
-      leds[XY(floor((pWIDTH * 0.5)+shift) + 2, y)] = CHSV(48, 160U + abs(floor((pWIDTH * 0.5)+shift) + 2 - floor((pWIDTH * 0.5)+shift)) * 30, 255 - abs(floor((pWIDTH * 0.5)+shift) + 2 - floor((pWIDTH * 0.5)+shift)) * 60);
-      leds[XY(floor((pWIDTH * 0.5)+shift) + 3, y)] = CHSV(48, 160U + abs(floor((pWIDTH * 0.5)+shift) + 3 - floor((pWIDTH * 0.5)+shift)) * 30, 255 - abs(floor((pWIDTH * 0.5)+shift) + 3 - floor((pWIDTH * 0.5)+shift)) * 60);
-      leds[XY(floor((pWIDTH * 0.5)+shift) + 4, y)] = CHSV(48, 160U + abs(floor((pWIDTH * 0.5)+shift) - 2 - floor((pWIDTH * 0.5)+shift)) * 30, 255 - abs(floor((pWIDTH * 0.5)+shift) - 2 - floor((pWIDTH * 0.5)+shift)) * 60);
-    }
-    // drops of wax move -------------
-    switch (hue) {
-      case 0:
-        if (trackingObjectState[0] < level) {
-          trackingObjectState[0]++;
-        }
-        break;
-      case 1:
-        if (trackingObjectState[0] > low_level) {
-          trackingObjectState[0] --;
-        }
-        if (trackingObjectState[1] < level) {
-          trackingObjectState[1] ++;
-        }
-        break;
-      case 2:
-        if (trackingObjectState[1] > low_level) {
-          trackingObjectState[1] --;
-        }
-        if (trackingObjectState[2] < level) {
-          trackingObjectState[2] ++;
-        }
-        break;
-      case 3:
-        if (trackingObjectState[2] > low_level) {
-          trackingObjectState[2] --;
-        } else {
-          hue++;
-          // set random position drop of wax
-          trackingObjectState[4] = floor((pWIDTH * 0.5)+shift) - 3 + random8(6);
-        }
-        break;
-    }
-    if (hue > 3) {
-      hue++;
-    } else {
-      if (hue < 2) {
-        leds[XY(trackingObjectState[4], 2)] = CHSV(50U, 20U, trackingObjectState[0]);
-      }
-      if ((hue == 1) || (hue == 2)) {
-        leds[XY(trackingObjectState[4], 1)] = CHSV(50U, 15U, trackingObjectState[1]); // - 10;
-      }
-      if (hue > 1) {
-        leds[XY(trackingObjectState[4], 0)] = CHSV(50U, 5U, trackingObjectState[2]); // - 20;
-      }
-    }
-  }
-  // next -----------------
-  if ((trackingObjectState[0] == level) || (trackingObjectState[1] == level) || (trackingObjectState[2] == level)) {
-    hue++;
-  }
 }
 
 // ***************************** КУБИК РУБИКА *****************************
@@ -7596,12 +7330,26 @@ void prismata(CRGBPalette16 pal) {
 }
 
 // --------------------------- эффект спирали ----------------------
-/*
-   Aurora: https://github.com/pixelmatix/aurora
-   https://github.com/pixelmatix/aurora/blob/sm3.0-64x64/PatternSpiro.h
-   Copyright (c) 2014 Jason Coon
-   Неполная адаптация SottNick
-*/
+//   Aurora: https://github.com/pixelmatix/aurora
+//   https://github.com/pixelmatix/aurora/blob/sm3.0-64x64/PatternSpiro.h
+//   Copyright (c) 2014 Jason Coon
+//   Неполная адаптация SottNick
+
+byte spirotheta1;
+byte spirotheta2;
+uint8_t spiroradiusx;
+uint8_t spiroradiusy;
+uint8_t spirocenterX;
+uint8_t spirocenterY;
+uint8_t spirominx;
+uint8_t spiromaxx;
+uint8_t spirominy;
+uint8_t spiromaxy;
+uint8_t spirocount;
+uint8_t spirooffset;
+boolean spiroincrement;
+boolean spirohandledChange;
+uint8_t USE_SEGMENTS_SPIRO = 0;
 
 uint8_t mapsin8(uint8_t theta, uint8_t lowest = 0, uint8_t highest = 255) {
   uint8_t beatsin = sin8(theta);
@@ -7619,9 +7367,47 @@ uint8_t mapcos8(uint8_t theta, uint8_t lowest = 0, uint8_t highest = 255) {
   return result;
 }
 
-void spiroRoutine() {
+void spiroRoutine() {  
   if (loadingFlag) {
     loadingFlag = false;
+    USE_SEGMENTS_SPIRO = map8(getEffectScaleParamValue(MC_SPIRO),0,1);
+    if (USE_SEGMENTS_SPIRO != 0) {
+      dir_mx = pWIDTH > pHEIGHT ? 0 : 1;                                   // 0 - квадратные сегменты расположены горизонтально, 1 - вертикально
+      seg_num = dir_mx == 0 ? (pWIDTH / pHEIGHT) : (pHEIGHT / pWIDTH);     // вычисляем количество сегментов, умещающихся на матрице      
+      seg_size = dir_mx == 0 ? pHEIGHT : pWIDTH;                           // Размер квадратного сегмента (высота и ширина равны)
+      seg_offset = ((dir_mx == 0 ? pWIDTH : pHEIGHT) - seg_size * seg_num) / (seg_num + 1); // смещение от края матрицы и между сегментами      
+      BorderWidth = seg_num == 1 ? 0 : 1;  
+      spirotheta1 = 0;
+      spirotheta2 = 0;
+      spiroradiusx = round(seg_size/4);// - 1;
+      spiroradiusy = round(seg_size/4);// - 1;
+      spirocenterX = round(seg_size/2);
+      spirocenterY = round(seg_size/2);
+      spirominx = spirocenterX - spiroradiusx;
+      spiromaxx = spirocenterX + spiroradiusx - (seg_size%2 == 0 ? 1:0);//+ 1;
+      spirominy = spirocenterY - spiroradiusy;
+      spiromaxy = spirocenterY + spiroradiusy - (seg_size%2 == 0 ? 1:0);//+ 1;
+      spirocount = 1;
+      spirooffset = 256 / spirocount;
+      spiroincrement = false;
+      spirohandledChange = false;
+    }
+    else {
+      spirotheta1 = 0;
+      spirotheta2 = 0;
+      spiroradiusx = round(pWIDTH/4);// - 1;
+      spiroradiusy = round(pHEIGHT/4);// - 1;
+      spirocenterX = round(pWIDTH/2);
+      spirocenterY = round(pHEIGHT/2);
+      spirominx = spirocenterX - spiroradiusx;
+      spiromaxx = spirocenterX + spiroradiusx - (pWIDTH%2 == 0 ? 1:0);//+ 1;
+      spirominy = spirocenterY - spiroradiusy;
+      spiromaxy = spirocenterY + spiroradiusy - (pHEIGHT%2 == 0 ? 1:0);//+ 1;
+      spirocount = 1;
+      spirooffset = 256 / spirocount;
+      spiroincrement = false;
+      spirohandledChange = false;
+    }
     palette_number = getEffectScaleParamValue2(MC_SPIRO);
     if (palette_number == 0 || palette_number == 55) startnum = random8(1, 55); //Если Случайный выбор или Авто, задать произвольный вариант (в Авто от него начинается отсчет)
     else if (palette_number > 0 || palette_number < 55) startnum = palette_number;  //Если что-то из вариантов 1-54, берем только это значение
@@ -7691,36 +7477,278 @@ void spiroRoutine() {
     case 54: currentPalette = rbw_gp;                break;
   }
   blurScreen(20); // @Palpalych советует делать размытие
-  dimAll(255-getEffectScaleParamValue(MC_SPIRO));
+  dimAll(255-getEffectContrast(MC_SPIRO));
   boolean change = false;
-  for (uint8_t i = 0; i < spirocount; i++) {
-    uint8_t x = mapsin8(spirotheta1 + i * spirooffset, spirominx, spiromaxx);
-    uint8_t y = mapcos8(spirotheta1 + i * spirooffset, spirominy, spiromaxy);
-    uint8_t x2 = mapsin8(spirotheta2 + i * spirooffset, x - spiroradiusx, x + spiroradiusx);
-    uint8_t y2 = mapcos8(spirotheta2 + i * spirooffset, y - spiroradiusy, y + spiroradiusy);
-    if (x2 < pWIDTH && y2 < pHEIGHT) // добавил проверки. не знаю, почему эффект подвисает без них
-      leds[XY(x2, y2)] += (CRGB)ColorFromPalette(currentPalette, hue + i * spirooffset);
-    if ((x2 == spirocenterX && y2 == spirocenterY) || (x2 == spirocenterX && y2 == spirocenterY)) change = true;
-  }
-  spirotheta2 += 2;
-  spirotheta1 += 1;
-  EVERY_N_MILLIS(75) {
-    if (change && !spirohandledChange) {
-      spirohandledChange = true;
-      if (spirocount >= pWIDTH || spirocount == 1) spiroincrement = !spiroincrement;
-      if (spiroincrement) {
-        if (spirocount >= 4) spirocount *= 2;
-        else spirocount += 1;
+  if (USE_SEGMENTS_SPIRO != 0) {  
+    for (uint8_t ii = 0; ii < seg_num; ii++) {
+      delay(0); // Для предотвращения ESP8266 Watchdog Timer
+      uint8_t cx = dir_mx == 0 ? (seg_offset * (ii + 1) + seg_size * ii) : 0;
+      uint8_t cy = dir_mx == 0 ? 0 : (seg_offset * (ii + 1) + seg_size * ii);
+      uint8_t color_shift = ii * 50;
+      for (uint8_t i = 0; i < spirocount; i++) {
+        uint8_t x = mapsin8(spirotheta1 + i * spirooffset, spirominx, spiromaxx);
+        uint8_t y = mapcos8(spirotheta1 + i * spirooffset, spirominy, spiromaxy);
+        uint8_t x2 = mapsin8(spirotheta2 + i * spirooffset, x - spiroradiusx, x + spiroradiusx) + cx;
+        uint8_t y2 = mapcos8(spirotheta2 + i * spirooffset, y - spiroradiusy, y + spiroradiusy) + cy;
+        if (x2 < seg_size + cx && y2 < seg_size + cy) // добавил проверки. не знаю, почему эффект подвисает без них
+          leds[XY(x2, y2)] += (CRGB)ColorFromPalette(currentPalette, hue + i * spirooffset);
+        if ((x2 == spirocenterX + cx && y2 == spirocenterY + cy) || (x2 == spirocenterX + cx && y2 == spirocenterY + cy)) change = true;
       }
-      else {
-        if (spirocount > 4) spirocount /= 2;
-        else spirocount -= 1;
+      spirotheta2 += 2;
+      spirotheta1 += 1;
+      EVERY_N_MILLIS(75) {
+        if (change && !spirohandledChange) {
+          spirohandledChange = true;
+          if (spirocount >= seg_size || spirocount == 1) spiroincrement = !spiroincrement;
+          if (spiroincrement) {
+          if (spirocount >= 4) spirocount *= 2;
+            else spirocount += 1;
+          }
+          else {
+            if (spirocount > 4) spirocount /= 2;
+            else spirocount -= 1;
+          }
+          spirooffset = 256 / spirocount;
+        }
+        if (!change) spirohandledChange = false;
       }
-      spirooffset = 256 / spirocount;
+      hue += 1;
     }
-    if (!change) spirohandledChange = false;
+  } 
+  else {
+    for (uint8_t i = 0; i < spirocount; i++) {
+      uint8_t x = mapsin8(spirotheta1 + i * spirooffset, spirominx, spiromaxx);
+      uint8_t y = mapcos8(spirotheta1 + i * spirooffset, spirominy, spiromaxy);
+      uint8_t x2 = mapsin8(spirotheta2 + i * spirooffset, x - spiroradiusx, x + spiroradiusx);
+      uint8_t y2 = mapcos8(spirotheta2 + i * spirooffset, y - spiroradiusy, y + spiroradiusy);
+      if (x2 < pWIDTH && y2 < pHEIGHT) // добавил проверки. не знаю, почему эффект подвисает без них
+        leds[XY(x2, y2)] += (CRGB)ColorFromPalette(currentPalette, hue + i * spirooffset);
+      if ((x2 == spirocenterX && y2 == spirocenterY) || (x2 == spirocenterX && y2 == spirocenterY)) change = true;
+    }
+    spirotheta2 += 2;
+    spirotheta1 += 1;
+    EVERY_N_MILLIS(75) {
+      if (change && !spirohandledChange) {
+        spirohandledChange = true;
+        if (spirocount >= pWIDTH || spirocount == 1) spiroincrement = !spiroincrement;
+        if (spiroincrement) {
+          if (spirocount >= 4) spirocount *= 2;
+          else spirocount += 1;
+        }
+        else {
+          if (spirocount > 4) spirocount /= 2;
+          else spirocount -= 1;
+        }
+        spirooffset = 256 / spirocount;
+      }
+      if (!change) spirohandledChange = false;
+    }
+    hue += 1;
   }
-  hue += 1;
+}
+
+// =========== FeatherCandle ============
+//         адаптация © SottNick
+//    github.com/mnemocron/FeatherCandle
+//      modify & design © SlingMaster
+//           EFF_FEATHER_CANDLE
+//                Свеча
+//---------------------------------------
+#include "data7x15flip.h"                       // FeatherCandle animation data
+const uint8_t  level = 160;
+const uint8_t  low_level = 110;
+const uint8_t *ptr  = anim;                     // Current pointer into animation data
+const uint8_t  wdth    = 7;                     // image width
+const uint8_t  hght    = 13;                    // image height было 15
+uint8_t        img[wdth * hght];                // Buffer for rendering image
+uint8_t        last_brightness;
+int            shift;                           //для сдвига свечи в сторону
+
+void FeatherCandleRoutine() {
+  if (loadingFlag) {
+    FastLED.clear();
+    hue = 0;
+    trackingObjectState[0] = low_level;
+    trackingObjectState[1] = low_level;
+    trackingObjectState[2] = low_level;
+    trackingObjectState[4] = floor((pWIDTH * 0.5)+shift);
+    loadingFlag = false;
+    shift = map(getEffectScaleParamValue(MC_CANDLE), 0, 255, 0 - ((pWIDTH - 10)/2), (pWIDTH - 10)/2); //определяем ширину свободных полей для сдвига
+  }  
+  uint8_t a = pgm_read_byte(ptr++);     // New frame X1/Y1
+  if (a >= 0x90) {                      // EOD marker? (valid X1 never exceeds 8)
+    ptr = anim;                         // Reset animation data pointer to start
+    a   = pgm_read_byte(ptr++);         // and take first value
+  }
+  uint8_t x1 = a >> 4;                  // X1 = high 4 bits
+  uint8_t y1 = a & 0x0F;                // Y1 = low 4 bits
+  a  = pgm_read_byte(ptr++);            // New frame X2/Y2
+  uint8_t x2 = a >> 4;                  // X2 = high 4 bits
+  uint8_t y2 = a & 0x0F;                // Y2 = low 4 bits
+  // Read rectangle of data from anim[] into portion of img[] buffer
+  for (uint8_t y = y1; y <= y2; y++)
+    for (uint8_t x = x1; x <= x2; x++) {
+      img[y * wdth + x] = pgm_read_byte(ptr++);
+    }
+  int i = 0;
+  uint8_t color = 40;  //красивое желто-оранжевое пламя с красными частицами, а не зеленое нечто
+
+  // рисуем статичное мерцающее пламя для маленьких матриц высотой менее 13 пикселей (если матрица крупнее, выводится анимированное пламя)
+  for (uint8_t y = 1; y < hght; y++) {
+    if (pHEIGHT < 13) {
+      // for small matrix -----
+      if (y % 3 == 0) {
+        //рисуем пламя по строкам снизу вверх
+        leds[XY(floor((pWIDTH * 0.5)+shift) - 1, 3)] = CHSV(color - 20U , 255U, 50  + random8(50));
+        leds[XY(floor((pWIDTH * 0.5)+shift) - 2, 4)] = CHSV(color - 20U , 255U, 50  + random8(50));
+        leds[XY(floor((pWIDTH * 0.5)+shift) - 1, 4)] = CHSV(color       , 255U, 180 + random8(70));
+        leds[XY(floor((pWIDTH * 0.5)+shift),     4)] = CHSV(color - 20U , 255U, 50  + random8(50));
+        leds[XY(floor((pWIDTH * 0.5)+shift) - 2, 5)] = CHSV(color - 20U , 255U, 205 + random8(50));
+        leds[XY(floor((pWIDTH * 0.5)+shift) - 1, 5)] = CHSV(color,        255U, 205 + random8(50));
+        leds[XY(floor((pWIDTH * 0.5)+shift)    , 5)] = CHSV(color - 20U , 255U, 205 + random8(50));
+        leds[XY(floor((pWIDTH * 0.5)+shift) - 2, 6)] = CHSV(color - 20U , 255U, 50  + random8(50));
+        leds[XY(floor((pWIDTH * 0.5)+shift) - 1, 6)] = CHSV(color,        255U, 155 + random8(100));
+        leds[XY(floor((pWIDTH * 0.5)+shift)    , 6)] = CHSV(color - 20U , 255U, 50  + random8(50));
+        leds[XY(floor((pWIDTH * 0.5)+shift) - 1, 7)] = CHSV(color,        255U, 55  + random8(200));
+      }
+    } else {
+      for (uint8_t x = 0; x < wdth; x++) {
+        uint8_t brightness = img[i];
+        leds[XY(delta_X + x + shift, y)] = CHSV(brightness > 240 ? color : color - 10U , 255U, brightness); //255
+        i++;
+      }
+    }
+    // draw body FeatherCandle ------
+    if (y <= 4) {
+      if (y % 2 == 0) {
+      }
+    }
+    //Рисуем свечу попиксельно слева направо и построчно сверху вниз
+    //Да, это сделано в лоб и топорно, но при оригинальном выводе в цикле у второго и последнего столбца получаются значения цветов, которые на малых яркостях не видны
+    //Если же сделать так, выглядит гораздо лучше, хотя используется меньшее количество цветов
+    for (uint8_t y = 0; y < 3; y++) {
+      leds[XY(floor((pWIDTH * 0.5)+shift) - 5, y)] = CHSV(48, 160U + abs(floor((pWIDTH * 0.5)+shift) - 5 - floor((pWIDTH * 0.5)+shift)) * 30, 255 - abs(floor((pWIDTH * 0.5)+shift) - 5 - floor((pWIDTH * 0.5)+shift)) * 60);
+      leds[XY(floor((pWIDTH * 0.5)+shift) - 4, y)] = CHSV(48, 160U + abs(floor((pWIDTH * 0.5)+shift) - 2 - floor((pWIDTH * 0.5)+shift)) * 30, 255 - abs(floor((pWIDTH * 0.5)+shift) - 2 - floor((pWIDTH * 0.5)+shift)) * 60);
+      leds[XY(floor((pWIDTH * 0.5)+shift) - 3, y)] = CHSV(48, 160U + abs(floor((pWIDTH * 0.5)+shift) - 3 - floor((pWIDTH * 0.5)+shift)) * 30, 255 - abs(floor((pWIDTH * 0.5)+shift) - 3 - floor((pWIDTH * 0.5)+shift)) * 60);
+      leds[XY(floor((pWIDTH * 0.5)+shift) - 2, y)] = CHSV(48, 160U + abs(floor((pWIDTH * 0.5)+shift) - 2 - floor((pWIDTH * 0.5)+shift)) * 30, 255 - abs(floor((pWIDTH * 0.5)+shift) - 2 - floor((pWIDTH * 0.5)+shift)) * 60);
+      leds[XY(floor((pWIDTH * 0.5)+shift) - 1, y)] = CHSV(48, 160U + abs(floor((pWIDTH * 0.5)+shift) - 1 - floor((pWIDTH * 0.5)+shift)) * 30, 255 - abs(floor((pWIDTH * 0.5)+shift) - 1 - floor((pWIDTH * 0.5)+shift)) * 60);
+      leds[XY(floor((pWIDTH * 0.5)+shift)    , y)] = CHSV(48, 160U + abs(floor((pWIDTH * 0.5)+shift)     - floor((pWIDTH * 0.5)+shift)) * 30, 255 - abs(floor((pWIDTH * 0.5)+shift)     - floor((pWIDTH * 0.5)+shift)) * 60);
+      leds[XY(floor((pWIDTH * 0.5)+shift) + 1, y)] = CHSV(48, 160U + abs(floor((pWIDTH * 0.5)+shift) + 1 - floor((pWIDTH * 0.5)+shift)) * 30, 255 - abs(floor((pWIDTH * 0.5)+shift) + 1 - floor((pWIDTH * 0.5)+shift)) * 60);
+      leds[XY(floor((pWIDTH * 0.5)+shift) + 2, y)] = CHSV(48, 160U + abs(floor((pWIDTH * 0.5)+shift) + 2 - floor((pWIDTH * 0.5)+shift)) * 30, 255 - abs(floor((pWIDTH * 0.5)+shift) + 2 - floor((pWIDTH * 0.5)+shift)) * 60);
+      leds[XY(floor((pWIDTH * 0.5)+shift) + 3, y)] = CHSV(48, 160U + abs(floor((pWIDTH * 0.5)+shift) + 3 - floor((pWIDTH * 0.5)+shift)) * 30, 255 - abs(floor((pWIDTH * 0.5)+shift) + 3 - floor((pWIDTH * 0.5)+shift)) * 60);
+      leds[XY(floor((pWIDTH * 0.5)+shift) + 4, y)] = CHSV(48, 160U + abs(floor((pWIDTH * 0.5)+shift) - 2 - floor((pWIDTH * 0.5)+shift)) * 30, 255 - abs(floor((pWIDTH * 0.5)+shift) - 2 - floor((pWIDTH * 0.5)+shift)) * 60);
+    }
+    // drops of wax move -------------
+    switch (hue) {
+      case 0:
+        if (trackingObjectState[0] < level) {
+          trackingObjectState[0]++;
+        }
+        break;
+      case 1:
+        if (trackingObjectState[0] > low_level) {
+          trackingObjectState[0] --;
+        }
+        if (trackingObjectState[1] < level) {
+          trackingObjectState[1] ++;
+        }
+        break;
+      case 2:
+        if (trackingObjectState[1] > low_level) {
+          trackingObjectState[1] --;
+        }
+        if (trackingObjectState[2] < level) {
+          trackingObjectState[2] ++;
+        }
+        break;
+      case 3:
+        if (trackingObjectState[2] > low_level) {
+          trackingObjectState[2] --;
+        } else {
+          hue++;
+          // set random position drop of wax
+          trackingObjectState[4] = floor((pWIDTH * 0.5)+shift) - 3 + random8(6);
+        }
+        break;
+    }
+    if (hue > 3) {
+      hue++;
+    } else {
+      if (hue < 2) {
+        leds[XY(trackingObjectState[4], 2)] = CHSV(50U, 20U, trackingObjectState[0]);
+      }
+      if ((hue == 1) || (hue == 2)) {
+        leds[XY(trackingObjectState[4], 1)] = CHSV(50U, 15U, trackingObjectState[1]); // - 10;
+      }
+      if (hue > 1) {
+        leds[XY(trackingObjectState[4], 0)] = CHSV(50U, 5U, trackingObjectState[2]); // - 20;
+      }
+    }
+  }
+  // next -----------------
+  if ((trackingObjectState[0] == level) || (trackingObjectState[1] == level) || (trackingObjectState[2] == level)) {
+    hue++;
+  }
+}
+
+// ============= Эффект Цветные драже ===============
+// (c) SottNick
+//по мотивам визуала эффекта by Yaroslaw Turbin 14.12.2020
+//https://vk.com/ldirko программный код которого он запретил брать
+void sandRoutine() {
+  if (loadingFlag) {
+    loadingFlag = false;
+    pcnt = 0U;// = pHEIGHT;
+    FastLED.clear();
+  }
+  // если насыпалось уже достаточно, бахаем рандомные песчинки
+  uint8_t temp = map8(random8(), getEffectScaleParamValue(MC_SAND) * 2.55, 255U);
+  if (pcnt >= map8(temp, 2U, pHEIGHT - 3U)) {
+    temp = pHEIGHT + 1U - pcnt;
+    if (!random8(4U)) // иногда песка осыпается до половины разом
+      if (random8(2U))
+        temp = 2U;
+      else
+        temp = 3U;
+    for (uint8_t y = 0; y < pcnt; y++)
+      for (uint8_t x = 0; x < pWIDTH; x++)
+        if (!random8(temp))
+          leds[XY(x, y)] = 0;
+  }
+  pcnt = 0U;
+  // осыпаем всё, что есть на экране
+  for (uint8_t y = 1; y < pHEIGHT; y++)
+    for (uint8_t x = 0; x < pWIDTH; x++)
+      if (leds[XY(x, y)])                                                          // проверяем для каждой песчинки
+        if (!leds[XY(x, y - 1)]) {                                                 // если под нами пусто, просто падаем
+          leds[XY(x, y - 1)] = leds[XY(x, y)];
+          leds[XY(x, y)] = 0;
+        }
+        else if (x > 0U && !leds[XY(x - 1, y - 1)] && x < pWIDTH - 1 && !leds[XY(x + 1, y - 1)]) { // если под нами пик
+          if (random8(2U))
+            leds[XY(x - 1, y - 1)] = leds[XY(x, y)];
+          else
+            leds[XY(x - 1, y - 1)] = leds[XY(x, y)];
+          leds[XY(x, y)] = 0;
+          pcnt = y - 1;
+        }
+        else if (x > 0U && !leds[XY(x - 1, y - 1)]) {                              // если под нами склон налево
+          leds[XY(x - 1, y - 1)] = leds[XY(x, y)];
+          leds[XY(x, y)] = 0;
+          pcnt = y - 1;
+        }
+        else if (x < pWIDTH - 1 && !leds[XY(x + 1, y - 1)]) {                       // если под нами склон направо
+          leds[XY(x + 1, y - 1)] = leds[XY(x, y)];
+          leds[XY(x, y)] = 0;
+          pcnt = y - 1;
+        }
+        else                                                                       // если под нами плато
+          pcnt = y;
+  // эмиттер новых песчинок в оригинале тут было что-то непонятное, поэтому чтобы точно найти центр, тупо делим ширину пополам и округляем (округление нужно для матриц с нечетным числом колонок)
+  if (!leds[XY(round(pWIDTH / 2), pHEIGHT - 2)] && !leds[XY(round(pWIDTH / 2), pHEIGHT - 2)] && !random8(3)) {
+    temp = round(pWIDTH / 2);
+    leds[XY(temp, pHEIGHT - 1)] = CHSV(random8(), 255U, 255U);
+  }
 }
 
 //-------- Эффект Дымовые шашки ----------- aka "Детские сны"
@@ -11541,73 +11569,161 @@ void Spin() {
 }
 
 //Здесь находится код вроде как работающих, но по тем или иным причинам не задействованных в прошивке эффектов
-//волшебный фонарь
-/*
-void MagicLantern() { //непонятный эффект, но что-то рисует
+
+/*прикольно смотрится
+uint8_t beatcos8(accum88 beats_per_minute, uint8_t lowest = 0, uint8_t highest = 255, uint32_t timebase = 0, uint8_t phase_offset = 0)
 {
-  static uint8_t saturation;
-  static uint8_t brightness;
-  static uint8_t low_br;
-  uint8_t delta;
-  const uint8_t PADDING = pHEIGHT * 0.25;
-  const uint8_t WARM_LIGHT = 55U;
-  const uint8_t STEP = 4U;
-  if (loadingFlag) {
-    loadingFlag = false;
-    deltaValue = 0;
-    step = deltaValue;
- //   if (modes[currentMode].Speed > 52) {
-      if (getEffectContrast(MC_SMOKE) > 52) {
-      // brightness = 50 + modes[currentMode].Speed;
-    //  brightness = map(modes[currentMode].Speed, 1, 255, 50U, 250U);
-      brightness = map(getEffectContrast(MC_SMOKE), 1, 255, 50U, 250U);
-      low_br = 50U;
-    } else {
-      brightness = 0U;
-      low_br = 0U;
+  uint8_t beat = beat8(beats_per_minute, timebase);
+  uint8_t beatcos = cos8(beat + phase_offset);
+  uint8_t rangewidth = highest - lowest;
+  uint8_t scaledbeat = scale8(beatcos, rangewidth);
+  uint8_t result = lowest + scaledbeat;
+  return result;
+}
+
+//void PatternIncrementalDrift2() {
+void Spin() {
+  const int CENTER_X = pWIDTH / 2;
+  const int CENTER_Y = pHEIGHT / 2;
+  
+//uint16_t  t = millis() / (128 - (getEffectSpeedValue(MC_SPIN) / 2));
+uint16_t  t = millis();
+ 
+    if (millis() - color_timer > 10000) {
+      color_timer = millis();
+      startnum++;
+      if (startnum > 60) startnum = 1;
     }
-    saturation = (getEffectScaleParamValue(MC_SMOKE) > 50U) ? 64U : 0U;
-    if (abs (70 - getEffectScaleParamValue(MC_SMOKE) <= 5)) saturation = 170U;
-    FastLED.clear();
+  switch (startnum) {
+    case 1:  currentPalette = CloudColors_p;         break;
+    case 2:  currentPalette = LavaColors_p;          break;
+    case 3:  currentPalette = PartyColors_p;         break;
+    case 4:  currentPalette = RainbowColors_p;       break;
+    case 5:  currentPalette = RainbowStripeColors_p; break;
+    case 6:  currentPalette = ForestColors_p;        break;
+    case 7:  currentPalette = AlcoholFireColors_p;   break;
+    case 8:  currentPalette = HeatColors_p;          break;
+    case 9:  currentPalette = WaterfallColors4in1_p; break;
+    case 10: currentPalette = WoodFireColors_p;      break;
+    case 11: currentPalette = NormalFire_p;          break;
+    case 12: currentPalette = NormalFire2_p;         break;
+    case 13: currentPalette = LithiumFireColors_p;   break;
+    case 14: currentPalette = SodiumFireColors_p;    break;
+    case 15: currentPalette = CopperFireColors_p;    break;
+    case 16: currentPalette = RubidiumFireColors_p;  break;
+    case 17: currentPalette = PotassiumFireColors_p; break;
+    case 18: currentPalette = OceanColors_p;         break;
+    case 19: currentPalette = Sunset_Real_gp;        break;
+    case 20: currentPalette = dkbluered_gp;          break;
+    case 21: currentPalette = Optimus_Prime_gp;      break;
+    case 22: currentPalette = warmGrad_gp;           break;
+    case 23: currentPalette = coldGrad_gp;           break;
+    case 24: currentPalette = hotGrad_gp;            break;
+    case 25: currentPalette = pinkGrad_gp;           break;
+    case 26: currentPalette = comfy_gp;              break;
+    case 27: currentPalette = cyperpunk_gp;          break;
+    case 28: currentPalette = girl_gp;               break;
+    case 29: currentPalette = xmas_gp;               break;
+    case 30: currentPalette = acid_gp;               break;
+    case 31: currentPalette = blueSmoke_gp;          break;
+    case 32: currentPalette = gummy_gp;              break;
+    case 33: currentPalette = leo_gp;                break;
+    case 34: currentPalette = aurora_gp;             break;
+    case 35: currentPalette = rainClouds_p;          break;
+    case 36: currentPalette = pacifica_palette_1;    break;
+    case 37: currentPalette = pacifica_palette_2;    break;
+    case 38: currentPalette = pacifica_palette_3;    break;
+    case 39: currentPalette = redwhite_gp;           break;
+    case 40: currentPalette = ib_jul01_gp;           break;
+    case 41: currentPalette = rgi_15_gp;             break;
+    case 42: currentPalette = retro2_16_gp;          break;
+    case 43: currentPalette = Analogous_1_gp;        break;
+    case 44: currentPalette = pinksplash_08_gp;      break;
+    case 45: currentPalette = pinksplash_07_gp;      break;
+    case 46: currentPalette = Coral_reef_gp;         break;
+    case 47: currentPalette = ocean_breeze_gp;       break;
+    case 48: currentPalette = landscape_64_gp;       break;
+    case 49: currentPalette = landscape_33_gp;       break;
+    case 50: currentPalette = rainbowsherbet_gp;     break;
+    case 51: currentPalette = gr65_hult_gp;          break;
+    case 52: currentPalette = GMT_drywet_gp;         break;
+    case 53: currentPalette = emerald_dragon_gp;     break;
+    case 54: currentPalette = Colorfull_gp;          break;
+    case 55: currentPalette = Pink_Purple_gp;        break;
+    case 56: currentPalette = autumn_19_gp;          break;
+    case 57: currentPalette = daybreak_gp;           break;
+    case 58: currentPalette = Blue_Cyan_Yellow_gp;   break;
+    case 59: currentPalette = bhw1_28_gp;            break;
+    case 60: currentPalette = rbw_gp;                break;
   }
-  dimAll(170);
-  hue = (getEffectScaleParamValue(MC_SMOKE) > 95) ? floor(step / 32) * 32U : getEffectScaleParamValue(MC_SMOKE) * 2.55;
-  // ------
-  for (uint8_t x = 0U; x < pWIDTH + 1 ; x++) {
-    // light ---
-    if (low_br > 0) {
-      gradientVertical( x - deltaValue, CENTER_Y_MAJOR, x + 1U - deltaValue, pHEIGHT - PADDING - 1,  WARM_LIGHT, WARM_LIGHT, brightness, low_br, saturation);
-      gradientVertical( pWIDTH - x + deltaValue, CENTER_Y_MAJOR, pWIDTH - x + 1U + deltaValue, pHEIGHT - PADDING - 1,  WARM_LIGHT, WARM_LIGHT, brightness, low_br, saturation);
-      gradientVertical( x - deltaValue, PADDING + 1, x + 1U - deltaValue, CENTER_Y_MAJOR, WARM_LIGHT, WARM_LIGHT, low_br + 10, brightness, saturation);
-      gradientVertical( pWIDTH - x + deltaValue, PADDING + 1, pWIDTH - x + 1U + deltaValue, CENTER_Y_MAJOR, WARM_LIGHT, WARM_LIGHT, low_br + 10, brightness, saturation);
-    } else {
-      if (x % (STEP + 1) == 0) {
-        leds[XY(random8(pWIDTH), random8(PADDING + 2, pHEIGHT - PADDING - 2))] = CHSV(step - 32U, random8(128U, 255U), 255U);
-      }
-      if ((getEffectContrast(MC_SMOKE) < 25) & (low_br == 0)) {
-        deltaValue = 0;
-        if (x % 2 != 0) {
-          gradientVertical( x - deltaValue, pHEIGHT - PADDING, x + 1U - deltaValue, pHEIGHT,  hue, hue + 2, 64U, 20U, 255U);
-          gradientVertical( (pWIDTH - x + deltaValue), 0U,  (pWIDTH - x + 1U + deltaValue), PADDING,  hue, hue, 42U, 64U, 255U);
-        }
-      }
+  uint8_t dim = beatsin8(2, 170, 250);
+  dimAll(dim);
+//  FastLED.clear();
+  for (uint8_t i = 0; i < pWIDTH; i++)
+  {
+    CRGB color;
+    uint8_t x = 0;
+    uint8_t y = 0;
+
+    if (i < CENTER_X) {
+      x = beatcos8((i + 1) * 2, i, pWIDTH - i);
+      y = beatsin8((i + 1) * 2, i, pHEIGHT - i);
+      color = ColorFromPalette(currentPalette ,i * 14);
     }
-    if (x % STEP == 0) {
-      // body --
-      gradientVertical( x - deltaValue, pHEIGHT - PADDING, x + 1U - deltaValue, pHEIGHT,  hue, hue + 2, 255U, 20U, 255U);
-      gradientVertical( (pWIDTH - x + deltaValue), 0U,  (pWIDTH - x + 1U + deltaValue), PADDING,  hue, hue, 42U, 255U, 255U);
+    else 
+    {
+      x = beatsin8((pWIDTH  - i) * 2, pWIDTH - i, i + 1);
+      y = beatcos8((pHEIGHT - i) * 2, pHEIGHT - i, i + 1);
+      color = ColorFromPalette(currentPalette ,(31 - i) * 14);
     }
+    drawPixelXY(x, y, color);
   }
-  deltaValue++;
-  if (deltaValue >= STEP) {
-    deltaValue = 0;
+}*/
+
+//тоже вроде ничего так
+/*void prideRoutine()  {
+  static uint16_t sPseudotime = 0;
+  static uint16_t sLastMillis = 0;
+  static uint16_t sHue16 = 0;
+
+  uint8_t sat8 = beatsin88(87, 220, 250);
+  uint8_t brightdepth = beatsin88(341, 96, 224);
+  uint16_t brightnessthetainc16 = beatsin88(203, (25 * 256), (40 * 256));
+  uint8_t msmultiplier = beatsin88(147, 23, 60);
+
+  uint16_t hue16 = sHue16;//gHue * 256;
+  uint16_t hueinc16 = beatsin88(113, 1, 3000);
+
+  uint16_t ms = millis();
+  uint16_t deltams = ms - sLastMillis;
+  sLastMillis = ms;
+  sPseudotime += deltams * msmultiplier;
+  sHue16 += deltams * beatsin88(400, 5, 9);
+  uint16_t brightnesstheta16 = sPseudotime;
+
+  for (int i = 0; i < NUM_LEDS; i++) {
+    hue16 += hueinc16;
+    uint8_t hue8 = hue16 / 256;
+
+    brightnesstheta16 += brightnessthetainc16;
+    uint16_t b16 = sin16(brightnesstheta16) + 32768;
+
+    uint16_t bri16 = (uint32_t) ((uint32_t) b16 * (uint32_t) b16) / 65536;
+    uint8_t bri8 = (uint32_t) (((uint32_t) bri16) * brightdepth) / 65536;
+    bri8 += (255 - brightdepth);
+
+    CRGB newcolor = CHSV(hue8, sat8, bri8);
+
+    uint8_t pixelnumber = i;
+    pixelnumber = (NUM_LEDS - 1) - pixelnumber;
+
+    nblend(leds[pixelnumber], newcolor, 64);
   }
-  step++;
 }*/
 
 // ======== Digital Тurbulence =========
 //             © SlingMaster
-//        Цифровая турбулентность типа работает
+//        Цифровая турбулентность тоже прикольный
 // =====================================
 /*uint8_t SpeedFactor(uint8_t spd) {
   uint8_t result = spd * NUM_LEDS / 1024.0;
@@ -11636,6 +11752,7 @@ void MagicLantern() { //непонятный эффект, но что-то ри
 
   //---------------------------------------
   void Turbulence() {
+  {
   const byte STEP_COLOR = 255 / pHEIGHT;
   const byte STEP_OBJ = 8;
   const byte DEPTH = 2;
@@ -11646,7 +11763,7 @@ void MagicLantern() { //непонятный эффект, но что-то ри
     step = 0U;
     deltaValue = 0;
     hue = 0;
-    if (modes[currentMode].Speed < 20U) {
+    if (getEffectSpeedValue(MC_SPIN) < 20U) {
       FPSdelay = SpeedFactor(30);
     }
     FastLED.clear();
@@ -11693,7 +11810,7 @@ void MagicLantern() { //непонятный эффект, но что-то ри
     }
   }
 
-  if (modes[currentMode].Scale > 50) {
+  if (getEffectScaleParamValue(MC_SPIN) > 50) {
     count++;
     if (count % 256 == 0U) hue += 16U;
   } else {
@@ -11701,7 +11818,6 @@ void MagicLantern() { //непонятный эффект, но что-то ри
   }
   step++;
   }*/
-
 
 /*
   // =============== Bamboo ===============
@@ -11783,8 +11899,488 @@ void MagicLantern() { //непонятный эффект, но что-то ри
   index += STP;
   }*/
   
+
+
+
+/*
+// =====================================
+//     Multicolored Dandelions
+//      Base Code © Less Lam
+//          © SlingMaster
+//       Разноцветные одуванчики
+// https://editor.soulmatelights.com/gallery/2007-amber-rain
+//красивый эффект, на замену треков
+// =====================================
+class Circle {
+  public:
+    float thickness = 3.0;
+    long startTime;
+    uint16_t offset;
+    int16_t centerX;
+    int16_t centerY;
+    int hue;
+    int bpm = 10;
+
+    void move() {
+      centerX = random(0, pWIDTH);
+      centerY = random(0, pHEIGHT);
+    }
+
+    void scroll() {
+      centerX--; // = random(0, pWIDTH);
+      if (centerX < 1) {
+        centerX = pWIDTH - 1;
+      }
+      centerY++;
+      if (centerY > pHEIGHT) {
+        centerY = 0;
+      }
+    }
+    void reset() {
+      startTime = millis();
+      centerX = random(0, pWIDTH);
+      centerY = random(0, pHEIGHT);
+      hue = random(0, 255);
+      offset = random(0, 60000 / bpm);
+    }
+
+    float radius(uint8_t _speed) {
+    //  float radius = beatsin16(modes[currentMode].Speed / 2.5, 0, 500, offset) / 100.0;
+      float radius = beatsin16(_speed / 2.5, 0, 500, offset) / 100.0;
+      Serial.println(_speed);
+      return radius;
+    }
+};
+
+// -----------------------------------
+namespace Circles {
+#define NUMBER_OF_CIRCLES pWIDTH/2
+//Circle circles[NUMBER_OF_CIRCLES] = {};
+Circle circles[16] = {};
+
+void drawCircle(Circle circle, uint8_t _speed) {
+  int16_t centerX = circle.centerX;
+  int16_t centerY = circle.centerY;
+  int hue = circle.hue;
+  float radius = circle.radius(_speed);
+
+  int16_t startX = centerX - ceil(radius);
+  int16_t endX = centerX + ceil(radius);
+  int16_t startY = centerY - ceil(radius);
+  int16_t endY = centerY + ceil(radius);
+
+  for (int16_t x = startX; x < endX; x++) {
+    for (int16_t y = startY; y < endY; y++) {
+      int16_t index = XY(x, y);
+      if (index < 0 || index > NUM_LEDS)
+        continue;
+      double distance = sqrt(sq(x - centerX) + sq(y - centerY));
+      if (distance > radius)
+        continue;
+
+      uint16_t brightness;
+      if (radius < 1) { // last pixel
+        // brightness = 0; //255.0 * radius;
+        deltaValue = 20;
+        brightness = 180;
+        // brightness = 0;
+      } else {
+        deltaValue = 200; // 155 + modes[currentMode].Scale;
+        double percentage = distance / radius;
+        double fraction = 1.0 - percentage;
+        brightness = 255.0 * fraction;
+      }
+      leds[index] += CHSV(hue, deltaValue, brightness);
+    }
+  }
+}
+
+// -----------------------------
+void draw(bool setup, uint8_t _speed) {
+  fadeToBlackBy(leds, NUM_LEDS, 100U);
+  // fillAll(CRGB::Black);
+  for (int i = 0; i < NUMBER_OF_CIRCLES; i++) {
+    if (setup) {
+      circles[i].reset();
+    } else {
+      if (circles[i].radius(_speed) < 0.5) {
+        circles[i].scroll();
+      }
+    }
+    drawCircle(circles[i], _speed);
+  }
+}
+}; // namespace Circles
+
+// ==============
+//void Dandelions() {
+void Spin() {
+  if (loadingFlag) {
+    loadingFlag = false;
+    FastLED.clear();
+    deltaValue = getEffectScaleParamValue(MC_SPIN);
+    Circles::draw(true, 255-getEffectSpeedValue(MC_SPIN));
+    // deltaValue = 150 + modes[currentMode].Scale;
+  //  _speed = getEffectSpeedValue(MC_SPIN);
+ //   deltaValue = 155 + modes[currentMode].Scale;
+  //   deltaValue = 155 + map8(getEffectScaleParamValue(MC_SPIN),1,100);
+  
+  }
+
+  // FPSdelay = SOFT_DELAY;
+  Circles::draw(false, 255-getEffectSpeedValue(MC_SPIN));
+}*/
+
+/*
+// =====================================
+//               DropInWater
+//                © Stepko
+//        Adaptation © SlingMaster
+// =====================================
+//работает. можно заменить бассейн. Требуется тщательный подбор палитр
+//void DropInWater() {
+  void Spin() {
+  //  currentPalette = PartyColors_p;
+#define Sat (255)
+#define MaxRad pWIDTH + pHEIGHT
+ // static int rad[(pHEIGHT + pWIDTH) / 8];
+ // static byte posx[(pHEIGHT + pWIDTH) / 8], posy[(pHEIGHT + pWIDTH) / 8];
+
+  static int rad[8];
+  static byte posx[8], posy[8];
+  if (loadingFlag) {
+    loadingFlag = false;
+    hue = map8(getEffectScaleParamValue(MC_SPIN),1,100) * 2.55;
+    for (int i = 0; i < ((pHEIGHT + pWIDTH) / 8) - 1; i++)  {
+      posx[i] = random(pWIDTH - 1);
+      posy[i] = random(pHEIGHT - 1);
+      rad[i] = random(-1, MaxRad);
+    }
+  }
+
+  if (millis() - color_timer > 10000) {
+      color_timer = millis();
+      startnum++;
+      if (startnum > 55) startnum = 1;
+    }
+  switch (startnum) {
+    case 1:  currentPalette = CloudColors_p;         break;
+    case 2:  currentPalette = LavaColors_p;          break;
+    case 3:  currentPalette = PartyColors_p;         break;
+    case 4:  currentPalette = RainbowColors_p;       break;
+    case 5:  currentPalette = RainbowStripeColors_p; break;
+    case 6:  currentPalette = ForestColors_p;        break;
+    case 7:  currentPalette = AlcoholFireColors_p;   break;
+    case 8:  currentPalette = HeatColors_p;          break;
+    case 9:  currentPalette = WaterfallColors4in1_p; break;
+    case 10: currentPalette = WoodFireColors_p;      break;
+    case 11: currentPalette = NormalFire_p;          break;
+    case 12: currentPalette = NormalFire2_p;         break;
+    case 13: currentPalette = LithiumFireColors_p;   break;
+    case 14: currentPalette = SodiumFireColors_p;    break;
+    case 15: currentPalette = CopperFireColors_p;    break;
+    case 16: currentPalette = RubidiumFireColors_p;  break;
+    case 17: currentPalette = PotassiumFireColors_p; break;
+    case 18: currentPalette = OceanColors_p;         break;
+    case 19: currentPalette = Sunset_Real_gp;        break;
+    case 20: currentPalette = dkbluered_gp;          break;
+    case 21: currentPalette = Optimus_Prime_gp;      break;
+    case 22: currentPalette = warmGrad_gp;           break;
+    case 23: currentPalette = coldGrad_gp;           break;
+    case 24: currentPalette = hotGrad_gp;            break;
+    case 25: currentPalette = pinkGrad_gp;           break;
+    case 26: currentPalette = comfy_gp;              break;
+    case 27: currentPalette = cyperpunk_gp;          break;
+    case 28: currentPalette = girl_gp;               break;
+    case 29: currentPalette = xmas_gp;               break;
+    case 30: currentPalette = acid_gp;               break;
+    case 31: currentPalette = blueSmoke_gp;          break;
+    case 32: currentPalette = gummy_gp;              break;
+    case 33: currentPalette = aurora_gp;             break;
+    case 34: currentPalette = redwhite_gp;           break;
+    case 35: currentPalette = ib_jul01_gp;           break;
+    case 36: currentPalette = rgi_15_gp;             break;
+    case 37: currentPalette = retro2_16_gp;          break;
+    case 38: currentPalette = Analogous_1_gp;        break;
+    case 39: currentPalette = pinksplash_08_gp;      break;
+    case 40: currentPalette = pinksplash_07_gp;      break;
+    case 41: currentPalette = Coral_reef_gp;         break;
+    case 42: currentPalette = ocean_breeze_gp;       break;
+    case 43: currentPalette = landscape_64_gp;       break;
+    case 44: currentPalette = landscape_33_gp;       break;
+    case 45: currentPalette = rainbowsherbet_gp;     break;
+    case 46: currentPalette = gr65_hult_gp;          break;
+    case 47: currentPalette = GMT_drywet_gp;         break;
+    case 48: currentPalette = emerald_dragon_gp;     break;
+    case 49: currentPalette = Colorfull_gp;          break;
+    case 50: currentPalette = Pink_Purple_gp;        break;
+    case 51: currentPalette = autumn_19_gp;          break;
+    case 52: currentPalette = daybreak_gp;           break;
+    case 53: currentPalette = Blue_Cyan_Yellow_gp;   break;
+    case 54: currentPalette = bhw1_28_gp;            break;
+    case 55: currentPalette = rbw_gp;                break;
+  }
+ // fill_solid( currentPalette, 16, CHSV(hue, Sat, 230));
+  currentPalette[10] = CHSV(hue, Sat - 60, 255);
+  currentPalette[9] = CHSV(hue, 255 - Sat, 210);
+  currentPalette[8] = CHSV(hue, 255 - Sat, 210);
+  currentPalette[7] = CHSV(hue, Sat - 60, 255);
+  fillAll(ColorFromPalette(currentPalette, 1));
+
+
+  for (uint8_t i = ((pHEIGHT + pWIDTH) / 8 - 1); i > 0 ; i--) {
+    drawCircle(posx[i], posy[i], rad[i], ColorFromPalette(currentPalette, (256 / 16) * 8.5 - rad[i]));
+    drawCircle(posx[i], posy[i], rad[i] - 1, ColorFromPalette(currentPalette, (256 / 16) * 7.5 - rad[i]));
+    if (rad[i] >= MaxRad) {
+      rad[i] = 0; // random(-1, MaxRad);
+      posx[i] = random(pWIDTH);
+      posy[i] = random(pHEIGHT);
+    } else {
+      rad[i]++;
+    }
+  }
+  if (map8(getEffectScaleParamValue(MC_SPIN),1,100) == 100) {
+    hue++;
+  }
+  blur2d(leds, pWIDTH, pHEIGHT, 64);
+}*/
+
+/*
+// ============= Эффект Магма ===============
+// (c) SottNick
+// берём эффекты Огонь 2020 и Прыгуны:
+// хуяк-хуяк - и в продакшен!
+//Прикольный эффект с брызгами - требуется тщательный подбор палитр (не все смотрятся хорошо) и их окончательная прикрутка
+//void magmaRoutine() {
+
+void Spin() {
+  if (loadingFlag)
+  {
+    loadingFlag = false;
+
+    deltaValue = map8(getEffectScaleParamValue(MC_SPIN),1,100) * 0.0899;
+ //   palette_number = 10; //getEffectScaleParamValue2(MC_SPIRO);
+    //deltaValue = (((modes[currentMode].Scale - 1U) % 11U + 1U) << 4U) - 8U; // ширина языков пламени (масштаб шума Перлина)
+    deltaValue = 12U;
+    deltaHue = 10U;
+    for (uint8_t j = 0; j < pHEIGHT; j++) {
+      shiftHue[j] = (pHEIGHT - 1 - j) * 255 / (pHEIGHT - 1); // init colorfade table
+    }
+
+    enlargedObjectNUM = (map8(getEffectScaleParamValue(MC_SPIN),1,100) - 1U) % 11U / 10.0 * (enlargedOBJECT_MAX_COUNT - 1U) + 1U;
+    if (enlargedObjectNUM > enlargedOBJECT_MAX_COUNT) enlargedObjectNUM = enlargedOBJECT_MAX_COUNT;
+
+    for (uint8_t i = 0 ; i < enlargedObjectNUM ; i++) {
+      trackingObjectPosX[i] = random8(pWIDTH);
+      trackingObjectPosY[i] = random8(pHEIGHT);
+
+      //curr->color = CHSV(random(1U, 255U), 255U, 255U);
+      trackingObjectHue[i] = 50U; random8();
+    }
+  }
+
+  //if (palette_number == 10) {  //автоперебор вариантов, если выбран вариант Авто
+    if (millis() - color_timer > 10000) {
+      color_timer = millis();
+      startnum++;
+      if (startnum > 55) startnum = 1;
+    }
+//  }
+  switch (startnum) {
+    case 1:  currentPalette = CloudColors_p;         break;
+    case 2:  currentPalette = LavaColors_p;          break;
+    case 3:  currentPalette = PartyColors_p;         break;
+    case 4:  currentPalette = RainbowColors_p;       break;
+    case 5:  currentPalette = RainbowStripeColors_p; break;
+    case 6:  currentPalette = ForestColors_p;        break;
+    case 7:  currentPalette = AlcoholFireColors_p;   break;
+    case 8:  currentPalette = HeatColors_p;          break;
+    case 9:  currentPalette = WaterfallColors4in1_p; break;
+    case 10: currentPalette = WoodFireColors_p;      break;
+    case 11: currentPalette = NormalFire_p;          break;
+    case 12: currentPalette = NormalFire2_p;         break;
+    case 13: currentPalette = LithiumFireColors_p;   break;
+    case 14: currentPalette = SodiumFireColors_p;    break;
+    case 15: currentPalette = CopperFireColors_p;    break;
+    case 16: currentPalette = RubidiumFireColors_p;  break;
+    case 17: currentPalette = PotassiumFireColors_p; break;
+    case 18: currentPalette = OceanColors_p;         break;
+    case 19: currentPalette = Sunset_Real_gp;        break;
+    case 20: currentPalette = dkbluered_gp;          break;
+    case 21: currentPalette = Optimus_Prime_gp;      break;
+    case 22: currentPalette = warmGrad_gp;           break;
+    case 23: currentPalette = coldGrad_gp;           break;
+    case 24: currentPalette = hotGrad_gp;            break;
+    case 25: currentPalette = pinkGrad_gp;           break;
+    case 26: currentPalette = comfy_gp;              break;
+    case 27: currentPalette = cyperpunk_gp;          break;
+    case 28: currentPalette = girl_gp;               break;
+    case 29: currentPalette = xmas_gp;               break;
+    case 30: currentPalette = acid_gp;               break;
+    case 31: currentPalette = blueSmoke_gp;          break;
+    case 32: currentPalette = gummy_gp;              break;
+    case 33: currentPalette = aurora_gp;             break;
+    case 34: currentPalette = redwhite_gp;           break;
+    case 35: currentPalette = ib_jul01_gp;           break;
+    case 36: currentPalette = rgi_15_gp;             break;
+    case 37: currentPalette = retro2_16_gp;          break;
+    case 38: currentPalette = Analogous_1_gp;        break;
+    case 39: currentPalette = pinksplash_08_gp;      break;
+    case 40: currentPalette = pinksplash_07_gp;      break;
+    case 41: currentPalette = Coral_reef_gp;         break;
+    case 42: currentPalette = ocean_breeze_gp;       break;
+    case 43: currentPalette = landscape_64_gp;       break;
+    case 44: currentPalette = landscape_33_gp;       break;
+    case 45: currentPalette = rainbowsherbet_gp;     break;
+    case 46: currentPalette = gr65_hult_gp;          break;
+    case 47: currentPalette = GMT_drywet_gp;         break;
+    case 48: currentPalette = emerald_dragon_gp;     break;
+    case 49: currentPalette = Colorfull_gp;          break;
+    case 50: currentPalette = Pink_Purple_gp;        break;
+    case 51: currentPalette = autumn_19_gp;          break;
+    case 52: currentPalette = daybreak_gp;           break;
+    case 53: currentPalette = Blue_Cyan_Yellow_gp;   break;
+    case 54: currentPalette = bhw1_28_gp;            break;
+    case 55: currentPalette = rbw_gp;                break;
+  }
+  dimAll(181);
+  for (uint8_t i = 0; i < pWIDTH; i++) {
+    for (uint8_t j = 0; j < pHEIGHT; j++) {
+      drawPixelXYF(i, pHEIGHT - 1U - j, ColorFromPalette(currentPalette, qsub8(inoise8(i * deltaValue, (j + ff_y + random8(2)) * deltaHue, ff_z), shiftHue[j]), 255U));
+    }
+  }
+  for (uint8_t i = 0; i < enlargedObjectNUM; i++) {
+    LeapersMove_leaper(i);
+    if (trackingObjectPosY[i] >= pHEIGHT / 4U)
+      drawPixelXYF(trackingObjectPosX[i], trackingObjectPosY[i], ColorFromPalette(currentPalette, trackingObjectHue[i]));
+  };
+  ff_y++;
+  if (ff_y & 0x01)
+    ff_z++;
+}*/
+
+//еще один вариант мерцания (с палитрами)
+/*#define TWINKLES_SPEEDS 4     // всего 4 варианта скоростей мерцания
+#define TWINKLES_MULTIPLIER 6 // слишком медленно, если на самой медленной просто по единичке добавлять
+
+void twinklesRoutine()
+{
+    if (loadingFlag)
+    {
+      loadingFlag = false;
+      hue = 0U;
+      for (uint32_t idx=0; idx < NUM_LEDS; idx++) {
+        if (random8(getEffectScaleParamValue(MC_SPIN) % 11U) == 0){
+          ledsbuff[idx].r = random8();                          // оттенок пикселя
+          ledsbuff[idx].g = random8(1, TWINKLES_SPEEDS * 2 +1); // скорость и направление (нарастает 1-4 или угасает 5-8)
+          ledsbuff[idx].b = random8();                          // яркость
+        }
+        else
+          ledsbuff[idx] = 0;                                    // всё выкл
+      }
+    }
+    if (millis() - color_timer > 10000) {
+      color_timer = millis();
+      startnum++;
+      if (startnum > 60) startnum = 1;
+    }
+  switch (startnum) {
+    case 1:  currentPalette = CloudColors_p;         break;
+    case 2:  currentPalette = LavaColors_p;          break;
+    case 3:  currentPalette = PartyColors_p;         break;
+    case 4:  currentPalette = RainbowColors_p;       break;
+    case 5:  currentPalette = RainbowStripeColors_p; break;
+    case 6:  currentPalette = ForestColors_p;        break;
+    case 7:  currentPalette = AlcoholFireColors_p;   break;
+    case 8:  currentPalette = HeatColors_p;          break;
+    case 9:  currentPalette = WaterfallColors4in1_p; break;
+    case 10: currentPalette = WoodFireColors_p;      break;
+    case 11: currentPalette = NormalFire_p;          break;
+    case 12: currentPalette = NormalFire2_p;         break;
+    case 13: currentPalette = LithiumFireColors_p;   break;
+    case 14: currentPalette = SodiumFireColors_p;    break;
+    case 15: currentPalette = CopperFireColors_p;    break;
+    case 16: currentPalette = RubidiumFireColors_p;  break;
+    case 17: currentPalette = PotassiumFireColors_p; break;
+    case 18: currentPalette = OceanColors_p;         break;
+    case 19: currentPalette = Sunset_Real_gp;        break;
+    case 20: currentPalette = dkbluered_gp;          break;
+    case 21: currentPalette = Optimus_Prime_gp;      break;
+    case 22: currentPalette = warmGrad_gp;           break;
+    case 23: currentPalette = coldGrad_gp;           break;
+    case 24: currentPalette = hotGrad_gp;            break;
+    case 25: currentPalette = pinkGrad_gp;           break;
+    case 26: currentPalette = comfy_gp;              break;
+    case 27: currentPalette = cyperpunk_gp;          break;
+    case 28: currentPalette = girl_gp;               break;
+    case 29: currentPalette = xmas_gp;               break;
+    case 30: currentPalette = acid_gp;               break;
+    case 31: currentPalette = blueSmoke_gp;          break;
+    case 32: currentPalette = gummy_gp;              break;
+    case 33: currentPalette = leo_gp;                break;
+    case 34: currentPalette = aurora_gp;             break;
+    case 35: currentPalette = rainClouds_p;          break;
+    case 36: currentPalette = pacifica_palette_1;    break;
+    case 37: currentPalette = pacifica_palette_2;    break;
+    case 38: currentPalette = pacifica_palette_3;    break;
+    case 39: currentPalette = redwhite_gp;           break;
+    case 40: currentPalette = ib_jul01_gp;           break;
+    case 41: currentPalette = rgi_15_gp;             break;
+    case 42: currentPalette = retro2_16_gp;          break;
+    case 43: currentPalette = Analogous_1_gp;        break;
+    case 44: currentPalette = pinksplash_08_gp;      break;
+    case 45: currentPalette = pinksplash_07_gp;      break;
+    case 46: currentPalette = Coral_reef_gp;         break;
+    case 47: currentPalette = ocean_breeze_gp;       break;
+    case 48: currentPalette = landscape_64_gp;       break;
+    case 49: currentPalette = landscape_33_gp;       break;
+    case 50: currentPalette = rainbowsherbet_gp;     break;
+    case 51: currentPalette = gr65_hult_gp;          break;
+    case 52: currentPalette = GMT_drywet_gp;         break;
+    case 53: currentPalette = emerald_dragon_gp;     break;
+    case 54: currentPalette = Colorfull_gp;          break;
+    case 55: currentPalette = Pink_Purple_gp;        break;
+    case 56: currentPalette = autumn_19_gp;          break;
+    case 57: currentPalette = daybreak_gp;           break;
+    case 58: currentPalette = Blue_Cyan_Yellow_gp;   break;
+    case 59: currentPalette = bhw1_28_gp;            break;
+    case 60: currentPalette = rbw_gp;                break;
+  }
+    for (uint32_t idx=0; idx < NUM_LEDS; idx++) {
+      if (ledsbuff[idx].b == 0){
+        if (random8(getEffectScaleParamValue(MC_SPIN) % 11U) == 0 && hue > 0) {  // если пиксель ещё не горит, зажигаем каждый ХЗй
+          ledsbuff[idx].r = random8();                          // оттенок пикселя
+          ledsbuff[idx].g = random8(1, TWINKLES_SPEEDS +1);     // скорость и направление (нарастает 1-4, но не угасает 5-8)
+          ledsbuff[idx].b = ledsbuff[idx].g;                    // яркость
+          hue--; // уменьшаем количество погасших пикселей
+        }
+      }
+      else if (ledsbuff[idx].g <= TWINKLES_SPEEDS){             // если нарастание яркости
+        if (ledsbuff[idx].b > 255U - ledsbuff[idx].g - TWINKLES_MULTIPLIER){            // если досигнут максимум
+          ledsbuff[idx].b = 255U;
+          ledsbuff[idx].g = ledsbuff[idx].g + TWINKLES_SPEEDS;
+        }
+        else
+          ledsbuff[idx].b = ledsbuff[idx].b + ledsbuff[idx].g + TWINKLES_MULTIPLIER;
+      }
+      else {                                                    // если угасание яркости
+        if (ledsbuff[idx].b <= ledsbuff[idx].g - TWINKLES_SPEEDS + TWINKLES_MULTIPLIER){// если досигнут минимум
+          ledsbuff[idx].b = 0;                                  // всё выкл
+          hue++; // считаем количество погасших пикселей
+        }
+        else
+          ledsbuff[idx].b = ledsbuff[idx].b - ledsbuff[idx].g + TWINKLES_SPEEDS - TWINKLES_MULTIPLIER;
+      }
+      if (ledsbuff[idx].b == 0)
+        leds[idx] = 0U;
+      else
+        leds[idx] = ColorFromPalette(currentPalette, ledsbuff[idx].r, ledsbuff[idx].b);
+    }
+}*/
+
 // ------------------------------ РЕЖИМ / ЭФФЕКТ ЧАСЫ ----------------------
-// (c) SottNick типа работают. можно что-то с ними сделать
+// (c) SottNick
+// работают, но не особо нужны, потому что имеющиеся в прошивке покрасивее
 /*
   #define CLOCK_SAVE_MODE     // удалите или закомментируйте эту строчку, чтобы цифры всегда оставались на одном месте, не двигались по вертикали (не хорошо для светодиодов. выгорают зря)
   #if (pHEIGHT > 12) || (pHEIGHT < 11)
@@ -11978,3 +12574,276 @@ void smokeRoutine() {
   }
   #endif //#if pHEIGHT > 10
 */
+
+/*
+// ========== Botswana Rivers ===========
+//      © SlingMaster | by Alex Dovby
+//              EFF_RIVERS
+//            Реки Ботсваны
+// что-то рисует, но эффект абсолютно непонятный
+//---------------------------------------
+void drawRec(uint8_t startX, uint8_t startY, uint8_t endX, uint8_t endY, uint32_t color) {
+  for (uint8_t y = startY; y < endY; y++) {
+    for (uint8_t x = startX; x < endX; x++) {
+      drawPixelXY(x, y, color);
+    }
+  }
+}
+
+void flora() {
+  uint32_t  FLORA_COLOR = 0x2F1F00;
+  uint8_t posX =  floor(CENTER_X_MINOR - pWIDTH * 0.3);
+  uint8_t h =  random8(pHEIGHT - 6U) + 4U;
+  DrawLine(posX + 1, 1U, posX + 1, h - 1, 0x000000);
+  DrawLine(posX + 2, 1U, posX + 2, h, FLORA_COLOR );
+  drawPixelXY(posX + 2, h - random8(floor(h * 0.5)), random8(2U) == 1 ? 0xFF00E0 :  random8(2U) == 1 ? 0xFFFF00 : 0x00FF00);
+  drawPixelXY(posX + 1, h - random8(floor(h * 0.25)), random8(2U) == 1 ? 0xFF00E0 : 0xFFFF00);
+  if (random8(2U) == 1) {
+    drawPixelXY(posX + 1, floor(h * 0.5), random8(2U) == 1 ? 0xEF001F :  0x9FFF00);
+  }
+  h =  floor(h * 0.65);
+  if (pWIDTH > 8) {
+    DrawLine(posX - 1, 1U, posX - 1, h - 1, 0x000000);
+  }
+  DrawLine(posX, 1U, posX, h, FLORA_COLOR);
+  drawPixelXY(posX, h - random8(floor(h * 0.5)), random8(2U) == 1 ? 0xFF00E0 : 0xFFFF00);
+}
+
+//---------------------------------------
+void animeBobbles() {
+  // сдвигаем всё вверх ----
+  for (uint8_t x = CENTER_X_MAJOR; x < pWIDTH; x++) {
+    for (uint8_t y = pHEIGHT; y > 0U; y--) {
+      if (getPixColorXY(x, y - 1) == 0xFFFFF7) {
+        drawPixelXY(x, y, 0xFFFFF7);
+        drawPixelXY(x, y - 1, getPixColorXY(0, y - 1));
+      }
+    }
+  }
+  // ----------------------
+  if ( step % 4 == 0) {
+    drawPixelXY(CENTER_X_MAJOR + random8(5), 0U, 0xFFFFF7);
+    if ( step % 12 == 0) {
+      drawPixelXY(CENTER_X_MAJOR + 2 + random8(3), 0U, 0xFFFFF7);
+    }
+  }
+}
+
+//---------------------------------------
+void createScene(uint8_t idx) {
+  switch (idx) {
+    case 0:     // blue green ------
+      gradientDownTop(floor((pHEIGHT - 1) * 0.5), CHSV(96, 255, 100), pHEIGHT, CHSV(160, 255, 255));
+      gradientDownTop(0, CHSV(96, 255, 255), CENTER_Y_MINOR, CHSV(96, 255, 100));
+      break;
+    case 1:     // aquamarine green
+      gradientDownTop(floor((pHEIGHT - 1) * 0.3), CHSV(96, 255, 100), pHEIGHT, CHSV(130, 255, 220));
+      gradientDownTop(0, CHSV(96, 255, 255), floor(pHEIGHT * 0.3), CHSV(96, 255, 100));
+      break;
+    case 2:     // blue aquamarine -
+      gradientDownTop(floor((pHEIGHT - 1) * 0.5), CHSV(170, 255, 100), pHEIGHT, CHSV(160, 255, 200));
+      gradientDownTop(0, CHSV(100, 255, 255), CENTER_Y_MINOR, CHSV(170, 255, 100));
+      break;
+    case 3:     // yellow green ----
+      gradientDownTop(floor((pHEIGHT - 1) * 0.5), CHSV(95, 255, 55), pHEIGHT, CHSV(70, 255, 200));
+      gradientDownTop(0, CHSV(95, 255, 255), CENTER_Y_MINOR, CHSV(100, 255, 55));
+      break;
+    case 4:     // sea green -------
+      gradientDownTop(floor((pHEIGHT - 1) * 0.3), CHSV(120, 255, 55), pHEIGHT, CHSV(175, 255, 200));
+      gradientDownTop(0, CHSV(120, 255, 255), floor(pHEIGHT * 0.3), CHSV(120, 255, 55));
+      break;
+    default:
+      gradientDownTop(floor((pHEIGHT - 1) * 0.25), CHSV(180, 255, 85), pHEIGHT, CHSV(160, 255, 200));
+      gradientDownTop(0, CHSV(80, 255, 255), floor(pHEIGHT * 0.25), CHSV(180, 255, 85));
+      break;
+  }
+  flora();
+}
+
+//---------------------------------------
+void createSceneM(uint8_t idx) {
+  switch (idx) {
+    case 0:     // blue green ------
+      gradientVertical(0, CENTER_Y_MINOR, pWIDTH, pHEIGHT, 96, 150, 100, 255, 255U);
+      gradientVertical(0, 0, pWIDTH, CENTER_Y_MINOR, 96, 96, 255, 100, 255U);
+      break;
+    case 1:     // aquamarine green
+      gradientVertical(0, floor(pHEIGHT  * 0.3), pWIDTH, pHEIGHT, 96, 120, 100, 220, 255U);
+      gradientVertical(0, 0, pWIDTH, floor(pHEIGHT  * 0.3), 96, 96, 255, 100, 255U);
+      break;
+    case 2:     // blue aquamarine -
+      gradientVertical(0, CENTER_Y_MINOR, pWIDTH, pHEIGHT, 170, 160, 100, 200, 255U);
+      gradientVertical(0, 0, pWIDTH, CENTER_Y_MINOR, 100, 170, 255, 100, 255U);
+      break;
+    case 3:     // yellow green ----
+      gradientVertical(0, CENTER_Y_MINOR, pWIDTH, pHEIGHT, 95, 65, 55, 200, 255U);
+      gradientVertical(0, 0, pWIDTH, CENTER_Y_MINOR, 95, 100, 255, 55, 255U);
+      break;
+    case 4:     // sea green -------
+      gradientVertical(0, floor(pHEIGHT  * 0.3), pWIDTH, pHEIGHT, 120, 160, 55, 200, 255U);
+      gradientVertical(0, 0, pWIDTH, floor(pHEIGHT  * 0.3), 120, 120, 255, 55, 255U);
+      break;
+    default:
+      drawRec(0, 0, pWIDTH, pHEIGHT, 0x000050);
+      break;
+  }
+  flora();
+}
+
+//---------------------------------------
+//void BotswanaRivers() {
+void Spin() {
+  // альтернативный градиент для ламп собраных из лент с вертикальной компоновкой
+  // для корректной работы ALT_GRADIENT = true
+  // для ламп из лент с горизонтальной компоновкой и матриц ALT_GRADIENT = false
+  // ALT_GRADIENT = false более производительный и более плавная растяжка
+  //------------------------------------------------------------------------------
+ // static const bool ALT_GRADIENT = true;
+  static const bool ALT_GRADIENT = false;
+  uint8_t divide;
+  if (loadingFlag) {
+
+    loadingFlag = false;
+    deltaValue = 255U - getEffectSpeedValue(MC_SPIN) + 1U;
+    step = deltaValue;                                          // чтообы при старте эффекта сразу покрасить лампу
+    divide = floor((getEffectScaleParamValue(MC_SPIN) - 1) / 20);       // маштаб задает смену палитры воды
+    if (ALT_GRADIENT) {
+      createSceneM(divide);
+    } else {
+      createScene(divide);
+    }
+  }
+
+  if (step >= deltaValue) {
+    step = 0U;
+  }
+
+  // restore scene after power on ---------
+  if (getPixColorXY(0U, pHEIGHT - 2) == CRGB::Black) {
+    if (ALT_GRADIENT) {
+      createSceneM(divide);
+    } else {
+      createScene(divide);
+    }
+  }
+
+  // light at the bottom ------------------
+  if (!ALT_GRADIENT) {
+    if (step % 2 == 0) {
+      if (random8(6) == 1) {
+        //fill_gradient(leds, NUM_LEDS - pWIDTH, CHSV(96U, 255U, 200U), NUM_LEDS, CHSV(50U, 255U, 255U), SHORTEST_HUES);
+        if (STRIP_DIRECTION < 2) {
+          fill_gradient(leds, 0, CHSV(96U, 255U, 190U), random8(pWIDTH + random8(6)), CHSV(90U, 200U, 255U), SHORTEST_HUES);
+        } else {
+          fill_gradient(leds, NUM_LEDS - random8(pWIDTH + random8(6)), CHSV(96U, 255U, 190U), NUM_LEDS, CHSV(90U, 200U, 255U), SHORTEST_HUES);
+        }
+      } else {
+        //fill_gradient(leds, NUM_LEDS - pWIDTH, CHSV(50U, 128U, 255U), NUM_LEDS, CHSV(90U, 255U, 180U), SHORTEST_HUES);
+        if (STRIP_DIRECTION < 2) {
+          fill_gradient(leds, 0, CHSV(85U, 128U, 255U), random8(pWIDTH), CHSV(90U, 255U, 180U), SHORTEST_HUES);
+        } else {
+          fill_gradient(leds, NUM_LEDS - random8(pWIDTH), CHSV(85U, 128U, 255U), NUM_LEDS, CHSV(90U, 255U, 180U), SHORTEST_HUES);
+        }
+      }
+    }
+  }
+
+  // -------------------------------------
+  animeBobbles();
+ // if (custom_eff == 1) {
+ //   blurRows(leds, pWIDTH, 3U, 10U);
+    // blurScreen(beatsin8(0U, 5U, 0U));
+//  }
+  step++;
+}
+*/
+
+//волшебный фонарь
+//непонятный эффект, но что-то рисует
+//бегущие цветные края, горящя желтоватым середина
+/*
+void MagicLantern() { 
+{
+  static uint8_t saturation;
+  static uint8_t brightness;
+  static uint8_t low_br;
+  uint8_t delta;
+  const uint8_t PADDING = pHEIGHT * 0.25;
+  const uint8_t WARM_LIGHT = 55U;
+  const uint8_t STEP = 4U;
+  if (loadingFlag) {
+    loadingFlag = false;
+    deltaValue = 0;
+    step = deltaValue;
+ //   if (modes[currentMode].Speed > 52) {
+      if (getEffectContrast(MC_SMOKE) > 52) {
+      // brightness = 50 + modes[currentMode].Speed;
+    //  brightness = map(modes[currentMode].Speed, 1, 255, 50U, 250U);
+      brightness = map(getEffectContrast(MC_SMOKE), 1, 255, 50U, 250U);
+      low_br = 50U;
+    } else {
+      brightness = 0U;
+      low_br = 0U;
+    }
+    saturation = (getEffectScaleParamValue(MC_SMOKE) > 50U) ? 64U : 0U;
+    if (abs (70 - getEffectScaleParamValue(MC_SMOKE) <= 5)) saturation = 170U;
+    FastLED.clear();
+  }
+  dimAll(170);
+  hue = (getEffectScaleParamValue(MC_SMOKE) > 95) ? floor(step / 32) * 32U : getEffectScaleParamValue(MC_SMOKE) * 2.55;
+  // ------
+  for (uint8_t x = 0U; x < pWIDTH + 1 ; x++) {
+    // light ---
+    if (low_br > 0) {
+      gradientVertical( x - deltaValue, CENTER_Y_MAJOR, x + 1U - deltaValue, pHEIGHT - PADDING - 1,  WARM_LIGHT, WARM_LIGHT, brightness, low_br, saturation);
+      gradientVertical( pWIDTH - x + deltaValue, CENTER_Y_MAJOR, pWIDTH - x + 1U + deltaValue, pHEIGHT - PADDING - 1,  WARM_LIGHT, WARM_LIGHT, brightness, low_br, saturation);
+      gradientVertical( x - deltaValue, PADDING + 1, x + 1U - deltaValue, CENTER_Y_MAJOR, WARM_LIGHT, WARM_LIGHT, low_br + 10, brightness, saturation);
+      gradientVertical( pWIDTH - x + deltaValue, PADDING + 1, pWIDTH - x + 1U + deltaValue, CENTER_Y_MAJOR, WARM_LIGHT, WARM_LIGHT, low_br + 10, brightness, saturation);
+    } else {
+      if (x % (STEP + 1) == 0) {
+        leds[XY(random8(pWIDTH), random8(PADDING + 2, pHEIGHT - PADDING - 2))] = CHSV(step - 32U, random8(128U, 255U), 255U);
+      }
+      if ((getEffectContrast(MC_SMOKE) < 25) & (low_br == 0)) {
+        deltaValue = 0;
+        if (x % 2 != 0) {
+          gradientVertical( x - deltaValue, pHEIGHT - PADDING, x + 1U - deltaValue, pHEIGHT,  hue, hue + 2, 64U, 20U, 255U);
+          gradientVertical( (pWIDTH - x + deltaValue), 0U,  (pWIDTH - x + 1U + deltaValue), PADDING,  hue, hue, 42U, 64U, 255U);
+        }
+      }
+    }
+    if (x % STEP == 0) {
+      // body --
+      gradientVertical( x - deltaValue, pHEIGHT - PADDING, x + 1U - deltaValue, pHEIGHT,  hue, hue + 2, 255U, 20U, 255U);
+      gradientVertical( (pWIDTH - x + deltaValue), 0U,  (pWIDTH - x + 1U + deltaValue), PADDING,  hue, hue, 42U, 255U, 255U);
+    }
+  }
+  deltaValue++;
+  if (deltaValue >= STEP) {
+    deltaValue = 0;
+  }
+  step++;
+}*/
+
+
+//еще один непонятный эффект. Светодиоды горят цветом от желтоватого до белого, высота светящейся области от 4 строк до полной заливки матрицы
+/*void warmLightRoutine()
+{
+  uint8_t centerY = max((uint8_t)round(pHEIGHT / 2.0F) - 1, 0);
+  uint8_t bottomOffset = (uint8_t)(!(pHEIGHT & 1) && (pHEIGHT > 1));
+  uint8_t scl = getEffectScaleParamValue(MC_SPIN);
+  if ( scl < 17) scl = 17;
+  for (int16_t y = centerY; y >= 0; y--)
+  {
+    CRGB color = CHSV(
+                   45U,
+                   map(getEffectSpeedValue(MC_SPIN), 0U, 255U, 0U, 170U),
+                   y == centerY
+                   ? 255U
+                 : (scl / 100.0F) > ((centerY + 1.0F) - (y + 1.0F)) / (centerY + 1.0F) ? 255U : 0U);
+    for (uint8_t x = 0U; x < pWIDTH; x++)
+    {
+      drawPixelXY(x, y, color);
+      drawPixelXY(x, max((uint8_t)(pHEIGHT - 1U) - (y + 1U) + bottomOffset, 0U), color);
+    }
+  }
+}*/
