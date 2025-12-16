@@ -1136,9 +1136,6 @@ byte waveRotation;
 uint8_t waveScale;
 uint8_t waveCount;
 
-//переменная для эффекта Свеча
-uint8_t delta_X;
-
 //Переменная для эффектов, где контраст задействован как второй/третий параметр
 uint8_t sNEW;   
 

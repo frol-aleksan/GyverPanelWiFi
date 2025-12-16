@@ -1821,6 +1821,9 @@ void parsing() {
                 } else if (thisMode == tmp_eff && tmp_eff == MC_CYCLON) {
                   // При получении параметра 2 эффекта "Циклон" (сегменты) - надо переинициализировать эффект
                   loadingFlag = true;
+                }  else if (thisMode == tmp_eff && tmp_eff == MC_CANDLE) {
+                  // При получении параметра 2 эффекта "Свеча" (сегменты) - надо переинициализировать эффект
+                  loadingFlag = true;
                 } else if (thisMode == tmp_eff && tmp_eff == MC_FAIRY) {
                   // При получении параметра 2 эффекта "Фея" (поведение) - надо переинициализировать эффект
                   loadingFlag = true;
@@ -1947,6 +1950,11 @@ void parsing() {
                       if (tmp_eff == MC_SPIRO) { //используем ползунок контраста не по назначению, а именно как второй изменяемый параметр для эффекта "Спирали"
                         sNEW = intData[3];
                         putEffectContrast(MC_SPIRO, intData[3]);
+                        loadingFlag = true;
+                      } else
+                      if (tmp_eff == MC_CANDLE) { //используем ползунок контраста не по назначению, а именно как второй изменяемый параметр для эффекта "Свеча"
+                        sNEW = intData[3];
+                        putEffectContrast(MC_CANDLE, intData[3]);
                         loadingFlag = true;
                       } else
                       set_EffectContrast(tmp_eff, intData[3]);
@@ -3503,13 +3511,12 @@ String getStateValue(String &key, int8_t effect, JsonVariant* value = nullptr) {
     if (value) {
       if (effect == MC_PACIFICA || effect == MC_DAWN_ALARM || effect == MC_MAZE || effect == MC_SNAKE || effect == MC_TETRIS ||
           effect == MC_ARKANOID || effect == MC_FLAPPY || effect == MC_RUNNER || effect == MC_CLOCK || effect == MC_FRIZZLE ||
-          effect == MC_DNA || /*effect == MC_SPIRO ||*/ effect == MC_NEXUS || effect == MC_WEBTOOLS || effect == MC_EFFECTSTARS || 
+          effect == MC_DNA || effect == MC_NEXUS || effect == MC_WEBTOOLS || effect == MC_EFFECTSTARS || effect == MC_SPIN ||
           effect == MC_SINUSOID3 || effect == MC_RINGS || effect == MC_ATTRACT || effect == MC_FAIRY || effect == MC_TIXY || 
           effect == MC_OSCILLATING || effect == MC_LLAND || effect == MC_SAND || effect == MC_WAVES || effect == MC_SERPENTINE || 
           effect == MC_METABALLS || effect == MC_PICASSO || effect == MC_LUMENJER || effect == MC_BYEFFECT || effect == MC_LOTUS ||
           effect == MC_SMOKE || effect == MC_PULSE || effect == MC_WHIRL || effect == MC_FLOCK || effect == MC_RAINBOWSNAKE ||
-          effect == MC_CANDLE || effect == MC_RUBICK || effect == MC_TRACKS || effect == MC_TREE || effect == MC_HOURGLASS ||
-          effect == MC_SPIN || effect == MC_TEST_ORDER
+          effect == MC_RUBICK || effect == MC_TRACKS || effect == MC_TREE || effect == MC_HOURGLASS || effect == MC_TEST_ORDER
         #if (USE_SD == 1)
           || effect == MC_SDCARD
         #endif
@@ -3522,13 +3529,12 @@ String getStateValue(String &key, int8_t effect, JsonVariant* value = nullptr) {
     }
     return str + "BE:" +  (effect == MC_PACIFICA || effect == MC_DAWN_ALARM || effect == MC_MAZE || effect == MC_SNAKE || effect == MC_TETRIS ||
                            effect == MC_ARKANOID || effect == MC_FLAPPY || effect == MC_RUNNER || effect == MC_CLOCK || effect == MC_FRIZZLE ||
-                           effect == MC_DNA || /*effect == MC_SPIRO ||*/ effect == MC_NEXUS || effect == MC_WEBTOOLS || effect == MC_EFFECTSTARS || 
+                           effect == MC_DNA || effect == MC_NEXUS || effect == MC_WEBTOOLS || effect == MC_EFFECTSTARS || effect == MC_SPIN || 
                            effect == MC_SINUSOID3 || effect == MC_RINGS || effect == MC_ATTRACT || effect == MC_FAIRY || effect == MC_TIXY || 
                            effect == MC_OSCILLATING || effect == MC_LLAND || effect == MC_SAND || effect == MC_WAVES || effect == MC_SERPENTINE || 
                            effect == MC_METABALLS || effect == MC_PICASSO || effect == MC_LUMENJER || effect == MC_BYEFFECT || effect == MC_LOTUS ||
                            effect == MC_SMOKE || effect == MC_PULSE || effect == MC_WHIRL || effect == MC_FLOCK || effect == MC_RAINBOWSNAKE ||
-                           effect == MC_CANDLE || effect == MC_RUBICK || effect == MC_TRACKS || effect == MC_TREE || effect == MC_HOURGLASS ||
-                           effect == MC_SPIN || effect == MC_TEST_ORDER
+                           effect == MC_RUBICK || effect == MC_TRACKS || effect == MC_TREE || effect == MC_HOURGLASS || effect == MC_TEST_ORDER
                          #if (USE_SD == 1)
                            || effect == MC_SDCARD
                          #endif
@@ -4768,6 +4774,7 @@ String getParam2ForMode(uint8_t mode) {
     case MC_PAINTBALL:
     case MC_SWIRL:
     case MC_CYCLON:
+    case MC_CANDLE:
       // Эффект "Пейнтбол" имеет параметр - использовать чекбокс
       // Эффект "Водоворот" имеет параметр - использовать чекбокс
       // Эффект "Циклон" имеет параметр - использовать чекбокс
