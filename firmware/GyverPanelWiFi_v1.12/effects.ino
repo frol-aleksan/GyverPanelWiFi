@@ -7487,11 +7487,11 @@ void spiroRoutine() {
       for (uint8_t i = 0; i < spirocount; i++) {
         uint8_t x = mapsin8(spirotheta1 + i * spirooffset, spirominx, spiromaxx);
         uint8_t y = mapcos8(spirotheta1 + i * spirooffset, spirominy, spiromaxy);
-        uint8_t x2 = mapsin8(spirotheta2 + i * spirooffset, x - spiroradiusx, x + spiroradiusx) + cx;
-        uint8_t y2 = mapcos8(spirotheta2 + i * spirooffset, y - spiroradiusy, y + spiroradiusy) + cy;
+        uint8_t x2 = mapsin8(spirotheta2 + i * spirooffset, x - spiroradiusx, x + spiroradiusx);
+        uint8_t y2 = mapcos8(spirotheta2 + i * spirooffset, y - spiroradiusy, y + spiroradiusy);
         if (x2 < seg_size + cx && y2 < seg_size + cy) // добавил проверки. не знаю, почему эффект подвисает без них
-          leds[XY(x2, y2)] += (CRGB)ColorFromPalette(currentPalette, hue + i * spirooffset);
-        if ((x2 == spirocenterX + cx && y2 == spirocenterY + cy) || (x2 == spirocenterX + cx && y2 == spirocenterY + cy)) change = true;
+          leds[XY(x2 + cx, y2 + cy)] += (CRGB)ColorFromPalette(currentPalette, hue + i * spirooffset);
+        if ((x2 == spirocenterX && y2 == spirocenterY) || (x2 == spirocenterX && y2 == spirocenterY)) change = true;
       }
       spirotheta2 += 2;
       spirotheta1 += 1;
@@ -7543,80 +7543,6 @@ void spiroRoutine() {
       if (!change) spirohandledChange = false;
     }
     hue += 1;
-  }
-}
-
-// ============= Hourglass ==============
-//             © SlingMaster
-//             EFF_HOURGLASS
-//             Песочные часы
-//---------------------------------------
-void Hourglass() {
-  const float SIZE = 0.4;
-  const uint8_t h = floor(SIZE * pHEIGHT);
-  uint8_t posX = 0;
-  const uint8_t topPos  = pHEIGHT - h;
-  const uint8_t route = pHEIGHT - h - 1;
-  const uint8_t STEP = 18U;
-  if (loadingFlag) {
-    loadingFlag = false;
-    pcnt = 0;
-    deltaHue2 = 0;
-    hue2 = 0;
-    FastLED.clear();
-    hue = map8(getEffectScaleParamValue(MC_HOURGLASS),1,100) * 2.55;
-    for (uint8_t x = 0U; x < ((pWIDTH / 2)); x++) {
-      for (uint8_t y = 0U; y < h; y++) {
-        drawPixelXY(round(pWIDTH / 2) - x, pHEIGHT - y - 1, CHSV(hue, 255, 255 - x * STEP));
-        drawPixelXY(round(pWIDTH / 2) + x, pHEIGHT - y - 1, CHSV(hue, 255, 255 - x * STEP));
-      }
-    }
-  }
-  if (hue2 == 0) {
-    posX = floor(pcnt / 2);
-    uint8_t posY = pHEIGHT - h - pcnt;
-    if ((posY < (pHEIGHT - h - 2)) && (posY > deltaHue2)) {
-      drawPixelXY(round(pWIDTH / 2), posY, CHSV(hue, 255, 255));
-      drawPixelXY(round(pWIDTH / 2), posY - 2, CHSV(hue, 255, 255));
-      drawPixelXY(round(pWIDTH / 2), posY - 4, CHSV(hue, 255, 255));
-      if (posY < (pHEIGHT - h - 3)) {
-        drawPixelXY(round(pWIDTH / 2), posY + 1, CHSV(hue, 255, 0 ));
-      }
-    }
-    // draw body hourglass
-    if (pcnt % 2 == 0) {
-      drawPixelXY(round(pWIDTH / 2) - posX, pHEIGHT - deltaHue2 - 1, CHSV(hue, 255, 0));
-      drawPixelXY(round(pWIDTH / 2) - posX, deltaHue2, CHSV(hue, 255, 255 - posX * STEP));
-    } else {
-      drawPixelXY(round(pWIDTH / 2) + posX, pHEIGHT - deltaHue2 - 1, CHSV(hue, 255, 0));
-      drawPixelXY(round(pWIDTH / 2) + posX, deltaHue2, CHSV(hue, 255, 255 - posX * STEP));
-    }
-    if (pcnt > pWIDTH - 1) {
-      deltaHue2++;
-      pcnt = 0;
-      if (map8(getEffectScaleParamValue(MC_HOURGLASS),1,100) > 95) {
-        hue += 4U;
-      }
-    }
-    pcnt++;
-    if (deltaHue2 > h) {
-      deltaHue2 = 0;
-      hue2 = 1;
-    }
-  }
-  // имитация переворота песочных часов
-  if (hue2 > 0) {
-    for (uint8_t x = 0U; x < pWIDTH; x++) {
-      for (uint8_t y = pHEIGHT; y > 0U; y--) {
-        drawPixelXY(x, y, getPixColorXY(x, y - 1U));
-        drawPixelXY(x, y - 1, 0x000000);
-      }
-    }
-    hue2++;
-    hue++;
-    if (hue2 > route) {
-      hue2 = 0;
-    }
   }
 }
 
@@ -7689,17 +7615,17 @@ void FeatherCandleRoutine() {
         if (pHEIGHT < 13) { // for small matrix -----
           if (y % 3 == 0) {
             //рисуем пламя по строкам снизу вверх
-            leds[XY(floor((seg_size * 0.5) + cx) - 1, 3)] = CHSV(color - 20U , 255U, 50  + random8(50));
-            leds[XY(floor((seg_size * 0.5) + cx) - 2, 4)] = CHSV(color - 20U , 255U, 50  + random8(50));
-            leds[XY(floor((seg_size * 0.5) + cx) - 1, 4)] = CHSV(color       , 255U, 180 + random8(70));
-            leds[XY(floor((seg_size * 0.5) + cx),     4)] = CHSV(color - 20U , 255U, 50  + random8(50));
-            leds[XY(floor((seg_size * 0.5) + cx) - 2, 5)] = CHSV(color - 20U , 255U, 205 + random8(50));
-            leds[XY(floor((seg_size * 0.5) + cx) - 1, 5)] = CHSV(color,        255U, 205 + random8(50));
-            leds[XY(floor((seg_size * 0.5) + cx)    , 5)] = CHSV(color - 20U , 255U, 205 + random8(50));
-            leds[XY(floor((seg_size * 0.5) + cx) - 2, 6)] = CHSV(color - 20U , 255U, 50  + random8(50));
-            leds[XY(floor((seg_size * 0.5) + cx) - 1, 6)] = CHSV(color,        255U, 155 + random8(100));
-            leds[XY(floor((seg_size * 0.5) + cx)    , 6)] = CHSV(color - 20U , 255U, 50  + random8(50));
-            leds[XY(floor((seg_size * 0.5) + cx) - 1, 7)] = CHSV(color,        255U, 55  + random8(200));
+            leds[XY(floor((seg_size / 2) + cx) - 1, 3)] = CHSV(color - 20U , 255U, 50  + random8(50));
+            leds[XY(floor((seg_size / 2) + cx) - 2, 4)] = CHSV(color - 20U , 255U, 50  + random8(50));
+            leds[XY(floor((seg_size / 2) + cx) - 1, 4)] = CHSV(color       , 255U, 180 + random8(70));
+            leds[XY(floor((seg_size / 2) + cx),     4)] = CHSV(color - 20U , 255U, 50  + random8(50));
+            leds[XY(floor((seg_size / 2) + cx) - 2, 5)] = CHSV(color - 20U , 255U, 205 + random8(50));
+            leds[XY(floor((seg_size / 2) + cx) - 1, 5)] = CHSV(color,        255U, 205 + random8(50));
+            leds[XY(floor((seg_size / 2) + cx)    , 5)] = CHSV(color - 20U , 255U, 205 + random8(50));
+            leds[XY(floor((seg_size / 2) + cx) - 2, 6)] = CHSV(color - 20U , 255U, 50  + random8(50));
+            leds[XY(floor((seg_size / 2) + cx) - 1, 6)] = CHSV(color,        255U, 155 + random8(100));
+            leds[XY(floor((seg_size / 2) + cx)    , 6)] = CHSV(color - 20U , 255U, 50  + random8(50));
+            leds[XY(floor((seg_size / 2) + cx) - 1, 7)] = CHSV(color,        255U, 55  + random8(200));
           }
         } else {
           for (uint8_t x = 0; x < wdth; x++) {
@@ -7712,16 +7638,16 @@ void FeatherCandleRoutine() {
         //Да, это сделано в лоб и топорно, но при оригинальном выводе в цикле у второго и последнего столбца получаются значения цветов, которые на малых яркостях не видны
         //Если же сделать так, выглядит гораздо лучше, хотя используется меньшее количество цветов
         for (uint8_t y = 0; y < 3; y++) {
-          leds[XY(floor((seg_size * 0.5) + cx) - 5, y)] = CHSV(48, 160U + abs(floor((seg_size * 0.5) + cx) - 5 - floor((seg_size * 0.5) + cx)) * 30, 255 - abs(floor((seg_size * 0.5) + cx) - 5 - floor((seg_size * 0.5) + cx)) * 60);
-          leds[XY(floor((seg_size * 0.5) + cx) - 4, y)] = CHSV(48, 160U + abs(floor((seg_size * 0.5) + cx) - 2 - floor((seg_size * 0.5) + cx)) * 30, 255 - abs(floor((seg_size * 0.5) + cx) - 2 - floor((seg_size * 0.5) + cx)) * 60);
-          leds[XY(floor((seg_size * 0.5) + cx) - 3, y)] = CHSV(48, 160U + abs(floor((seg_size * 0.5) + cx) - 3 - floor((seg_size * 0.5) + cx)) * 30, 255 - abs(floor((seg_size * 0.5) + cx) - 3 - floor((seg_size * 0.5) + cx)) * 60);
-          leds[XY(floor((seg_size * 0.5) + cx) - 2, y)] = CHSV(48, 160U + abs(floor((seg_size * 0.5) + cx) - 2 - floor((seg_size * 0.5) + cx)) * 30, 255 - abs(floor((seg_size * 0.5) + cx) - 2 - floor((seg_size * 0.5) + cx)) * 60);
-          leds[XY(floor((seg_size * 0.5) + cx) - 1, y)] = CHSV(48, 160U + abs(floor((seg_size * 0.5) + cx) - 1 - floor((seg_size * 0.5) + cx)) * 30, 255 - abs(floor((seg_size * 0.5) + cx) - 1 - floor((seg_size * 0.5) + cx)) * 60);
-          leds[XY(floor((seg_size * 0.5) + cx)    , y)] = CHSV(48, 160U + abs(floor((seg_size * 0.5) + cx)     - floor((seg_size * 0.5) + cx)) * 30, 255 - abs(floor((seg_size * 0.5) + cx)     - floor((seg_size * 0.5) + cx)) * 60);
-          leds[XY(floor((seg_size * 0.5) + cx) + 1, y)] = CHSV(48, 160U + abs(floor((seg_size * 0.5) + cx) + 1 - floor((seg_size * 0.5) + cx)) * 30, 255 - abs(floor((seg_size * 0.5) + cx) + 1 - floor((seg_size * 0.5) + cx)) * 60);
-          leds[XY(floor((seg_size * 0.5) + cx) + 2, y)] = CHSV(48, 160U + abs(floor((seg_size * 0.5) + cx) + 2 - floor((seg_size * 0.5) + cx)) * 30, 255 - abs(floor((seg_size * 0.5) + cx) + 2 - floor((seg_size * 0.5) + cx)) * 60);
-          leds[XY(floor((seg_size * 0.5) + cx) + 3, y)] = CHSV(48, 160U + abs(floor((seg_size * 0.5) + cx) + 3 - floor((seg_size * 0.5) + cx)) * 30, 255 - abs(floor((seg_size * 0.5) + cx) + 3 - floor((seg_size * 0.5) + cx)) * 60);
-          leds[XY(floor((seg_size * 0.5) + cx) + 4, y)] = CHSV(48, 160U + abs(floor((seg_size * 0.5) + cx) - 2 - floor((seg_size * 0.5) + cx)) * 30, 255 - abs(floor((seg_size * 0.5) + cx) - 2 - floor((seg_size * 0.5) + cx)) * 60);
+          leds[XY(floor((seg_size / 2) + cx) - 5, y)] = CHSV(48, 160U + abs(floor((seg_size / 2) + cx) - 5 - floor((seg_size / 2) + cx)) * 30, 255 - abs(floor((seg_size / 2) + cx) - 5 - floor((seg_size / 2) + cx)) * 60);
+          leds[XY(floor((seg_size / 2) + cx) - 4, y)] = CHSV(48, 160U + abs(floor((seg_size / 2) + cx) - 2 - floor((seg_size / 2) + cx)) * 30, 255 - abs(floor((seg_size / 2) + cx) - 2 - floor((seg_size / 2) + cx)) * 60);
+          leds[XY(floor((seg_size / 2) + cx) - 3, y)] = CHSV(48, 160U + abs(floor((seg_size / 2) + cx) - 3 - floor((seg_size / 2) + cx)) * 30, 255 - abs(floor((seg_size / 2) + cx) - 3 - floor((seg_size / 2) + cx)) * 60);
+          leds[XY(floor((seg_size / 2) + cx) - 2, y)] = CHSV(48, 160U + abs(floor((seg_size / 2) + cx) - 2 - floor((seg_size / 2) + cx)) * 30, 255 - abs(floor((seg_size / 2) + cx) - 2 - floor((seg_size / 2) + cx)) * 60);
+          leds[XY(floor((seg_size / 2) + cx) - 1, y)] = CHSV(48, 160U + abs(floor((seg_size / 2) + cx) - 1 - floor((seg_size / 2) + cx)) * 30, 255 - abs(floor((seg_size / 2) + cx) - 1 - floor((seg_size / 2) + cx)) * 60);
+          leds[XY(floor((seg_size / 2) + cx)    , y)] = CHSV(48, 160U + abs(floor((seg_size / 2) + cx)     - floor((seg_size / 2) + cx)) * 30, 255 - abs(floor((seg_size / 2) + cx)     - floor((seg_size / 2) + cx)) * 60);
+          leds[XY(floor((seg_size / 2) + cx) + 1, y)] = CHSV(48, 160U + abs(floor((seg_size / 2) + cx) + 1 - floor((seg_size / 2) + cx)) * 30, 255 - abs(floor((seg_size / 2) + cx) + 1 - floor((seg_size / 2) + cx)) * 60);
+          leds[XY(floor((seg_size / 2) + cx) + 2, y)] = CHSV(48, 160U + abs(floor((seg_size / 2) + cx) + 2 - floor((seg_size / 2) + cx)) * 30, 255 - abs(floor((seg_size / 2) + cx) + 2 - floor((seg_size / 2) + cx)) * 60);
+          leds[XY(floor((seg_size / 2) + cx) + 3, y)] = CHSV(48, 160U + abs(floor((seg_size / 2) + cx) + 3 - floor((seg_size / 2) + cx)) * 30, 255 - abs(floor((seg_size / 2) + cx) + 3 - floor((seg_size / 2) + cx)) * 60);
+          leds[XY(floor((seg_size / 2) + cx) + 4, y)] = CHSV(48, 160U + abs(floor((seg_size / 2) + cx) - 2 - floor((seg_size / 2) + cx)) * 30, 255 - abs(floor((seg_size / 2) + cx) - 2 - floor((seg_size / 2) + cx)) * 60);
         }
         // drops of wax move -------------
         switch (hue) {
@@ -7752,7 +7678,7 @@ void FeatherCandleRoutine() {
           } else {
             hue++;
             // set random position drop of wax
-            trackingObjectState[4] = floor((seg_size * 0.5) + cx) - 3 + random8(6);
+            trackingObjectState[4] = floor((seg_size * 0.5)) - 3 + random8(8);
           }
           break;
         }
@@ -7760,13 +7686,13 @@ void FeatherCandleRoutine() {
           hue++;
         } else {
           if (hue < 2) {
-            leds[XY(trackingObjectState[4], 2)] = CHSV(50U, 20U, trackingObjectState[0]);
+            leds[XY(trackingObjectState[4] + cx, 2)] = CHSV(50U, 20U, trackingObjectState[0]);
           }
           if ((hue == 1) || (hue == 2)) {
-            leds[XY(trackingObjectState[4], 1)] = CHSV(50U, 15U, trackingObjectState[1]); // - 10;
+            leds[XY(trackingObjectState[4] + cx, 1)] = CHSV(50U, 15U, trackingObjectState[1]); // - 10;
           }
           if (hue > 1) {
-            leds[XY(trackingObjectState[4], 0)] = CHSV(50U, 5U, trackingObjectState[2]); // - 20;
+            leds[XY(trackingObjectState[4] + cx, 0)] = CHSV(50U, 5U, trackingObjectState[2]); // - 20;
           }
         }
       }
@@ -7798,17 +7724,17 @@ void FeatherCandleRoutine() {
       if (pHEIGHT < 13) {    // for small matrix -----
         if (y % 3 == 0) {
           //рисуем пламя по строкам снизу вверх
-          leds[XY(floor((pWIDTH * 0.5)+shift) - 1, 3)] = CHSV(color - 20U , 255U, 50  + random8(50));
-          leds[XY(floor((pWIDTH * 0.5)+shift) - 2, 4)] = CHSV(color - 20U , 255U, 50  + random8(50));
-          leds[XY(floor((pWIDTH * 0.5)+shift) - 1, 4)] = CHSV(color       , 255U, 180 + random8(70));
-          leds[XY(floor((pWIDTH * 0.5)+shift),     4)] = CHSV(color - 20U , 255U, 50  + random8(50));
-          leds[XY(floor((pWIDTH * 0.5)+shift) - 2, 5)] = CHSV(color - 20U , 255U, 205 + random8(50));
-          leds[XY(floor((pWIDTH * 0.5)+shift) - 1, 5)] = CHSV(color,        255U, 205 + random8(50));
-          leds[XY(floor((pWIDTH * 0.5)+shift)    , 5)] = CHSV(color - 20U , 255U, 205 + random8(50));
-          leds[XY(floor((pWIDTH * 0.5)+shift) - 2, 6)] = CHSV(color - 20U , 255U, 50  + random8(50));
-          leds[XY(floor((pWIDTH * 0.5)+shift) - 1, 6)] = CHSV(color,        255U, 155 + random8(100));
-          leds[XY(floor((pWIDTH * 0.5)+shift)    , 6)] = CHSV(color - 20U , 255U, 50  + random8(50));
-          leds[XY(floor((pWIDTH * 0.5)+shift) - 1, 7)] = CHSV(color,        255U, 55  + random8(200));
+          leds[XY(floor((pWIDTH / 2) + shift) - 1, 3)] = CHSV(color - 20U , 255U, 50  + random8(50));
+          leds[XY(floor((pWIDTH / 2) + shift) - 2, 4)] = CHSV(color - 20U , 255U, 50  + random8(50));
+          leds[XY(floor((pWIDTH / 2) + shift) - 1, 4)] = CHSV(color       , 255U, 180 + random8(70));
+          leds[XY(floor((pWIDTH / 2) + shift),     4)] = CHSV(color - 20U , 255U, 50  + random8(50));
+          leds[XY(floor((pWIDTH / 2) + shift) - 2, 5)] = CHSV(color - 20U , 255U, 205 + random8(50));
+          leds[XY(floor((pWIDTH / 2) + shift) - 1, 5)] = CHSV(color,        255U, 205 + random8(50));
+          leds[XY(floor((pWIDTH / 2) + shift)    , 5)] = CHSV(color - 20U , 255U, 205 + random8(50));
+          leds[XY(floor((pWIDTH / 2) + shift) - 2, 6)] = CHSV(color - 20U , 255U, 50  + random8(50));
+          leds[XY(floor((pWIDTH / 2) + shift) - 1, 6)] = CHSV(color,        255U, 155 + random8(100));
+          leds[XY(floor((pWIDTH / 2) + shift)    , 6)] = CHSV(color - 20U , 255U, 50  + random8(50));
+          leds[XY(floor((pWIDTH / 2) + shift) - 1, 7)] = CHSV(color,        255U, 55  + random8(200));
         }
       } else {
         for (uint8_t x = 0; x < wdth; x++) {
@@ -7821,16 +7747,16 @@ void FeatherCandleRoutine() {
       //Да, это сделано в лоб и топорно, но при оригинальном выводе в цикле у второго и последнего столбца получаются значения цветов, которые на малых яркостях не видны
       //Если же сделать так, выглядит гораздо лучше, хотя используется меньшее количество цветов
       for (uint8_t y = 0; y < 3; y++) {
-        leds[XY(floor((pWIDTH * 0.5)+shift) - 5, y)] = CHSV(48, 160U + abs(floor((pWIDTH * 0.5)+shift) - 5 - floor((pWIDTH * 0.5)+shift)) * 30, 255 - abs(floor((pWIDTH * 0.5)+shift) - 5 - floor((pWIDTH * 0.5)+shift)) * 60);
-        leds[XY(floor((pWIDTH * 0.5)+shift) - 4, y)] = CHSV(48, 160U + abs(floor((pWIDTH * 0.5)+shift) - 2 - floor((pWIDTH * 0.5)+shift)) * 30, 255 - abs(floor((pWIDTH * 0.5)+shift) - 2 - floor((pWIDTH * 0.5)+shift)) * 60);
-        leds[XY(floor((pWIDTH * 0.5)+shift) - 3, y)] = CHSV(48, 160U + abs(floor((pWIDTH * 0.5)+shift) - 3 - floor((pWIDTH * 0.5)+shift)) * 30, 255 - abs(floor((pWIDTH * 0.5)+shift) - 3 - floor((pWIDTH * 0.5)+shift)) * 60);
-        leds[XY(floor((pWIDTH * 0.5)+shift) - 2, y)] = CHSV(48, 160U + abs(floor((pWIDTH * 0.5)+shift) - 2 - floor((pWIDTH * 0.5)+shift)) * 30, 255 - abs(floor((pWIDTH * 0.5)+shift) - 2 - floor((pWIDTH * 0.5)+shift)) * 60);
-        leds[XY(floor((pWIDTH * 0.5)+shift) - 1, y)] = CHSV(48, 160U + abs(floor((pWIDTH * 0.5)+shift) - 1 - floor((pWIDTH * 0.5)+shift)) * 30, 255 - abs(floor((pWIDTH * 0.5)+shift) - 1 - floor((pWIDTH * 0.5)+shift)) * 60);
-        leds[XY(floor((pWIDTH * 0.5)+shift)    , y)] = CHSV(48, 160U + abs(floor((pWIDTH * 0.5)+shift)     - floor((pWIDTH * 0.5)+shift)) * 30, 255 - abs(floor((pWIDTH * 0.5)+shift)     - floor((pWIDTH * 0.5)+shift)) * 60);
-        leds[XY(floor((pWIDTH * 0.5)+shift) + 1, y)] = CHSV(48, 160U + abs(floor((pWIDTH * 0.5)+shift) + 1 - floor((pWIDTH * 0.5)+shift)) * 30, 255 - abs(floor((pWIDTH * 0.5)+shift) + 1 - floor((pWIDTH * 0.5)+shift)) * 60);
-        leds[XY(floor((pWIDTH * 0.5)+shift) + 2, y)] = CHSV(48, 160U + abs(floor((pWIDTH * 0.5)+shift) + 2 - floor((pWIDTH * 0.5)+shift)) * 30, 255 - abs(floor((pWIDTH * 0.5)+shift) + 2 - floor((pWIDTH * 0.5)+shift)) * 60);
-        leds[XY(floor((pWIDTH * 0.5)+shift) + 3, y)] = CHSV(48, 160U + abs(floor((pWIDTH * 0.5)+shift) + 3 - floor((pWIDTH * 0.5)+shift)) * 30, 255 - abs(floor((pWIDTH * 0.5)+shift) + 3 - floor((pWIDTH * 0.5)+shift)) * 60);
-        leds[XY(floor((pWIDTH * 0.5)+shift) + 4, y)] = CHSV(48, 160U + abs(floor((pWIDTH * 0.5)+shift) - 2 - floor((pWIDTH * 0.5)+shift)) * 30, 255 - abs(floor((pWIDTH * 0.5)+shift) - 2 - floor((pWIDTH * 0.5)+shift)) * 60);
+        leds[XY(floor((pWIDTH / 2) + shift) - 5, y)] = CHSV(48, 160U + abs(floor((pWIDTH / 2) + shift) - 5 - floor((pWIDTH / 2) + shift)) * 30, 255 - abs(floor((pWIDTH / 2) + shift) - 5 - floor((pWIDTH / 2) + shift)) * 60);
+        leds[XY(floor((pWIDTH / 2) + shift) - 4, y)] = CHSV(48, 160U + abs(floor((pWIDTH / 2) + shift) - 2 - floor((pWIDTH / 2) + shift)) * 30, 255 - abs(floor((pWIDTH / 2) + shift) - 2 - floor((pWIDTH / 2) + shift)) * 60);
+        leds[XY(floor((pWIDTH / 2) + shift) - 3, y)] = CHSV(48, 160U + abs(floor((pWIDTH / 2) + shift) - 3 - floor((pWIDTH / 2) + shift)) * 30, 255 - abs(floor((pWIDTH / 2) + shift) - 3 - floor((pWIDTH / 2) + shift)) * 60);
+        leds[XY(floor((pWIDTH / 2) + shift) - 2, y)] = CHSV(48, 160U + abs(floor((pWIDTH / 2) + shift) - 2 - floor((pWIDTH / 2) + shift)) * 30, 255 - abs(floor((pWIDTH / 2) + shift) - 2 - floor((pWIDTH / 2) + shift)) * 60);
+        leds[XY(floor((pWIDTH / 2) + shift) - 1, y)] = CHSV(48, 160U + abs(floor((pWIDTH / 2) + shift) - 1 - floor((pWIDTH / 2) + shift)) * 30, 255 - abs(floor((pWIDTH / 2) + shift) - 1 - floor((pWIDTH / 2) + shift)) * 60);
+        leds[XY(floor((pWIDTH / 2) + shift)    , y)] = CHSV(48, 160U + abs(floor((pWIDTH / 2) + shift)     - floor((pWIDTH / 2) + shift)) * 30, 255 - abs(floor((pWIDTH / 2) + shift)     - floor((pWIDTH / 2) + shift)) * 60);
+        leds[XY(floor((pWIDTH / 2) + shift) + 1, y)] = CHSV(48, 160U + abs(floor((pWIDTH / 2) + shift) + 1 - floor((pWIDTH / 2) + shift)) * 30, 255 - abs(floor((pWIDTH / 2) + shift) + 1 - floor((pWIDTH / 2) + shift)) * 60);
+        leds[XY(floor((pWIDTH / 2) + shift) + 2, y)] = CHSV(48, 160U + abs(floor((pWIDTH / 2) + shift) + 2 - floor((pWIDTH / 2) + shift)) * 30, 255 - abs(floor((pWIDTH / 2) + shift) + 2 - floor((pWIDTH / 2) + shift)) * 60);
+        leds[XY(floor((pWIDTH / 2) + shift) + 3, y)] = CHSV(48, 160U + abs(floor((pWIDTH / 2) + shift) + 3 - floor((pWIDTH / 2) + shift)) * 30, 255 - abs(floor((pWIDTH / 2) + shift) + 3 - floor((pWIDTH / 2) + shift)) * 60);
+        leds[XY(floor((pWIDTH / 2) + shift) + 4, y)] = CHSV(48, 160U + abs(floor((pWIDTH / 2) + shift) - 2 - floor((pWIDTH / 2) + shift)) * 30, 255 - abs(floor((pWIDTH / 2) + shift) - 2 - floor((pWIDTH / 2) + shift)) * 60);
       }
       // drops of wax move -------------
       switch (hue) {
@@ -7861,7 +7787,7 @@ void FeatherCandleRoutine() {
           } else {
             hue++;
             // set random position drop of wax
-            trackingObjectState[4] = floor((pWIDTH * 0.5)+shift) - 3 + random8(6);
+            trackingObjectState[4] = floor((pWIDTH * 0.5) + shift) - 3 + random8(8);
           }
         break;
       }
@@ -7886,63 +7812,188 @@ void FeatherCandleRoutine() {
   }
 }
 
+// ============= Hourglass ==============
+//             © SlingMaster
+//             EFF_HOURGLASS
+//             Песочные часы
+//---------------------------------------
+// Эффект перепахан относительно оригинала, но работает
+
+uint8_t USE_SEGMENTS_HOURGLASS = 0;   // 0 – выкл, 1 – вкл
+uint8_t vW = 0;
+uint8_t vH = 0;
+uint8_t baseCX = 0;
+uint8_t baseCY = 0;
+float SIZE = 0.4;
+uint8_t h = 0;
+uint8_t posX = 0;
+uint8_t topPos = 0;
+uint8_t route = 0;
+uint8_t STEP = 0;
+
+void Hourglass() {
+  if (loadingFlag) {
+    loadingFlag = false;
+    pcnt = 0;
+    deltaHue2 = 0;
+    hue2 = 0;
+    USE_SEGMENTS_HOURGLASS = getEffectScaleParamValue2(MC_HOURGLASS);
+    if (USE_SEGMENTS_HOURGLASS != 0) {
+      dir_mx = (pWIDTH > pHEIGHT) ? 0 : 1;
+      seg_size = dir_mx == 0 ? pHEIGHT : pWIDTH;
+      seg_num  = dir_mx == 0 ? (pWIDTH / seg_size) : (pHEIGHT / seg_size);
+      seg_offset = ((dir_mx == 0 ? pWIDTH : pHEIGHT) - seg_size * seg_num) / (seg_num + 1);
+    }
+    vW = USE_SEGMENTS_HOURGLASS ? seg_size : pWIDTH;
+    vH = USE_SEGMENTS_HOURGLASS ? seg_size : pHEIGHT;
+    baseCX = USE_SEGMENTS_HOURGLASS && dir_mx == 0 ? seg_offset : 0;
+    baseCY = USE_SEGMENTS_HOURGLASS && dir_mx == 1 ? seg_offset : 0;
+    SIZE = 0.4;
+    h = floor(SIZE * vH);
+    posX = 0;
+    topPos  = vH - h;
+    route   = vH - h - 1;
+    STEP = 18U;
+    FastLED.clear();
+    hue = getEffectScaleParamValue(MC_HOURGLASS);
+    for (uint8_t x = 0U; x < (vW / 2); x++) {
+      for (uint8_t y = 0U; y < h; y++) {
+        drawPixelXY(vW/2 - x + baseCX, vH - y - 1 + baseCY,
+                    CHSV(hue, 255, 255 - x * STEP));
+        drawPixelXY(vW/2 + x + baseCX, vH - y - 1 + baseCY,
+                    CHSV(hue, 255, 255 - x * STEP));
+      }
+    }
+  }
+  if (hue2 == 0) {
+    posX = pcnt / 2;
+    uint8_t posY = vH - h - pcnt;
+    if ((posY < (vH - h - 2)) && (posY > deltaHue2)) {
+      drawPixelXY(vW/2 + baseCX, posY + baseCY, CHSV(hue, 255, 255));
+      drawPixelXY(vW/2 + baseCX, posY - 2 + baseCY, CHSV(hue, 255, 255));
+      drawPixelXY(vW/2 + baseCX, posY - 4 + baseCY, CHSV(hue, 255, 255));
+      if (posY < (vH - h - 3)) {
+        drawPixelXY(vW/2 + baseCX, posY + 1 + baseCY, CHSV(hue, 255, 0));
+      }
+    }
+    if (pcnt % 2 == 0) {
+      drawPixelXY(vW/2 - posX + baseCX, vH - deltaHue2 - 1 + baseCY, CHSV(hue, 255, 0));
+      drawPixelXY(vW/2 - posX + baseCX, deltaHue2 + baseCY, CHSV(hue, 255, 255 - posX * STEP));
+    } else {
+      drawPixelXY(vW/2 + posX + baseCX, vH - deltaHue2 - 1 + baseCY, CHSV(hue, 255, 0));
+      drawPixelXY(vW/2 + posX + baseCX, deltaHue2 + baseCY, CHSV(hue, 255, 255 - posX * STEP));
+    }
+    if (pcnt > vW - 1) {
+      deltaHue2++;
+      pcnt = 0;
+      if (getEffectScaleParamValue(MC_HOURGLASS) > 95) hue += 4U;
+    }
+    pcnt++;
+    if (deltaHue2 > h) {
+      deltaHue2 = 0;
+      hue2 = 1;
+    }
+  }
+  if (hue2 > 0) {
+    for (uint8_t x = 0; x < vW; x++) {
+      for (uint8_t y = vH; y > 0; y--) {
+        drawPixelXY(x + baseCX, y + baseCY,
+                    getPixColorXY(x + baseCX, y - 1 + baseCY));
+        drawPixelXY(x + baseCX, y - 1 + baseCY, 0x000000);
+      }
+    }
+    hue2++;
+    hue++;
+    if (hue2 > route) hue2 = 0;
+  }
+  if (USE_SEGMENTS_HOURGLASS != 0) {
+    for (uint8_t i = 1; i < seg_num; i++) {
+      uint8_t cx = dir_mx == 0 ? (seg_offset * (i + 1) + seg_size * i) : 0;
+      uint8_t cy = dir_mx == 0 ? 0 : (seg_offset * (i + 1) + seg_size * i);
+      for (uint8_t x = 0; x < seg_size; x++) {
+        for (uint8_t y = 0; y < seg_size; y++) {
+          CRGB c = getPixColorXY(x + baseCX, y + baseCY);
+          drawPixelXY(x + cx, y + cy, c);
+        }
+      }
+    }
+  }
+}
+
 // ============= Эффект Цветные драже ===============
 // (c) SottNick
 //по мотивам визуала эффекта by Yaroslaw Turbin 14.12.2020
 //https://vk.com/ldirko программный код которого он запретил брать
+//Эффект тоже перепахан относительно оригинального кода, но работает
+
+uint8_t USE_SEGMENTS_SAND = 0;   // 0 – выкл, 1 – вкл
 void sandRoutine() {
   if (loadingFlag) {
     loadingFlag = false;
-    pcnt = 0U;// = pHEIGHT;
+    USE_SEGMENTS_SAND = getEffectScaleParamValue2(MC_SAND);
+    seg_size   = pHEIGHT;                // квадрат pHEIGHT × pHEIGHT
+    seg_num    = USE_SEGMENTS_SAND ? (pWIDTH / seg_size) : 1;
+    seg_offset = USE_SEGMENTS_SAND ? (pWIDTH - seg_size * seg_num) / (seg_num + 1) : 0;
+    vW = USE_SEGMENTS_SAND ? seg_size : pWIDTH;
+    vH = pHEIGHT;
+    baseCX = USE_SEGMENTS_SAND ? seg_offset : 0;
+    baseCY = 0;
+    pcnt = 0U;
     FastLED.clear();
   }
-  // если насыпалось уже достаточно, бахаем рандомные песчинки
   uint8_t temp = map8(random8(), getEffectScaleParamValue(MC_SAND) * 2.55, 255U);
-  if (pcnt >= map8(temp, 2U, pHEIGHT - 3U)) {
-    temp = pHEIGHT + 1U - pcnt;
-    if (!random8(4U)) // иногда песка осыпается до половины разом
-      if (random8(2U))
-        temp = 2U;
-      else
-        temp = 3U;
+  if (pcnt >= map8(temp, 2U, vH - 3U)) {
+    temp = vH + 1U - pcnt;
+    if (!random8(4U))
+      temp = random8(2U) ? 2U : 3U;
     for (uint8_t y = 0; y < pcnt; y++)
-      for (uint8_t x = 0; x < pWIDTH; x++)
+      for (uint8_t x = 0; x < vW; x++)
         if (!random8(temp))
-          leds[XY(x, y)] = 0;
+          leds[XY(x + baseCX, y)] = 0;
   }
   pcnt = 0U;
-  // осыпаем всё, что есть на экране
-  for (uint8_t y = 1; y < pHEIGHT; y++)
-    for (uint8_t x = 0; x < pWIDTH; x++)
-      if (leds[XY(x, y)])                                                          // проверяем для каждой песчинки
-        if (!leds[XY(x, y - 1)]) {                                                 // если под нами пусто, просто падаем
-          leds[XY(x, y - 1)] = leds[XY(x, y)];
-          leds[XY(x, y)] = 0;
-        }
-        else if (x > 0U && !leds[XY(x - 1, y - 1)] && x < pWIDTH - 1 && !leds[XY(x + 1, y - 1)]) { // если под нами пик
-          if (random8(2U))
-            leds[XY(x - 1, y - 1)] = leds[XY(x, y)];
-          else
-            leds[XY(x - 1, y - 1)] = leds[XY(x, y)];
-          leds[XY(x, y)] = 0;
-          pcnt = y - 1;
-        }
-        else if (x > 0U && !leds[XY(x - 1, y - 1)]) {                              // если под нами склон налево
-          leds[XY(x - 1, y - 1)] = leds[XY(x, y)];
-          leds[XY(x, y)] = 0;
-          pcnt = y - 1;
-        }
-        else if (x < pWIDTH - 1 && !leds[XY(x + 1, y - 1)]) {                       // если под нами склон направо
-          leds[XY(x + 1, y - 1)] = leds[XY(x, y)];
-          leds[XY(x, y)] = 0;
-          pcnt = y - 1;
-        }
-        else                                                                       // если под нами плато
-          pcnt = y;
-  // эмиттер новых песчинок в оригинале тут было что-то непонятное, поэтому чтобы точно найти центр, тупо делим ширину пополам и округляем (округление нужно для матриц с нечетным числом колонок)
-  if (!leds[XY(round(pWIDTH / 2), pHEIGHT - 2)] && !leds[XY(round(pWIDTH / 2), pHEIGHT - 2)] && !random8(3)) {
-    temp = round(pWIDTH / 2);
-    leds[XY(temp, pHEIGHT - 1)] = CHSV(random8(), 255U, 255U);
+  for (uint8_t y = 1; y < vH; y++)
+    for (uint8_t x = 0; x < vW; x++) {
+      uint16_t i = XY(x + baseCX, y);
+      if (!leds[i]) continue;
+      if (!leds[XY(x + baseCX, y - 1)]) {
+        leds[XY(x + baseCX, y - 1)] = leds[i];
+        leds[i] = 0;
+      }
+      else if (x > 0U && x < vW - 1 &&
+               !leds[XY(x - 1 + baseCX, y - 1)] &&
+               !leds[XY(x + 1 + baseCX, y - 1)]) {
+        uint8_t nx = random8(2U) ? x - 1 : x + 1;
+        leds[XY(nx + baseCX, y - 1)] = leds[i];
+        leds[i] = 0;
+        pcnt = y - 1;
+      }
+      else if (x > 0U && !leds[XY(x - 1 + baseCX, y - 1)]) {
+        leds[XY(x - 1 + baseCX, y - 1)] = leds[i];
+        leds[i] = 0;
+        pcnt = y - 1;
+      }
+      else if (x < vW - 1 && !leds[XY(x + 1 + baseCX, y - 1)]) {
+        leds[XY(x + 1 + baseCX, y - 1)] = leds[i];
+        leds[i] = 0;
+        pcnt = y - 1;
+      }
+      else {
+        pcnt = y;
+      }
+    }
+  uint8_t cx = round(vW / 2);
+  if (!leds[XY(cx + baseCX, vH - 2)] && !random8(3)) {
+    leds[XY(cx + baseCX, vH - 1)] = CHSV(random8(), 255U, 255U);
+  }
+  if (USE_SEGMENTS_SAND != 0) {
+    for (uint8_t i = 1; i < seg_num; i++) {
+      uint8_t cx = seg_offset * (i + 1) + seg_size * i;
+      for (uint8_t x = 0; x < seg_size; x++)
+        for (uint8_t y = 0; y < vH; y++)
+          leds[XY(x + cx, y)] =
+            leds[XY(x + baseCX, y)];
+    }
   }
 }
 
