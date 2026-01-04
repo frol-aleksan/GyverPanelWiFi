@@ -181,9 +181,7 @@ bool getWeather() {
       return false;
     }
   }
-
-  String town, sunrise, sunset;
-  
+    
   if (useWeather == 1) {
     /*
     Yandex: {"time":1597989853200,
